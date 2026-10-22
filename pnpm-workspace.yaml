@@ -1,0 +1,13 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  msw: false
+  "@parcel/watcher": true
+  "@swc/core": true
+  protobufjs: false
+  core-js: set this to true or false

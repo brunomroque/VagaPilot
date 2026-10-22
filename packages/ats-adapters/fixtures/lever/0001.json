@@ -1,0 +1,28 @@
+{
+  "id": "8b1c2d3e-0000-4000-8000-000000000001",
+  "text": "Gerente de Engenharia",
+  "categories": {
+    "location": "São Paulo",
+    "commitment": "CLT",
+    "team": "Engenharia"
+  },
+  "workplaceType": "hybrid",
+  "descriptionPlain": "A Exemplo Tech procura uma pessoa gerente de engenharia para liderar squads de produto em modelo híbrido.",
+  "lists": [
+    {
+      "text": "Requisitos",
+      "content": "<li>Gestão de pessoas engenheiras</li><li>Experiência com arquitetura de microsserviços</li><li>Kubernetes</li>"
+    },
+    { "text": "Diferenciais", "content": "<li>Experiência com Terraform</li>" }
+  ],
+  "additionalPlain": "Inglês intermediário é suficiente.",
+  "hostedUrl": "https://jobs.lever.co/exemplotech/8b1c2d3e-0000-4000-8000-000000000001",
+  "applyUrl": "https://jobs.lever.co/exemplotech/8b1c2d3e-0000-4000-8000-000000000001/apply",
+  "createdAt": 1792000000000,
+  "salaryRange": {
+    "min": 28000,
+    "max": 35000,
+    "currency": "BRL",
+    "interval": "per-month-salary"
+  }
+}

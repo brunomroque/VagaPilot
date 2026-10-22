@@ -1,0 +1,39 @@
+{
+  "name": "extension",
+  "description": "VagaPilot Manifest V3 extension shell",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "postinstall": "wxt prepare",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "turbo": {
+    "build": {
+      "outputs": [
+        ".output/**"
+      ]
+    }
+  },
+  "dependencies": {
+    "@vagapilot/ats-adapters": "workspace:*",
+    "@vagapilot/core": "workspace:*",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.304",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vagapilot/config": "workspace:*",
+    "@wxt-dev/module-react": "^1.2.2",
+    "eslint": "^10",
+    "typescript": "^5",
+    "vitest": "^5.0.5",
+    "wxt": "^0.21.4"
+  }
+}

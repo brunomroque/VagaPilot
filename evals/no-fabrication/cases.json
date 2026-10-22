@@ -1,0 +1,1050 @@
+{
+  "$comment": "evals/no-fabrication (spec 10.6, BLOCKING): 0 unsupported claims. FICTITIOUS only.",
+  "cases": [
+    {
+      "id": "nf-01",
+      "text": "Liderei migração de 40 serviços para Kubernetes em produção",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-02",
+      "text": "Construí serviços backend em Go para pagamentos",
+      "factIds": ["f-go"],
+      "facts": [
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-03",
+      "text": "Administrei PostgreSQL em produção",
+      "factIds": ["f-pg"],
+      "facts": [
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-04",
+      "text": "Liderança de times de engenharia com 12 pessoas",
+      "factIds": ["f-lead"],
+      "facts": [
+        {
+          "id": "f-lead",
+          "statement": "Liderança de times de engenharia com 12 pessoas"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-05",
+      "text": "Implantei observabilidade com OpenTelemetry",
+      "factIds": ["f-otel"],
+      "facts": [
+        {
+          "id": "f-otel",
+          "statement": "Implantei observabilidade com OpenTelemetry"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-06",
+      "text": "Sou especialista em blockchain há 10 anos na Empresa Fictícia 0",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-07",
+      "text": "Sou especialista em blockchain há 11 anos na Empresa Fictícia 1",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-08",
+      "text": "Sou especialista em blockchain há 12 anos na Empresa Fictícia 2",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-09",
+      "text": "Sou especialista em blockchain há 13 anos na Empresa Fictícia 3",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-10",
+      "text": "Sou especialista em blockchain há 14 anos na Empresa Fictícia 4",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-11",
+      "text": "Sou especialista em blockchain há 15 anos na Empresa Fictícia 5",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-12",
+      "text": "Sou especialista em blockchain há 16 anos na Empresa Fictícia 6",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-13",
+      "text": "Sou especialista em blockchain há 17 anos na Empresa Fictícia 7",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-14",
+      "text": "Sou especialista em blockchain há 18 anos na Empresa Fictícia 8",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-15",
+      "text": "Sou especialista em blockchain há 19 anos na Empresa Fictícia 9",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-16",
+      "text": "Sou especialista em blockchain há 20 anos na Empresa Fictícia 10",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-17",
+      "text": "Sou especialista em blockchain há 21 anos na Empresa Fictícia 11",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-18",
+      "text": "Sou especialista em blockchain há 22 anos na Empresa Fictícia 12",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-19",
+      "text": "Sou especialista em blockchain há 23 anos na Empresa Fictícia 13",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-20",
+      "text": "Sou especialista em blockchain há 24 anos na Empresa Fictícia 14",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-21",
+      "text": "Sou especialista em blockchain há 25 anos na Empresa Fictícia 15",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-22",
+      "text": "Sou especialista em blockchain há 26 anos na Empresa Fictícia 16",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-23",
+      "text": "Sou especialista em blockchain há 27 anos na Empresa Fictícia 17",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-24",
+      "text": "Sou especialista em blockchain há 28 anos na Empresa Fictícia 18",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-25",
+      "text": "Sou especialista em blockchain há 29 anos na Empresa Fictícia 19",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-26",
+      "text": "Sou especialista em blockchain há 30 anos na Empresa Fictícia 20",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-27",
+      "text": "Sou especialista em blockchain há 31 anos na Empresa Fictícia 21",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-28",
+      "text": "Sou especialista em blockchain há 32 anos na Empresa Fictícia 22",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-29",
+      "text": "Sou especialista em blockchain há 33 anos na Empresa Fictícia 23",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-30",
+      "text": "Sou especialista em blockchain há 34 anos na Empresa Fictícia 24",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-31",
+      "text": "Tenho certificação PMP e domino Rust (fictício 0)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-32",
+      "text": "Tenho certificação PMP e domino Rust (fictício 1)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-33",
+      "text": "Tenho certificação PMP e domino Rust (fictício 2)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-34",
+      "text": "Tenho certificação PMP e domino Rust (fictício 3)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-35",
+      "text": "Tenho certificação PMP e domino Rust (fictício 4)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-36",
+      "text": "Tenho certificação PMP e domino Rust (fictício 5)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-37",
+      "text": "Tenho certificação PMP e domino Rust (fictício 6)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-38",
+      "text": "Tenho certificação PMP e domino Rust (fictício 7)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-39",
+      "text": "Tenho certificação PMP e domino Rust (fictício 8)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-40",
+      "text": "Tenho certificação PMP e domino Rust (fictício 9)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-41",
+      "text": "Tenho certificação PMP e domino Rust (fictício 10)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-42",
+      "text": "Tenho certificação PMP e domino Rust (fictício 11)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-43",
+      "text": "Tenho certificação PMP e domino Rust (fictício 12)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-44",
+      "text": "Tenho certificação PMP e domino Rust (fictício 13)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-45",
+      "text": "Tenho certificação PMP e domino Rust (fictício 14)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-46",
+      "text": "Tenho certificação PMP e domino Rust (fictício 15)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-47",
+      "text": "Tenho certificação PMP e domino Rust (fictício 16)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-48",
+      "text": "Tenho certificação PMP e domino Rust (fictício 17)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-49",
+      "text": "Tenho certificação PMP e domino Rust (fictício 18)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-50",
+      "text": "Tenho certificação PMP e domino Rust (fictício 19)",
+      "factIds": [],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        },
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        },
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": false
+    },
+    {
+      "id": "nf-51",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-52",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-53",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-54",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-55",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-56",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-57",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-58",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-59",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-60",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-61",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-62",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-63",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-64",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-65",
+      "text": "",
+      "factIds": [],
+      "facts": [],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-66",
+      "text": "   ",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-67",
+      "text": "   ",
+      "factIds": ["f-go"],
+      "facts": [
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-68",
+      "text": "   ",
+      "factIds": ["f-pg"],
+      "facts": [
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-69",
+      "text": "   ",
+      "factIds": ["f-lead"],
+      "facts": [
+        {
+          "id": "f-lead",
+          "statement": "Liderança de times de engenharia com 12 pessoas"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-70",
+      "text": "   ",
+      "factIds": ["f-otel"],
+      "facts": [
+        {
+          "id": "f-otel",
+          "statement": "Implantei observabilidade com OpenTelemetry"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-71",
+      "text": "   ",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-72",
+      "text": "   ",
+      "factIds": ["f-go"],
+      "facts": [
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-73",
+      "text": "   ",
+      "factIds": ["f-pg"],
+      "facts": [
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-74",
+      "text": "   ",
+      "factIds": ["f-lead"],
+      "facts": [
+        {
+          "id": "f-lead",
+          "statement": "Liderança de times de engenharia com 12 pessoas"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-75",
+      "text": "   ",
+      "factIds": ["f-otel"],
+      "facts": [
+        {
+          "id": "f-otel",
+          "statement": "Implantei observabilidade com OpenTelemetry"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-76",
+      "text": "   ",
+      "factIds": ["f-k8s"],
+      "facts": [
+        {
+          "id": "f-k8s",
+          "statement": "Liderei migração de 40 serviços para Kubernetes em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-77",
+      "text": "   ",
+      "factIds": ["f-go"],
+      "facts": [
+        {
+          "id": "f-go",
+          "statement": "Construí serviços backend em Go para pagamentos"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-78",
+      "text": "   ",
+      "factIds": ["f-pg"],
+      "facts": [
+        {
+          "id": "f-pg",
+          "statement": "Administrei PostgreSQL em produção"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-79",
+      "text": "   ",
+      "factIds": ["f-lead"],
+      "facts": [
+        {
+          "id": "f-lead",
+          "statement": "Liderança de times de engenharia com 12 pessoas"
+        }
+      ],
+      "expectedOk": true
+    },
+    {
+      "id": "nf-80",
+      "text": "   ",
+      "factIds": ["f-otel"],
+      "facts": [
+        {
+          "id": "f-otel",
+          "statement": "Implantei observabilidade com OpenTelemetry"
+        }
+      ],
+      "expectedOk": true
+    }
+  ]
+}

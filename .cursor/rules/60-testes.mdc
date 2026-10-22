@@ -1,0 +1,8 @@
+---
+description: Testes e evals
+globs: ["**/*.test.ts", "**/*.spec.ts", "evals/**", "fixtures/**"]
+---
+
+- Vitest para unidade/integração, Playwright para e2e e extensão. Sem rede externa no CI: use fixtures e mocks (MSW).
+- Cada critério de aceite (CAx.y) da especificação implementado deve ter teste nomeado com o código, ex.: it('CA8.2 ...').
+- Evals de IA em evals/<suite> com dados fictícios; no-fabrication é bloqueante.

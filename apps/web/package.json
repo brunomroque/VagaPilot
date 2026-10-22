@@ -1,0 +1,76 @@
+{
+  "name": "web",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "turbo": {
+    "build": {
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**"
+      ]
+    }
+  },
+  "dependencies": {
+    "@ai-sdk/react": "4.0.151",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@hookform/resolvers": "^6.0.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.300.0",
+    "@opentelemetry/resources": "^3.0.0",
+    "@opentelemetry/sdk-node": "^0.300.0",
+    "@opentelemetry/semantic-conventions": "^1.43.0",
+    "@react-pdf/renderer": "^4.9.0",
+    "@sentry/nextjs": "^11.8.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
+    "@tanstack/react-table": "^9.3.1",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
+    "@vagapilot/ai": "workspace:*",
+    "@vagapilot/ats-adapters": "workspace:*",
+    "@vagapilot/core": "workspace:*",
+    "@vagapilot/db": "workspace:*",
+    "@vagapilot/gmail": "workspace:*",
+    "@vagapilot/jobs": "workspace:*",
+    "@workspace/ui": "workspace:*",
+    "ai": "7.0.147",
+    "cn": "^0.5.0",
+    "fflate": "^0.8.3",
+    "inngest": "^4.25.0",
+    "lucide-react": "^1.60.0",
+    "next": "16.4.0",
+    "next-intl": "^4.14.9",
+    "next-themes": "^0.4.6",
+    "posthog-js": "^1.438.13",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.90.0",
+    "server-only": "^0.0.1",
+    "sonner": "^2.0.8",
+    "stripe": "^23.0.0",
+    "zod": "^4.6.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vagapilot/config": "workspace:*",
+    "eslint": "^10",
+    "pdf-lib": "^1.17.1",
+    "typescript": "^5"
+  }
+}

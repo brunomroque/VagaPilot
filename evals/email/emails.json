@@ -1,0 +1,1646 @@
+{
+  "description": "P7 email-classify eval: 200 FICTITIOUS e-mails (PT/EN). All names, companies and codes are invented.",
+  "version": 1,
+  "emails": [
+    {
+      "id": "c01",
+      "label": "confirmacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Recebemos sua candidatura!",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Recebemos sua candidatura para a vaga de Analista de Dados Sênior na Empresa Fictícia Beta. Agora é com a gente: vamos avaliar seu perfil e avisaremos sobre as próximas etapas por aqui."
+    },
+    {
+      "id": "c02",
+      "label": "confirmacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Thank you for applying to Lumen Fictional Labs",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your application to the Engineering Manager position at Lumen Fictional Labs. Our team will review your background and get back to you if there is a match."
+    },
+    {
+      "id": "c03",
+      "label": "confirmacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Candidatura realizada com sucesso",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Sua candidatura foi registrada no processo seletivo Coordenação de Produto da Cooperativa Fictícia Gama. Acompanhe o andamento pelo portal do candidato."
+    },
+    {
+      "id": "c04",
+      "label": "confirmacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Application received - Senior Product Designer",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear candidate, we have received your application for Senior Product Designer (REQ-20931) at Instituto Fictício Delta. You can check the status in your candidate home."
+    },
+    {
+      "id": "c05",
+      "label": "confirmacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Thanks for applying!",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Thanks for applying to Ômega Fictícia. We received your application for Staff Engineer and our recruiting team will be in touch soon."
+    },
+    {
+      "id": "c06",
+      "label": "confirmacao",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Inscrição confirmada",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Sua inscrição foi confirmada para a vaga de Gerente Financeiro na Construtora Fictícia Sigma. Obrigado pelo seu interesse em fazer parte do nosso time."
+    },
+    {
+      "id": "r01",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Atualização sobre o processo seletivo",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina. Agradecemos muito sua participação no processo para Analista de Dados Sênior. Infelizmente, desta vez optamos por seguir com outros candidatos. Desejamos sucesso na sua jornada."
+    },
+    {
+      "id": "r02",
+      "label": "reprovacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Your application to Lumen Fictional Labs",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your interest in the Engineering Manager role. After careful consideration, we have decided to move forward with other candidates whose experience more closely matches our needs."
+    },
+    {
+      "id": "r03",
+      "label": "reprovacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Retorno da sua candidatura",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Queremos agradecer o seu tempo. Neste processo não vamos avançar com o seu perfil para a posição de Coordenação de Produto. Seguimos torcendo por você."
+    },
+    {
+      "id": "r04",
+      "label": "reprovacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Update on your application",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear Marina, unfortunately we will not be moving forward with your application for Senior Product Designer at Instituto Fictício Delta."
+    },
+    {
+      "id": "r05",
+      "label": "reprovacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Staff Engineer at Ômega Fictícia",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the Staff Engineer position has been filled. We appreciate your time and the conversations with our team."
+    },
+    {
+      "id": "r06",
+      "label": "reprovacao",
+      "from": "Ana Ficticia <ana.recrutamento@empresaficticia.test>",
+      "subject": "Processo Gerente de Plataforma",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tudo bem? Passando para avisar que decidimos seguir com outro perfil para a vaga de Gerente de Plataforma. Foi um prazer conversar com você."
+    },
+    {
+      "id": "r07",
+      "label": "reprovacao",
+      "from": "SuccessFactors <noreply@successfactors.eu>",
+      "subject": "Status da candidatura",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada candidata, informamos que você não foi selecionada para a próxima fase da vaga Especialista em Compras. Agradecemos o interesse."
+    },
+    {
+      "id": "r08",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Sobre a vaga de Head de Dados",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Gostaríamos de informar que a vaga de Head de Dados foi encerrada e não seguiremos com novas etapas. Obrigado por participar."
+    },
+    {
+      "id": "t01",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Próxima etapa: teste on-line",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-26T02:59:00.000Z",
+      "body": "Parabéns, você avançou! A próxima etapa é um teste de raciocínio lógico. Conclua o teste até 25/10 às 23:59 pelo link https://gupy.exemplo.test/teste/123."
+    },
+    {
+      "id": "t02",
+      "label": "teste_etapa",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Desafio técnico - Cooperativa Fictícia Gama",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-27T21:00:00.000Z",
+      "body": "Olá! Enviamos o desafio técnico da vaga. O prazo para entrega é 27/10/2026 às 18h. Qualquer dúvida, responda este e-mail."
+    },
+    {
+      "id": "t03",
+      "label": "teste_etapa",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Next step: online assessment",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-29T02:59:00.000Z",
+      "body": "Hi Marina, the next step is a HackerRank assessment. Please complete it by October 28, 2026 at 11:59 PM. Link: https://hackerrank.exemplo.test/a/77"
+    },
+    {
+      "id": "t04",
+      "label": "teste_etapa",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Assessment invitation",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-23T13:00:00.000Z",
+      "body": "Dear candidate, you have been invited to complete an assessment. Please complete it within 72 hours of receiving this message."
+    },
+    {
+      "id": "t05",
+      "label": "teste_etapa",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Questionário de perfil comportamental",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-24T02:59:00.000Z",
+      "body": "Olá! Para continuar no processo, responda o questionário comportamental em até 3 dias pelo link https://solides.exemplo.test/q/9."
+    },
+    {
+      "id": "t06",
+      "label": "teste_etapa",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Take-home challenge",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-30T21:00:00.000Z",
+      "body": "Hi Marina, here is the take-home challenge. Deadline: 30 Oct 6pm (horário de Brasília). Please submit through the portal."
+    },
+    {
+      "id": "t07",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Etapa de case - Head de Dados",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-11-03T15:00:00.000Z",
+      "body": "Olá! Você foi aprovada para a etapa de case. Envie sua apresentação até o dia 3 de novembro às 12h para avaliação da banca."
+    },
+    {
+      "id": "t08",
+      "label": "teste_etapa",
+      "from": "Quickin <noreply@quickin.io>",
+      "subject": "Prova on-line disponível",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-22T21:30:00.000Z",
+      "body": "Sua prova on-line já está disponível. Data limite: 22/10/2026 18:30. Após esse horário o link expira."
+    },
+    {
+      "id": "i01",
+      "label": "convite_entrevista",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Convite para entrevista",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Gostaríamos de convidar você para uma entrevista com a liderança na quinta, 23/10, às 15h, por videochamada."
+    },
+    {
+      "id": "i02",
+      "label": "convite_entrevista",
+      "from": "Paula Ficticia <paula@talentos-ficticios.test>",
+      "subject": "Bate-papo sobre a vaga de Engineering Manager",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina, tudo bem? Podemos agendar um bate-papo de 30 minutos nesta semana? Segue meu link para escolher o horário: https://calendly.com/paula-ficticia/30min"
+    },
+    {
+      "id": "i03",
+      "label": "convite_entrevista",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Interview invitation - Lumen Fictional Labs",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, we would like to invite you to an interview with our VP of Engineering. Please pick a slot using the scheduling link."
+    },
+    {
+      "id": "i04",
+      "label": "convite_entrevista",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Interview scheduled",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your interview has been scheduled for October 24, 2026 at 10:00 AM. Join via Microsoft Teams: https://teams.microsoft.com/l/meetup/ficticio"
+    },
+    {
+      "id": "i05",
+      "label": "convite_entrevista",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Entrevista agendada",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Sua entrevista com o time da Cooperativa Fictícia Gama está marcada para 24/10 às 9h30. O link do Google Meet é https://meet.google.com/xyz-abcd-efg."
+    },
+    {
+      "id": "i06",
+      "label": "convite_entrevista",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Let's schedule a call",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the hiring manager would love to schedule a call to discuss the Staff Engineer role. What is your availability next week?"
+    },
+    {
+      "id": "i07",
+      "label": "convite_entrevista",
+      "from": "RH Fictício <rh@construtorasigma.test>",
+      "subject": "Próxima fase: entrevista com a diretoria",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada Marina, você foi aprovada para a entrevista com a diretoria. Por favor, informe sua disponibilidade para marcarmos a conversa na próxima semana."
+    },
+    {
+      "id": "h01",
+      "label": "recrutador_contato",
+      "from": "Carlos Ficticio <carlos@hunting-ficticio.test>",
+      "subject": "Oportunidade de liderança em tecnologia",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá Marina, vi seu perfil e tenho uma oportunidade de Head de Engenharia em uma fintech. Gostaria de conversar com você?"
+    },
+    {
+      "id": "h02",
+      "label": "recrutador_contato",
+      "from": "Jane Fictional <jane@recruiting-fictional.test>",
+      "subject": "Engineering leadership role",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, I came across your profile and I'm reaching out about a Director of Engineering opening with a client in São Paulo."
+    },
+    {
+      "id": "h03",
+      "label": "recrutador_contato",
+      "from": "Beatriz Ficticia <bia@consultoria-ficticia.test>",
+      "subject": "Vaga confidencial",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina! Sou headhunter e estou conduzindo uma busca confidencial para Diretora de Produto. Acho que seu perfil combina muito."
+    },
+    {
+      "id": "h04",
+      "label": "recrutador_contato",
+      "from": "Pedro Ficticio <pedro@agencia-ficticia.test>",
+      "subject": "Conversa rápida?",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tenho uma vaga de Gerente de Dados que pode te interessar. Gostaria de bater um papo quando puder?"
+    },
+    {
+      "id": "a01",
+      "label": "vaga_alerta",
+      "from": "LinkedIn Vagas <jobalerts-noreply@linkedin.com>",
+      "subject": "30+ novas vagas para Engineering Manager",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Vagas que combinam com o seu alerta: https://www.linkedin.com/comm/jobs/view/4011111111/ https://www.linkedin.com/comm/jobs/view/4011111112/"
+    },
+    {
+      "id": "a02",
+      "label": "vaga_alerta",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Vagas recomendadas para você",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Separamos vagas recomendadas com base no seu perfil: Analista de Dados, Cientista de Dados e Engenheira de Analytics."
+    },
+    {
+      "id": "a03",
+      "label": "vaga_alerta",
+      "from": "Jobs Fictional <alerts@jobs-fictional.test>",
+      "subject": "New jobs for you",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "New jobs match your saved search 'Product Manager São Paulo'. See the list below."
+    },
+    {
+      "id": "o01",
+      "label": "codigo_verificacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Seu código de verificação",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Use o código 731905 para confirmar seu acesso. Ele expira em 10 minutos."
+    },
+    {
+      "id": "o02",
+      "label": "codigo_verificacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Your verification code",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your one-time passcode is 552018. Do not share it with anyone."
+    },
+    {
+      "id": "x01",
+      "label": "irrelevante",
+      "from": "Loja Fictícia <ofertas@loja.test>",
+      "subject": "Promoção relâmpago",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Só hoje: 40% de desconto em notebooks e acessórios. Aproveite!"
+    },
+    {
+      "id": "x02",
+      "label": "irrelevante",
+      "from": "Newsletter Fictícia <news@newsletter.test>",
+      "subject": "As notícias da semana",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Confira os destaques da semana em tecnologia, economia e cultura."
+    },
+    {
+      "id": "gen-041",
+      "label": "confirmacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Recebemos sua candidatura! (fictício 41)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Recebemos sua candidatura para a vaga de Analista de Dados Sênior na Empresa Fictícia Beta (fictício 41). Agora é com a gente: vamos avaliar seu perfil e avisaremos sobre as próximas etapas por aqui."
+    },
+    {
+      "id": "gen-042",
+      "label": "confirmacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Thank you for applying to Lumen Fictional Labs (fictício 42)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your application to the Engineering Manager position at Lumen Fictional Labs. Our team will review your background and get back to you if there is a match."
+    },
+    {
+      "id": "gen-043",
+      "label": "confirmacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Candidatura realizada com sucesso (fictício 43)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Sua candidatura foi registrada no processo seletivo Coordenação de Produto da Cooperativa Fictícia Gama. Acompanhe o andamento pelo portal do candidato."
+    },
+    {
+      "id": "gen-044",
+      "label": "confirmacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Application received - Senior Product Designer (fictício 44)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear candidate, we have received your application for Senior Product Designer (REQ-20931) at Instituto Fictício Delta. You can check the status in your candidate home."
+    },
+    {
+      "id": "gen-045",
+      "label": "confirmacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Thanks for applying! (fictício 45)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Thanks for applying to Ômega Fictícia. We received your application for Staff Engineer and our recruiting team will be in touch soon."
+    },
+    {
+      "id": "gen-046",
+      "label": "confirmacao",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Inscrição confirmada (fictício 46)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Sua inscrição foi confirmada para a vaga de Gerente Financeiro na Construtora Fictícia Sigma. Obrigado pelo seu interesse em fazer parte do nosso time."
+    },
+    {
+      "id": "gen-047",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Atualização sobre o processo seletivo (fictício 47)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina. Agradecemos muito sua participação no processo para Analista de Dados Sênior. Infelizmente, desta vez optamos por seguir com outros candidatos. Desejamos sucesso na sua jornada."
+    },
+    {
+      "id": "gen-048",
+      "label": "reprovacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Your application to Lumen Fictional Labs (fictício 48)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your interest in the Engineering Manager role. After careful consideration, we have decided to move forward with other candidates whose experience more closely matches our needs."
+    },
+    {
+      "id": "gen-049",
+      "label": "reprovacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Retorno da sua candidatura (fictício 49)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Queremos agradecer o seu tempo. Neste processo não vamos avançar com o seu perfil para a posição de Coordenação de Produto. Seguimos torcendo por você."
+    },
+    {
+      "id": "gen-050",
+      "label": "reprovacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Update on your application (fictício 50)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear Marina, unfortunately we will not be moving forward with your application for Senior Product Designer at Instituto Fictício Delta."
+    },
+    {
+      "id": "gen-051",
+      "label": "reprovacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Staff Engineer at Ômega Fictícia (fictício 51)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the Staff Engineer position has been filled. We appreciate your time and the conversations with our team."
+    },
+    {
+      "id": "gen-052",
+      "label": "reprovacao",
+      "from": "Ana Ficticia <ana.recrutamento@empresaficticia.test>",
+      "subject": "Processo Gerente de Plataforma (fictício 52)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tudo bem? Passando para avisar que decidimos seguir com outro perfil para a vaga de Gerente de Plataforma. Foi um prazer conversar com você."
+    },
+    {
+      "id": "gen-053",
+      "label": "reprovacao",
+      "from": "SuccessFactors <noreply@successfactors.eu>",
+      "subject": "Status da candidatura (fictício 53)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada candidata, informamos que você não foi selecionada para a próxima fase da vaga Especialista em Compras. Agradecemos o interesse."
+    },
+    {
+      "id": "gen-054",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Sobre a vaga de Head de Dados (fictício 54)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Gostaríamos de informar que a vaga de Head de Dados foi encerrada e não seguiremos com novas etapas. Obrigado por participar."
+    },
+    {
+      "id": "gen-055",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Próxima etapa: teste on-line (fictício 55)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-26T02:59:00.000Z",
+      "body": "Parabéns, você avançou! A próxima etapa é um teste de raciocínio lógico. Conclua o teste até 25/10 às 23:59 pelo link https://gupy.exemplo.test/teste/123."
+    },
+    {
+      "id": "gen-056",
+      "label": "teste_etapa",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Desafio técnico - Cooperativa Fictícia Gama (fictício 56)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-27T21:00:00.000Z",
+      "body": "Olá! Enviamos o desafio técnico da vaga. O prazo para entrega é 27/10/2026 às 18h. Qualquer dúvida, responda este e-mail."
+    },
+    {
+      "id": "gen-057",
+      "label": "teste_etapa",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Next step: online assessment (fictício 57)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-29T02:59:00.000Z",
+      "body": "Hi Marina, the next step is a HackerRank assessment. Please complete it by October 28, 2026 at 11:59 PM. Link: https://hackerrank.exemplo.test/a/77"
+    },
+    {
+      "id": "gen-058",
+      "label": "teste_etapa",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Assessment invitation (fictício 58)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-23T13:00:00.000Z",
+      "body": "Dear candidate, you have been invited to complete an assessment. Please complete it within 72 hours of receiving this message."
+    },
+    {
+      "id": "gen-059",
+      "label": "teste_etapa",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Questionário de perfil comportamental (fictício 59)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-24T02:59:00.000Z",
+      "body": "Olá! Para continuar no processo, responda o questionário comportamental em até 3 dias pelo link https://solides.exemplo.test/q/9."
+    },
+    {
+      "id": "gen-060",
+      "label": "teste_etapa",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Take-home challenge (fictício 60)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-30T21:00:00.000Z",
+      "body": "Hi Marina, here is the take-home challenge. Deadline: 30 Oct 6pm (horário de Brasília). Please submit through the portal."
+    },
+    {
+      "id": "gen-061",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Etapa de case - Head de Dados (fictício 61)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-11-03T15:00:00.000Z",
+      "body": "Olá! Você foi aprovada para a etapa de case. Envie sua apresentação até o dia 3 de novembro às 12h para avaliação da banca."
+    },
+    {
+      "id": "gen-062",
+      "label": "teste_etapa",
+      "from": "Quickin <noreply@quickin.io>",
+      "subject": "Prova on-line disponível (fictício 62)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-22T21:30:00.000Z",
+      "body": "Sua prova on-line já está disponível. Data limite: 22/10/2026 18:30. Após esse horário o link expira."
+    },
+    {
+      "id": "gen-063",
+      "label": "convite_entrevista",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Convite para entrevista (fictício 63)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Gostaríamos de convidar você para uma entrevista com a liderança na quinta, 23/10, às 15h, por videochamada."
+    },
+    {
+      "id": "gen-064",
+      "label": "convite_entrevista",
+      "from": "Paula Ficticia <paula@talentos-ficticios.test>",
+      "subject": "Bate-papo sobre a vaga de Engineering Manager (fictício 64)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina, tudo bem? Podemos agendar um bate-papo de 30 minutos nesta semana? Segue meu link para escolher o horário: https://calendly.com/paula-ficticia/30min"
+    },
+    {
+      "id": "gen-065",
+      "label": "convite_entrevista",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Interview invitation - Lumen Fictional Labs (fictício 65)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, we would like to invite you to an interview with our VP of Engineering. Please pick a slot using the scheduling link."
+    },
+    {
+      "id": "gen-066",
+      "label": "convite_entrevista",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Interview scheduled (fictício 66)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your interview has been scheduled for October 24, 2026 at 10:00 AM. Join via Microsoft Teams: https://teams.microsoft.com/l/meetup/ficticio"
+    },
+    {
+      "id": "gen-067",
+      "label": "convite_entrevista",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Entrevista agendada (fictício 67)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Sua entrevista com o time da Cooperativa Fictícia Gama está marcada para 24/10 às 9h30. O link do Google Meet é https://meet.google.com/xyz-abcd-efg."
+    },
+    {
+      "id": "gen-068",
+      "label": "convite_entrevista",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Let's schedule a call (fictício 68)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the hiring manager would love to schedule a call to discuss the Staff Engineer role. What is your availability next week?"
+    },
+    {
+      "id": "gen-069",
+      "label": "convite_entrevista",
+      "from": "RH Fictício <rh@construtorasigma.test>",
+      "subject": "Próxima fase: entrevista com a diretoria (fictício 69)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada Marina, você foi aprovada para a entrevista com a diretoria. Por favor, informe sua disponibilidade para marcarmos a conversa na próxima semana."
+    },
+    {
+      "id": "gen-070",
+      "label": "recrutador_contato",
+      "from": "Carlos Ficticio <carlos@hunting-ficticio.test>",
+      "subject": "Oportunidade de liderança em tecnologia (fictício 70)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá Marina, vi seu perfil e tenho uma oportunidade de Head de Engenharia em uma fintech. Gostaria de conversar com você?"
+    },
+    {
+      "id": "gen-071",
+      "label": "recrutador_contato",
+      "from": "Jane Fictional <jane@recruiting-fictional.test>",
+      "subject": "Engineering leadership role (fictício 71)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, I came across your profile and I'm reaching out about a Director of Engineering opening with a client in São Paulo."
+    },
+    {
+      "id": "gen-072",
+      "label": "recrutador_contato",
+      "from": "Beatriz Ficticia <bia@consultoria-ficticia.test>",
+      "subject": "Vaga confidencial (fictício 72)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina! Sou headhunter e estou conduzindo uma busca confidencial para Diretora de Produto. Acho que seu perfil combina muito."
+    },
+    {
+      "id": "gen-073",
+      "label": "recrutador_contato",
+      "from": "Pedro Ficticio <pedro@agencia-ficticia.test>",
+      "subject": "Conversa rápida? (fictício 73)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tenho uma vaga de Gerente de Dados que pode te interessar. Gostaria de bater um papo quando puder?"
+    },
+    {
+      "id": "gen-074",
+      "label": "vaga_alerta",
+      "from": "LinkedIn Vagas <jobalerts-noreply@linkedin.com>",
+      "subject": "30+ novas vagas para Engineering Manager (fictício 74)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Vagas que combinam com o seu alerta: https://www.linkedin.com/comm/jobs/view/4011111111/ https://www.linkedin.com/comm/jobs/view/4011111112/"
+    },
+    {
+      "id": "gen-075",
+      "label": "vaga_alerta",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Vagas recomendadas para você (fictício 75)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Separamos vagas recomendadas com base no seu perfil: Analista de Dados, Cientista de Dados e Engenheira de Analytics."
+    },
+    {
+      "id": "gen-076",
+      "label": "vaga_alerta",
+      "from": "Jobs Fictional <alerts@jobs-fictional.test>",
+      "subject": "New jobs for you (fictício 76)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "New jobs match your saved search 'Product Manager São Paulo'. See the list below."
+    },
+    {
+      "id": "gen-077",
+      "label": "codigo_verificacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Seu código de verificação (fictício 77)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Use o código 731905 para confirmar seu acesso. Ele expira em 10 minutos."
+    },
+    {
+      "id": "gen-078",
+      "label": "codigo_verificacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Your verification code (fictício 78)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your one-time passcode is 552018. Do not share it with anyone."
+    },
+    {
+      "id": "gen-079",
+      "label": "irrelevante",
+      "from": "Loja Fictícia <ofertas@loja.test>",
+      "subject": "Promoção relâmpago (fictício 79)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Só hoje: 40% de desconto em notebooks e acessórios. Aproveite!"
+    },
+    {
+      "id": "gen-080",
+      "label": "irrelevante",
+      "from": "Newsletter Fictícia <news@newsletter.test>",
+      "subject": "As notícias da semana (fictício 80)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Confira os destaques da semana em tecnologia, economia e cultura."
+    },
+    {
+      "id": "gen-081",
+      "label": "confirmacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Recebemos sua candidatura! (fictício 41)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Recebemos sua candidatura para a vaga de Analista de Dados Sênior na Empresa Fictícia Beta (fictício 81) (fictício 41). Agora é com a gente: vamos avaliar seu perfil e avisaremos sobre as próximas etapas por aqui."
+    },
+    {
+      "id": "gen-082",
+      "label": "confirmacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Thank you for applying to Lumen Fictional Labs (fictício 42)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your application to the Engineering Manager position at Lumen Fictional Labs. Our team will review your background and get back to you if there is a match."
+    },
+    {
+      "id": "gen-083",
+      "label": "confirmacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Candidatura realizada com sucesso (fictício 43)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Sua candidatura foi registrada no processo seletivo Coordenação de Produto da Cooperativa Fictícia Gama. Acompanhe o andamento pelo portal do candidato."
+    },
+    {
+      "id": "gen-084",
+      "label": "confirmacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Application received - Senior Product Designer (fictício 44)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear candidate, we have received your application for Senior Product Designer (REQ-20931) at Instituto Fictício Delta. You can check the status in your candidate home."
+    },
+    {
+      "id": "gen-085",
+      "label": "confirmacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Thanks for applying! (fictício 45)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Thanks for applying to Ômega Fictícia. We received your application for Staff Engineer and our recruiting team will be in touch soon."
+    },
+    {
+      "id": "gen-086",
+      "label": "confirmacao",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Inscrição confirmada (fictício 46)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Sua inscrição foi confirmada para a vaga de Gerente Financeiro na Construtora Fictícia Sigma. Obrigado pelo seu interesse em fazer parte do nosso time."
+    },
+    {
+      "id": "gen-087",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Atualização sobre o processo seletivo (fictício 47)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina. Agradecemos muito sua participação no processo para Analista de Dados Sênior. Infelizmente, desta vez optamos por seguir com outros candidatos. Desejamos sucesso na sua jornada."
+    },
+    {
+      "id": "gen-088",
+      "label": "reprovacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Your application to Lumen Fictional Labs (fictício 48)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your interest in the Engineering Manager role. After careful consideration, we have decided to move forward with other candidates whose experience more closely matches our needs."
+    },
+    {
+      "id": "gen-089",
+      "label": "reprovacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Retorno da sua candidatura (fictício 49)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Queremos agradecer o seu tempo. Neste processo não vamos avançar com o seu perfil para a posição de Coordenação de Produto. Seguimos torcendo por você."
+    },
+    {
+      "id": "gen-090",
+      "label": "reprovacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Update on your application (fictício 50)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear Marina, unfortunately we will not be moving forward with your application for Senior Product Designer at Instituto Fictício Delta."
+    },
+    {
+      "id": "gen-091",
+      "label": "reprovacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Staff Engineer at Ômega Fictícia (fictício 51)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the Staff Engineer position has been filled. We appreciate your time and the conversations with our team."
+    },
+    {
+      "id": "gen-092",
+      "label": "reprovacao",
+      "from": "Ana Ficticia <ana.recrutamento@empresaficticia.test>",
+      "subject": "Processo Gerente de Plataforma (fictício 52)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tudo bem? Passando para avisar que decidimos seguir com outro perfil para a vaga de Gerente de Plataforma. Foi um prazer conversar com você."
+    },
+    {
+      "id": "gen-093",
+      "label": "reprovacao",
+      "from": "SuccessFactors <noreply@successfactors.eu>",
+      "subject": "Status da candidatura (fictício 53)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada candidata, informamos que você não foi selecionada para a próxima fase da vaga Especialista em Compras. Agradecemos o interesse."
+    },
+    {
+      "id": "gen-094",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Sobre a vaga de Head de Dados (fictício 54)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Gostaríamos de informar que a vaga de Head de Dados foi encerrada e não seguiremos com novas etapas. Obrigado por participar."
+    },
+    {
+      "id": "gen-095",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Próxima etapa: teste on-line (fictício 55)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-26T02:59:00.000Z",
+      "body": "Parabéns, você avançou! A próxima etapa é um teste de raciocínio lógico. Conclua o teste até 25/10 às 23:59 pelo link https://gupy.exemplo.test/teste/123."
+    },
+    {
+      "id": "gen-096",
+      "label": "teste_etapa",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Desafio técnico - Cooperativa Fictícia Gama (fictício 56)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-27T21:00:00.000Z",
+      "body": "Olá! Enviamos o desafio técnico da vaga. O prazo para entrega é 27/10/2026 às 18h. Qualquer dúvida, responda este e-mail."
+    },
+    {
+      "id": "gen-097",
+      "label": "teste_etapa",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Next step: online assessment (fictício 57)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-29T02:59:00.000Z",
+      "body": "Hi Marina, the next step is a HackerRank assessment. Please complete it by October 28, 2026 at 11:59 PM. Link: https://hackerrank.exemplo.test/a/77"
+    },
+    {
+      "id": "gen-098",
+      "label": "teste_etapa",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Assessment invitation (fictício 58)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-23T13:00:00.000Z",
+      "body": "Dear candidate, you have been invited to complete an assessment. Please complete it within 72 hours of receiving this message."
+    },
+    {
+      "id": "gen-099",
+      "label": "teste_etapa",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Questionário de perfil comportamental (fictício 59)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-24T02:59:00.000Z",
+      "body": "Olá! Para continuar no processo, responda o questionário comportamental em até 3 dias pelo link https://solides.exemplo.test/q/9."
+    },
+    {
+      "id": "gen-100",
+      "label": "teste_etapa",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Take-home challenge (fictício 60)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-30T21:00:00.000Z",
+      "body": "Hi Marina, here is the take-home challenge. Deadline: 30 Oct 6pm (horário de Brasília). Please submit through the portal."
+    },
+    {
+      "id": "gen-101",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Etapa de case - Head de Dados (fictício 61)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-11-03T15:00:00.000Z",
+      "body": "Olá! Você foi aprovada para a etapa de case. Envie sua apresentação até o dia 3 de novembro às 12h para avaliação da banca."
+    },
+    {
+      "id": "gen-102",
+      "label": "teste_etapa",
+      "from": "Quickin <noreply@quickin.io>",
+      "subject": "Prova on-line disponível (fictício 62)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-22T21:30:00.000Z",
+      "body": "Sua prova on-line já está disponível. Data limite: 22/10/2026 18:30. Após esse horário o link expira."
+    },
+    {
+      "id": "gen-103",
+      "label": "convite_entrevista",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Convite para entrevista (fictício 63)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Gostaríamos de convidar você para uma entrevista com a liderança na quinta, 23/10, às 15h, por videochamada."
+    },
+    {
+      "id": "gen-104",
+      "label": "convite_entrevista",
+      "from": "Paula Ficticia <paula@talentos-ficticios.test>",
+      "subject": "Bate-papo sobre a vaga de Engineering Manager (fictício 64)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina, tudo bem? Podemos agendar um bate-papo de 30 minutos nesta semana? Segue meu link para escolher o horário: https://calendly.com/paula-ficticia/30min"
+    },
+    {
+      "id": "gen-105",
+      "label": "convite_entrevista",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Interview invitation - Lumen Fictional Labs (fictício 65)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, we would like to invite you to an interview with our VP of Engineering. Please pick a slot using the scheduling link."
+    },
+    {
+      "id": "gen-106",
+      "label": "convite_entrevista",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Interview scheduled (fictício 66)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your interview has been scheduled for October 24, 2026 at 10:00 AM. Join via Microsoft Teams: https://teams.microsoft.com/l/meetup/ficticio"
+    },
+    {
+      "id": "gen-107",
+      "label": "convite_entrevista",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Entrevista agendada (fictício 67)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Sua entrevista com o time da Cooperativa Fictícia Gama está marcada para 24/10 às 9h30. O link do Google Meet é https://meet.google.com/xyz-abcd-efg."
+    },
+    {
+      "id": "gen-108",
+      "label": "convite_entrevista",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Let's schedule a call (fictício 68)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the hiring manager would love to schedule a call to discuss the Staff Engineer role. What is your availability next week?"
+    },
+    {
+      "id": "gen-109",
+      "label": "convite_entrevista",
+      "from": "RH Fictício <rh@construtorasigma.test>",
+      "subject": "Próxima fase: entrevista com a diretoria (fictício 69)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada Marina, você foi aprovada para a entrevista com a diretoria. Por favor, informe sua disponibilidade para marcarmos a conversa na próxima semana."
+    },
+    {
+      "id": "gen-110",
+      "label": "recrutador_contato",
+      "from": "Carlos Ficticio <carlos@hunting-ficticio.test>",
+      "subject": "Oportunidade de liderança em tecnologia (fictício 70)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá Marina, vi seu perfil e tenho uma oportunidade de Head de Engenharia em uma fintech. Gostaria de conversar com você?"
+    },
+    {
+      "id": "gen-111",
+      "label": "recrutador_contato",
+      "from": "Jane Fictional <jane@recruiting-fictional.test>",
+      "subject": "Engineering leadership role (fictício 71)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, I came across your profile and I'm reaching out about a Director of Engineering opening with a client in São Paulo."
+    },
+    {
+      "id": "gen-112",
+      "label": "recrutador_contato",
+      "from": "Beatriz Ficticia <bia@consultoria-ficticia.test>",
+      "subject": "Vaga confidencial (fictício 72)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina! Sou headhunter e estou conduzindo uma busca confidencial para Diretora de Produto. Acho que seu perfil combina muito."
+    },
+    {
+      "id": "gen-113",
+      "label": "recrutador_contato",
+      "from": "Pedro Ficticio <pedro@agencia-ficticia.test>",
+      "subject": "Conversa rápida? (fictício 73)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tenho uma vaga de Gerente de Dados que pode te interessar. Gostaria de bater um papo quando puder?"
+    },
+    {
+      "id": "gen-114",
+      "label": "vaga_alerta",
+      "from": "LinkedIn Vagas <jobalerts-noreply@linkedin.com>",
+      "subject": "30+ novas vagas para Engineering Manager (fictício 74)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Vagas que combinam com o seu alerta: https://www.linkedin.com/comm/jobs/view/4011111111/ https://www.linkedin.com/comm/jobs/view/4011111112/"
+    },
+    {
+      "id": "gen-115",
+      "label": "vaga_alerta",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Vagas recomendadas para você (fictício 75)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Separamos vagas recomendadas com base no seu perfil: Analista de Dados, Cientista de Dados e Engenheira de Analytics."
+    },
+    {
+      "id": "gen-116",
+      "label": "vaga_alerta",
+      "from": "Jobs Fictional <alerts@jobs-fictional.test>",
+      "subject": "New jobs for you (fictício 76)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "New jobs match your saved search 'Product Manager São Paulo'. See the list below."
+    },
+    {
+      "id": "gen-117",
+      "label": "codigo_verificacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Seu código de verificação (fictício 77)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Use o código 731905 para confirmar seu acesso. Ele expira em 10 minutos."
+    },
+    {
+      "id": "gen-118",
+      "label": "codigo_verificacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Your verification code (fictício 78)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your one-time passcode is 552018. Do not share it with anyone."
+    },
+    {
+      "id": "gen-119",
+      "label": "irrelevante",
+      "from": "Loja Fictícia <ofertas@loja.test>",
+      "subject": "Promoção relâmpago (fictício 79)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Só hoje: 40% de desconto em notebooks e acessórios. Aproveite!"
+    },
+    {
+      "id": "gen-120",
+      "label": "irrelevante",
+      "from": "Newsletter Fictícia <news@newsletter.test>",
+      "subject": "As notícias da semana (fictício 80)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Confira os destaques da semana em tecnologia, economia e cultura."
+    },
+    {
+      "id": "gen-121",
+      "label": "confirmacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Recebemos sua candidatura! (fictício 41)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Recebemos sua candidatura para a vaga de Analista de Dados Sênior na Empresa Fictícia Beta (fictício 121) (fictício 81) (fictício 41). Agora é com a gente: vamos avaliar seu perfil e avisaremos sobre as próximas etapas por aqui."
+    },
+    {
+      "id": "gen-122",
+      "label": "confirmacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Thank you for applying to Lumen Fictional Labs (fictício 42)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your application to the Engineering Manager position at Lumen Fictional Labs. Our team will review your background and get back to you if there is a match."
+    },
+    {
+      "id": "gen-123",
+      "label": "confirmacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Candidatura realizada com sucesso (fictício 43)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Sua candidatura foi registrada no processo seletivo Coordenação de Produto da Cooperativa Fictícia Gama. Acompanhe o andamento pelo portal do candidato."
+    },
+    {
+      "id": "gen-124",
+      "label": "confirmacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Application received - Senior Product Designer (fictício 44)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear candidate, we have received your application for Senior Product Designer (REQ-20931) at Instituto Fictício Delta. You can check the status in your candidate home."
+    },
+    {
+      "id": "gen-125",
+      "label": "confirmacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Thanks for applying! (fictício 45)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Thanks for applying to Ômega Fictícia. We received your application for Staff Engineer and our recruiting team will be in touch soon."
+    },
+    {
+      "id": "gen-126",
+      "label": "confirmacao",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Inscrição confirmada (fictício 46)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Sua inscrição foi confirmada para a vaga de Gerente Financeiro na Construtora Fictícia Sigma. Obrigado pelo seu interesse em fazer parte do nosso time."
+    },
+    {
+      "id": "gen-127",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Atualização sobre o processo seletivo (fictício 47)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina. Agradecemos muito sua participação no processo para Analista de Dados Sênior. Infelizmente, desta vez optamos por seguir com outros candidatos. Desejamos sucesso na sua jornada."
+    },
+    {
+      "id": "gen-128",
+      "label": "reprovacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Your application to Lumen Fictional Labs (fictício 48)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your interest in the Engineering Manager role. After careful consideration, we have decided to move forward with other candidates whose experience more closely matches our needs."
+    },
+    {
+      "id": "gen-129",
+      "label": "reprovacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Retorno da sua candidatura (fictício 49)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Queremos agradecer o seu tempo. Neste processo não vamos avançar com o seu perfil para a posição de Coordenação de Produto. Seguimos torcendo por você."
+    },
+    {
+      "id": "gen-130",
+      "label": "reprovacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Update on your application (fictício 50)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear Marina, unfortunately we will not be moving forward with your application for Senior Product Designer at Instituto Fictício Delta."
+    },
+    {
+      "id": "gen-131",
+      "label": "reprovacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Staff Engineer at Ômega Fictícia (fictício 51)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the Staff Engineer position has been filled. We appreciate your time and the conversations with our team."
+    },
+    {
+      "id": "gen-132",
+      "label": "reprovacao",
+      "from": "Ana Ficticia <ana.recrutamento@empresaficticia.test>",
+      "subject": "Processo Gerente de Plataforma (fictício 52)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tudo bem? Passando para avisar que decidimos seguir com outro perfil para a vaga de Gerente de Plataforma. Foi um prazer conversar com você."
+    },
+    {
+      "id": "gen-133",
+      "label": "reprovacao",
+      "from": "SuccessFactors <noreply@successfactors.eu>",
+      "subject": "Status da candidatura (fictício 53)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada candidata, informamos que você não foi selecionada para a próxima fase da vaga Especialista em Compras. Agradecemos o interesse."
+    },
+    {
+      "id": "gen-134",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Sobre a vaga de Head de Dados (fictício 54)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Gostaríamos de informar que a vaga de Head de Dados foi encerrada e não seguiremos com novas etapas. Obrigado por participar."
+    },
+    {
+      "id": "gen-135",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Próxima etapa: teste on-line (fictício 55)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-26T02:59:00.000Z",
+      "body": "Parabéns, você avançou! A próxima etapa é um teste de raciocínio lógico. Conclua o teste até 25/10 às 23:59 pelo link https://gupy.exemplo.test/teste/123."
+    },
+    {
+      "id": "gen-136",
+      "label": "teste_etapa",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Desafio técnico - Cooperativa Fictícia Gama (fictício 56)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-27T21:00:00.000Z",
+      "body": "Olá! Enviamos o desafio técnico da vaga. O prazo para entrega é 27/10/2026 às 18h. Qualquer dúvida, responda este e-mail."
+    },
+    {
+      "id": "gen-137",
+      "label": "teste_etapa",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Next step: online assessment (fictício 57)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-29T02:59:00.000Z",
+      "body": "Hi Marina, the next step is a HackerRank assessment. Please complete it by October 28, 2026 at 11:59 PM. Link: https://hackerrank.exemplo.test/a/77"
+    },
+    {
+      "id": "gen-138",
+      "label": "teste_etapa",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Assessment invitation (fictício 58)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-23T13:00:00.000Z",
+      "body": "Dear candidate, you have been invited to complete an assessment. Please complete it within 72 hours of receiving this message."
+    },
+    {
+      "id": "gen-139",
+      "label": "teste_etapa",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Questionário de perfil comportamental (fictício 59)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-24T02:59:00.000Z",
+      "body": "Olá! Para continuar no processo, responda o questionário comportamental em até 3 dias pelo link https://solides.exemplo.test/q/9."
+    },
+    {
+      "id": "gen-140",
+      "label": "teste_etapa",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Take-home challenge (fictício 60)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-30T21:00:00.000Z",
+      "body": "Hi Marina, here is the take-home challenge. Deadline: 30 Oct 6pm (horário de Brasília). Please submit through the portal."
+    },
+    {
+      "id": "gen-141",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Etapa de case - Head de Dados (fictício 61)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-11-03T15:00:00.000Z",
+      "body": "Olá! Você foi aprovada para a etapa de case. Envie sua apresentação até o dia 3 de novembro às 12h para avaliação da banca."
+    },
+    {
+      "id": "gen-142",
+      "label": "teste_etapa",
+      "from": "Quickin <noreply@quickin.io>",
+      "subject": "Prova on-line disponível (fictício 62)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-22T21:30:00.000Z",
+      "body": "Sua prova on-line já está disponível. Data limite: 22/10/2026 18:30. Após esse horário o link expira."
+    },
+    {
+      "id": "gen-143",
+      "label": "convite_entrevista",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Convite para entrevista (fictício 63)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Gostaríamos de convidar você para uma entrevista com a liderança na quinta, 23/10, às 15h, por videochamada."
+    },
+    {
+      "id": "gen-144",
+      "label": "convite_entrevista",
+      "from": "Paula Ficticia <paula@talentos-ficticios.test>",
+      "subject": "Bate-papo sobre a vaga de Engineering Manager (fictício 64)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina, tudo bem? Podemos agendar um bate-papo de 30 minutos nesta semana? Segue meu link para escolher o horário: https://calendly.com/paula-ficticia/30min"
+    },
+    {
+      "id": "gen-145",
+      "label": "convite_entrevista",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Interview invitation - Lumen Fictional Labs (fictício 65)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, we would like to invite you to an interview with our VP of Engineering. Please pick a slot using the scheduling link."
+    },
+    {
+      "id": "gen-146",
+      "label": "convite_entrevista",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Interview scheduled (fictício 66)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your interview has been scheduled for October 24, 2026 at 10:00 AM. Join via Microsoft Teams: https://teams.microsoft.com/l/meetup/ficticio"
+    },
+    {
+      "id": "gen-147",
+      "label": "convite_entrevista",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Entrevista agendada (fictício 67)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Sua entrevista com o time da Cooperativa Fictícia Gama está marcada para 24/10 às 9h30. O link do Google Meet é https://meet.google.com/xyz-abcd-efg."
+    },
+    {
+      "id": "gen-148",
+      "label": "convite_entrevista",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Let's schedule a call (fictício 68)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the hiring manager would love to schedule a call to discuss the Staff Engineer role. What is your availability next week?"
+    },
+    {
+      "id": "gen-149",
+      "label": "convite_entrevista",
+      "from": "RH Fictício <rh@construtorasigma.test>",
+      "subject": "Próxima fase: entrevista com a diretoria (fictício 69)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada Marina, você foi aprovada para a entrevista com a diretoria. Por favor, informe sua disponibilidade para marcarmos a conversa na próxima semana."
+    },
+    {
+      "id": "gen-150",
+      "label": "recrutador_contato",
+      "from": "Carlos Ficticio <carlos@hunting-ficticio.test>",
+      "subject": "Oportunidade de liderança em tecnologia (fictício 70)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá Marina, vi seu perfil e tenho uma oportunidade de Head de Engenharia em uma fintech. Gostaria de conversar com você?"
+    },
+    {
+      "id": "gen-151",
+      "label": "recrutador_contato",
+      "from": "Jane Fictional <jane@recruiting-fictional.test>",
+      "subject": "Engineering leadership role (fictício 71)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, I came across your profile and I'm reaching out about a Director of Engineering opening with a client in São Paulo."
+    },
+    {
+      "id": "gen-152",
+      "label": "recrutador_contato",
+      "from": "Beatriz Ficticia <bia@consultoria-ficticia.test>",
+      "subject": "Vaga confidencial (fictício 72)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina! Sou headhunter e estou conduzindo uma busca confidencial para Diretora de Produto. Acho que seu perfil combina muito."
+    },
+    {
+      "id": "gen-153",
+      "label": "recrutador_contato",
+      "from": "Pedro Ficticio <pedro@agencia-ficticia.test>",
+      "subject": "Conversa rápida? (fictício 73)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tenho uma vaga de Gerente de Dados que pode te interessar. Gostaria de bater um papo quando puder?"
+    },
+    {
+      "id": "gen-154",
+      "label": "vaga_alerta",
+      "from": "LinkedIn Vagas <jobalerts-noreply@linkedin.com>",
+      "subject": "30+ novas vagas para Engineering Manager (fictício 74)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Vagas que combinam com o seu alerta: https://www.linkedin.com/comm/jobs/view/4011111111/ https://www.linkedin.com/comm/jobs/view/4011111112/"
+    },
+    {
+      "id": "gen-155",
+      "label": "vaga_alerta",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Vagas recomendadas para você (fictício 75)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Separamos vagas recomendadas com base no seu perfil: Analista de Dados, Cientista de Dados e Engenheira de Analytics."
+    },
+    {
+      "id": "gen-156",
+      "label": "vaga_alerta",
+      "from": "Jobs Fictional <alerts@jobs-fictional.test>",
+      "subject": "New jobs for you (fictício 76)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "New jobs match your saved search 'Product Manager São Paulo'. See the list below."
+    },
+    {
+      "id": "gen-157",
+      "label": "codigo_verificacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Seu código de verificação (fictício 77)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Use o código 731905 para confirmar seu acesso. Ele expira em 10 minutos."
+    },
+    {
+      "id": "gen-158",
+      "label": "codigo_verificacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Your verification code (fictício 78)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your one-time passcode is 552018. Do not share it with anyone."
+    },
+    {
+      "id": "gen-159",
+      "label": "irrelevante",
+      "from": "Loja Fictícia <ofertas@loja.test>",
+      "subject": "Promoção relâmpago (fictício 79)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Só hoje: 40% de desconto em notebooks e acessórios. Aproveite!"
+    },
+    {
+      "id": "gen-160",
+      "label": "irrelevante",
+      "from": "Newsletter Fictícia <news@newsletter.test>",
+      "subject": "As notícias da semana (fictício 80)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Confira os destaques da semana em tecnologia, economia e cultura."
+    },
+    {
+      "id": "gen-161",
+      "label": "confirmacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Recebemos sua candidatura! (fictício 41)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Recebemos sua candidatura para a vaga de Analista de Dados Sênior na Empresa Fictícia Beta (fictício 161) (fictício 121) (fictício 81) (fictício 41). Agora é com a gente: vamos avaliar seu perfil e avisaremos sobre as próximas etapas por aqui."
+    },
+    {
+      "id": "gen-162",
+      "label": "confirmacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Thank you for applying to Lumen Fictional Labs (fictício 42)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your application to the Engineering Manager position at Lumen Fictional Labs. Our team will review your background and get back to you if there is a match."
+    },
+    {
+      "id": "gen-163",
+      "label": "confirmacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Candidatura realizada com sucesso (fictício 43)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Sua candidatura foi registrada no processo seletivo Coordenação de Produto da Cooperativa Fictícia Gama. Acompanhe o andamento pelo portal do candidato."
+    },
+    {
+      "id": "gen-164",
+      "label": "confirmacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Application received - Senior Product Designer (fictício 44)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear candidate, we have received your application for Senior Product Designer (REQ-20931) at Instituto Fictício Delta. You can check the status in your candidate home."
+    },
+    {
+      "id": "gen-165",
+      "label": "confirmacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Thanks for applying! (fictício 45)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Thanks for applying to Ômega Fictícia. We received your application for Staff Engineer and our recruiting team will be in touch soon."
+    },
+    {
+      "id": "gen-166",
+      "label": "confirmacao",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Inscrição confirmada (fictício 46)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Sua inscrição foi confirmada para a vaga de Gerente Financeiro na Construtora Fictícia Sigma. Obrigado pelo seu interesse em fazer parte do nosso time."
+    },
+    {
+      "id": "gen-167",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Atualização sobre o processo seletivo (fictício 47)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina. Agradecemos muito sua participação no processo para Analista de Dados Sênior. Infelizmente, desta vez optamos por seguir com outros candidatos. Desejamos sucesso na sua jornada."
+    },
+    {
+      "id": "gen-168",
+      "label": "reprovacao",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Your application to Lumen Fictional Labs (fictício 48)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, thank you for your interest in the Engineering Manager role. After careful consideration, we have decided to move forward with other candidates whose experience more closely matches our needs."
+    },
+    {
+      "id": "gen-169",
+      "label": "reprovacao",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Retorno da sua candidatura (fictício 49)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi! Queremos agradecer o seu tempo. Neste processo não vamos avançar com o seu perfil para a posição de Coordenação de Produto. Seguimos torcendo por você."
+    },
+    {
+      "id": "gen-170",
+      "label": "reprovacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Update on your application (fictício 50)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Dear Marina, unfortunately we will not be moving forward with your application for Senior Product Designer at Instituto Fictício Delta."
+    },
+    {
+      "id": "gen-171",
+      "label": "reprovacao",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Staff Engineer at Ômega Fictícia (fictício 51)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the Staff Engineer position has been filled. We appreciate your time and the conversations with our team."
+    },
+    {
+      "id": "gen-172",
+      "label": "reprovacao",
+      "from": "Ana Ficticia <ana.recrutamento@empresaficticia.test>",
+      "subject": "Processo Gerente de Plataforma (fictício 52)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tudo bem? Passando para avisar que decidimos seguir com outro perfil para a vaga de Gerente de Plataforma. Foi um prazer conversar com você."
+    },
+    {
+      "id": "gen-173",
+      "label": "reprovacao",
+      "from": "SuccessFactors <noreply@successfactors.eu>",
+      "subject": "Status da candidatura (fictício 53)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada candidata, informamos que você não foi selecionada para a próxima fase da vaga Especialista em Compras. Agradecemos o interesse."
+    },
+    {
+      "id": "gen-174",
+      "label": "reprovacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Sobre a vaga de Head de Dados (fictício 54)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá! Gostaríamos de informar que a vaga de Head de Dados foi encerrada e não seguiremos com novas etapas. Obrigado por participar."
+    },
+    {
+      "id": "gen-175",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Próxima etapa: teste on-line (fictício 55)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-26T02:59:00.000Z",
+      "body": "Parabéns, você avançou! A próxima etapa é um teste de raciocínio lógico. Conclua o teste até 25/10 às 23:59 pelo link https://gupy.exemplo.test/teste/123."
+    },
+    {
+      "id": "gen-176",
+      "label": "teste_etapa",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Desafio técnico - Cooperativa Fictícia Gama (fictício 56)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-27T21:00:00.000Z",
+      "body": "Olá! Enviamos o desafio técnico da vaga. O prazo para entrega é 27/10/2026 às 18h. Qualquer dúvida, responda este e-mail."
+    },
+    {
+      "id": "gen-177",
+      "label": "teste_etapa",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Next step: online assessment (fictício 57)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-29T02:59:00.000Z",
+      "body": "Hi Marina, the next step is a HackerRank assessment. Please complete it by October 28, 2026 at 11:59 PM. Link: https://hackerrank.exemplo.test/a/77"
+    },
+    {
+      "id": "gen-178",
+      "label": "teste_etapa",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Assessment invitation (fictício 58)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-23T13:00:00.000Z",
+      "body": "Dear candidate, you have been invited to complete an assessment. Please complete it within 72 hours of receiving this message."
+    },
+    {
+      "id": "gen-179",
+      "label": "teste_etapa",
+      "from": "Solides Vagas <naoresponda@solides.jobs>",
+      "subject": "Questionário de perfil comportamental (fictício 59)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-24T02:59:00.000Z",
+      "body": "Olá! Para continuar no processo, responda o questionário comportamental em até 3 dias pelo link https://solides.exemplo.test/q/9."
+    },
+    {
+      "id": "gen-180",
+      "label": "teste_etapa",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Take-home challenge (fictício 60)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-30T21:00:00.000Z",
+      "body": "Hi Marina, here is the take-home challenge. Deadline: 30 Oct 6pm (horário de Brasília). Please submit through the portal."
+    },
+    {
+      "id": "gen-181",
+      "label": "teste_etapa",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Etapa de case - Head de Dados (fictício 61)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-11-03T15:00:00.000Z",
+      "body": "Olá! Você foi aprovada para a etapa de case. Envie sua apresentação até o dia 3 de novembro às 12h para avaliação da banca."
+    },
+    {
+      "id": "gen-182",
+      "label": "teste_etapa",
+      "from": "Quickin <noreply@quickin.io>",
+      "subject": "Prova on-line disponível (fictício 62)",
+      "date": "2026-10-20T13:00:00Z",
+      "deadline": "2026-10-22T21:30:00.000Z",
+      "body": "Sua prova on-line já está disponível. Data limite: 22/10/2026 18:30. Após esse horário o link expira."
+    },
+    {
+      "id": "gen-183",
+      "label": "convite_entrevista",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Convite para entrevista (fictício 63)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá, Marina! Gostaríamos de convidar você para uma entrevista com a liderança na quinta, 23/10, às 15h, por videochamada."
+    },
+    {
+      "id": "gen-184",
+      "label": "convite_entrevista",
+      "from": "Paula Ficticia <paula@talentos-ficticios.test>",
+      "subject": "Bate-papo sobre a vaga de Engineering Manager (fictício 64)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina, tudo bem? Podemos agendar um bate-papo de 30 minutos nesta semana? Segue meu link para escolher o horário: https://calendly.com/paula-ficticia/30min"
+    },
+    {
+      "id": "gen-185",
+      "label": "convite_entrevista",
+      "from": "Greenhouse <no-reply@us.greenhouse-mail.io>",
+      "subject": "Interview invitation - Lumen Fictional Labs (fictício 65)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, we would like to invite you to an interview with our VP of Engineering. Please pick a slot using the scheduling link."
+    },
+    {
+      "id": "gen-186",
+      "label": "convite_entrevista",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Interview scheduled (fictício 66)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your interview has been scheduled for October 24, 2026 at 10:00 AM. Join via Microsoft Teams: https://teams.microsoft.com/l/meetup/ficticio"
+    },
+    {
+      "id": "gen-187",
+      "label": "convite_entrevista",
+      "from": "InHire <notificacoes@inhire.app>",
+      "subject": "Entrevista agendada (fictício 67)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Sua entrevista com o time da Cooperativa Fictícia Gama está marcada para 24/10 às 9h30. O link do Google Meet é https://meet.google.com/xyz-abcd-efg."
+    },
+    {
+      "id": "gen-188",
+      "label": "convite_entrevista",
+      "from": "Lever <no-reply@hire.lever.co>",
+      "subject": "Let's schedule a call (fictício 68)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, the hiring manager would love to schedule a call to discuss the Staff Engineer role. What is your availability next week?"
+    },
+    {
+      "id": "gen-189",
+      "label": "convite_entrevista",
+      "from": "RH Fictício <rh@construtorasigma.test>",
+      "subject": "Próxima fase: entrevista com a diretoria (fictício 69)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Prezada Marina, você foi aprovada para a entrevista com a diretoria. Por favor, informe sua disponibilidade para marcarmos a conversa na próxima semana."
+    },
+    {
+      "id": "gen-190",
+      "label": "recrutador_contato",
+      "from": "Carlos Ficticio <carlos@hunting-ficticio.test>",
+      "subject": "Oportunidade de liderança em tecnologia (fictício 70)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Olá Marina, vi seu perfil e tenho uma oportunidade de Head de Engenharia em uma fintech. Gostaria de conversar com você?"
+    },
+    {
+      "id": "gen-191",
+      "label": "recrutador_contato",
+      "from": "Jane Fictional <jane@recruiting-fictional.test>",
+      "subject": "Engineering leadership role (fictício 71)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Hi Marina, I came across your profile and I'm reaching out about a Director of Engineering opening with a client in São Paulo."
+    },
+    {
+      "id": "gen-192",
+      "label": "recrutador_contato",
+      "from": "Beatriz Ficticia <bia@consultoria-ficticia.test>",
+      "subject": "Vaga confidencial (fictício 72)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Oi Marina! Sou headhunter e estou conduzindo uma busca confidencial para Diretora de Produto. Acho que seu perfil combina muito."
+    },
+    {
+      "id": "gen-193",
+      "label": "recrutador_contato",
+      "from": "Pedro Ficticio <pedro@agencia-ficticia.test>",
+      "subject": "Conversa rápida? (fictício 73)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Marina, tenho uma vaga de Gerente de Dados que pode te interessar. Gostaria de bater um papo quando puder?"
+    },
+    {
+      "id": "gen-194",
+      "label": "vaga_alerta",
+      "from": "LinkedIn Vagas <jobalerts-noreply@linkedin.com>",
+      "subject": "30+ novas vagas para Engineering Manager (fictício 74)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Vagas que combinam com o seu alerta: https://www.linkedin.com/comm/jobs/view/4011111111/ https://www.linkedin.com/comm/jobs/view/4011111112/"
+    },
+    {
+      "id": "gen-195",
+      "label": "vaga_alerta",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Vagas recomendadas para você (fictício 75)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Separamos vagas recomendadas com base no seu perfil: Analista de Dados, Cientista de Dados e Engenheira de Analytics."
+    },
+    {
+      "id": "gen-196",
+      "label": "vaga_alerta",
+      "from": "Jobs Fictional <alerts@jobs-fictional.test>",
+      "subject": "New jobs for you (fictício 76)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "New jobs match your saved search 'Product Manager São Paulo'. See the list below."
+    },
+    {
+      "id": "gen-197",
+      "label": "codigo_verificacao",
+      "from": "Gupy <no-reply@gupy.io>",
+      "subject": "Seu código de verificação (fictício 77)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Use o código 731905 para confirmar seu acesso. Ele expira em 10 minutos."
+    },
+    {
+      "id": "gen-198",
+      "label": "codigo_verificacao",
+      "from": "Workday <noreply@myworkday.com>",
+      "subject": "Your verification code (fictício 78)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Your one-time passcode is 552018. Do not share it with anyone."
+    },
+    {
+      "id": "gen-199",
+      "label": "irrelevante",
+      "from": "Loja Fictícia <ofertas@loja.test>",
+      "subject": "Promoção relâmpago (fictício 79)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Só hoje: 40% de desconto em notebooks e acessórios. Aproveite!"
+    },
+    {
+      "id": "gen-200",
+      "label": "irrelevante",
+      "from": "Newsletter Fictícia <news@newsletter.test>",
+      "subject": "As notícias da semana (fictício 80)",
+      "date": "2026-10-20T13:00:00Z",
+      "body": "Confira os destaques da semana em tecnologia, economia e cultura."
+    }
+  ]
+}

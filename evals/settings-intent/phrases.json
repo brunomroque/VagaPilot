@@ -1,0 +1,1286 @@
+{
+  "$comment": "evals/settings-intent: FICTITIOUS pt-BR requests with intent + key parameters (CA14.1, target ≥ 90%). Starter set; the spec target size is 100.",
+  "cases": [
+    {
+      "text": "quero vagas de gerente de TI em São Paulo, híbrido, sem a empresa Acme, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "gerente de TI",
+            "location": "São Paulo",
+            "workModel": "hibrido",
+            "excludedCompanies": ["Acme"],
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "Quero vagas de coordenador de infraestrutura em Campinas, presencial, toda semana",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "coordenador de infraestrutura",
+            "location": "Campinas",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas remotas de SRE todo dia",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "workModel": "remoto",
+            "frequency": "diaria"
+          }
+        }
+      ]
+    },
+    {
+      "text": "crie uma busca de vagas de head de dados em Belo Horizonte, híbrido, dias úteis",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "head de dados",
+            "location": "Belo Horizonte",
+            "frequency": "dias_uteis"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de diretor de tecnologia em Curitiba, CLT, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "diretor de tecnologia",
+            "location": "Curitiba",
+            "regime": "clt",
+            "seniority": "diretor"
+          }
+        }
+      ]
+    },
+    {
+      "text": "procure vagas de engenheiro de dados em Recife acima de 15k",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "engenheiro de dados",
+            "location": "Recife",
+            "salaryMin": 15000
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de gerente de produto em Porto Alegre publicadas nos últimos 7 dias",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "gerente de produto",
+            "location": "Porto Alegre",
+            "postedWithinDays": 7
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de tech lead em Florianópolis, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "tech lead",
+            "location": "Florianópolis",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas remotas de desenvolvedor sênior em inglês toda semana",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "workModel": "remoto",
+            "language": "en",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de gerente de TI em SP, híbrido, toda manhã",
+      "expected": [
+        {
+          "tool": "ask_clarification",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "crie uma busca de vagas de analista de BI",
+      "expected": [
+        {
+          "tool": "ask_clarification",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de gerente em RJ",
+      "expected": [
+        {
+          "tool": "ask_clarification",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "não quero mais vagas da empresa Concorrente Fictícia",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Concorrente Fictícia"
+          }
+        }
+      ]
+    },
+    {
+      "text": "nao quero vagas da Empresa Y",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Y"
+          }
+        }
+      ]
+    },
+    {
+      "text": "exclua a Loja Exemplo das minhas vagas",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Loja Exemplo"
+          }
+        }
+      ]
+    },
+    {
+      "text": "bloqueie a empresa Banco Fictício de todas as buscas",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Banco Fictício"
+          }
+        }
+      ]
+    },
+    {
+      "text": "sem vagas da Indústria Exemplo, por favor",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Indústria Exemplo"
+          }
+        }
+      ]
+    },
+    {
+      "text": "pode voltar a mostrar vagas da Loja Exemplo",
+      "expected": [
+        {
+          "tool": "remove_excluded_company",
+          "params": {
+            "company": "Loja Exemplo"
+          }
+        }
+      ]
+    },
+    {
+      "text": "desbloqueie a empresa Banco Fictício",
+      "expected": [
+        {
+          "tool": "remove_excluded_company",
+          "params": {
+            "company": "Banco Fictício"
+          }
+        }
+      ]
+    },
+    {
+      "text": "tire a Empresa Y da lista de excluídas",
+      "expected": [
+        {
+          "tool": "remove_excluded_company",
+          "params": {
+            "company": "Empresa Y"
+          }
+        }
+      ]
+    },
+    {
+      "text": "meu inglês agora é avançado",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        }
+      ]
+    },
+    {
+      "text": "meu ingles ficou fluente",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        }
+      ]
+    },
+    {
+      "text": "atualize meu espanhol para intermediário",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "language": "Espanhol",
+            "level": "intermediario"
+          }
+        }
+      ]
+    },
+    {
+      "text": "tenho inglês C1 agora",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        }
+      ]
+    },
+    {
+      "text": "meu nível de inglês é B2",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        }
+      ]
+    },
+    {
+      "text": "mude o meu francês para básico",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "language": "Francês",
+            "level": "basico"
+          }
+        }
+      ]
+    },
+    {
+      "text": "para coordenador peça 20k, gerente 25k, PJ 28k",
+      "expected": [
+        {
+          "tool": "set_salary_rules",
+          "params": {
+            "rules": [
+              {
+                "seniority": "coordenador",
+                "amount": 20000
+              },
+              {
+                "seniority": "gerente",
+                "amount": 25000
+              },
+              {
+                "seniority": "gerente",
+                "regime": "pj",
+                "amount": 28000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "minha pretensão para diretor é 40 mil",
+      "expected": [
+        {
+          "tool": "set_salary_rules",
+          "params": {
+            "rules": [
+              {
+                "seniority": "diretor",
+                "amount": 40000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "pretensão de gerente CLT 30.000",
+      "expected": [
+        {
+          "tool": "set_salary_rules",
+          "params": {
+            "rules": [
+              {
+                "seniority": "gerente",
+                "regime": "clt",
+                "amount": 30000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "para head peça R$ 35.000 e PJ 42k",
+      "expected": [
+        {
+          "tool": "set_salary_rules",
+          "params": {
+            "rules": [
+              {
+                "seniority": "head",
+                "amount": 35000
+              },
+              {
+                "seniority": "head",
+                "regime": "pj",
+                "amount": 42000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero ganhar 18k como senior",
+      "expected": [
+        {
+          "tool": "set_salary_rules",
+          "params": {
+            "rules": [
+              {
+                "seniority": "senior",
+                "amount": 18000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "não cite pretensão em e-mail",
+      "expected": [
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "email.include_salary",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "text": "nao mencione meu salario nos emails",
+      "expected": [
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "email.include_salary",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "text": "sem pretensão nos e-mails, por favor",
+      "expected": [
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "email.include_salary",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "text": "pode citar a pretensão nos e-mails",
+      "expected": [
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "email.include_salary",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "text": "só me mostre vagas com fit alto",
+      "expected": [
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "searches.min_fit",
+            "value": "alto"
+          }
+        }
+      ]
+    },
+    {
+      "text": "apenas vagas de fit médio para cima",
+      "expected": [
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "searches.min_fit",
+            "value": "medio"
+          }
+        }
+      ]
+    },
+    {
+      "text": "envie direto",
+      "expected": [
+        {
+          "tool": "set_approval_mode",
+          "params": {
+            "mode": "envie_direto"
+          }
+        }
+      ]
+    },
+    {
+      "text": "pode enviar sem me perguntar",
+      "expected": [
+        {
+          "tool": "set_approval_mode",
+          "params": {
+            "mode": "envie_direto"
+          }
+        }
+      ]
+    },
+    {
+      "text": "pause antes de enviar",
+      "expected": [
+        {
+          "tool": "set_approval_mode",
+          "params": {
+            "mode": "pausar_antes"
+          }
+        }
+      ]
+    },
+    {
+      "text": "sempre me pergunte antes de enviar qualquer coisa",
+      "expected": [
+        {
+          "tool": "set_approval_mode",
+          "params": {
+            "mode": "pausar_antes"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não envie direto",
+      "expected": [
+        {
+          "tool": "set_approval_mode",
+          "params": {
+            "mode": "pausar_antes"
+          }
+        }
+      ]
+    },
+    {
+      "text": "trabalhei com Terraform na empresa Z",
+      "expected": [
+        {
+          "tool": "propose_fact",
+          "params": {
+            "kind": "ferramenta"
+          }
+        }
+      ]
+    },
+    {
+      "text": "sou certificada AWS Solutions Architect desde 2022",
+      "expected": [
+        {
+          "tool": "propose_fact",
+          "params": {
+            "kind": "certificacao"
+          }
+        }
+      ]
+    },
+    {
+      "text": "liderei um time de 15 pessoas na Empresa Fictícia",
+      "expected": [
+        {
+          "tool": "propose_fact",
+          "params": {
+            "kind": "competencia"
+          }
+        }
+      ]
+    },
+    {
+      "text": "tenho experiência com Kubernetes em produção desde 2020",
+      "expected": [
+        {
+          "tool": "propose_fact",
+          "params": {
+            "kind": "ferramenta"
+          }
+        }
+      ]
+    },
+    {
+      "text": "apague a busca de gerente de TI",
+      "expected": [
+        {
+          "tool": "delete_saved_search",
+          "params": {
+            "match": "gerente de TI"
+          }
+        }
+      ]
+    },
+    {
+      "text": "exclua minha busca de SRE",
+      "expected": [
+        {
+          "tool": "delete_saved_search",
+          "params": {
+            "match": "SRE"
+          }
+        }
+      ]
+    },
+    {
+      "text": "cancele a busca por head de dados",
+      "expected": [
+        {
+          "tool": "delete_saved_search",
+          "params": {
+            "match": "head de dados"
+          }
+        }
+      ]
+    },
+    {
+      "text": "mude a busca de gerente de TI para remoto",
+      "expected": [
+        {
+          "tool": "update_saved_search",
+          "params": {
+            "match": "gerente de TI",
+            "changes": {
+              "workModel": "remoto"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "text": "altere a busca de SRE para toda semana",
+      "expected": [
+        {
+          "tool": "update_saved_search",
+          "params": {
+            "match": "SRE",
+            "changes": {
+              "frequency": "semanal"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "text": "troque a busca de tech lead para híbrido",
+      "expected": [
+        {
+          "tool": "update_saved_search",
+          "params": {
+            "match": "tech lead",
+            "changes": {
+              "workModel": "hibrido"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "text": "desfaça a última mudança",
+      "expected": [
+        {
+          "tool": "undo_change",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "desfaz isso",
+      "expected": [
+        {
+          "tool": "undo_change",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "o que tenho pendente?",
+      "expected": [
+        {
+          "tool": "list_pending_actions",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "quais são minhas tarefas?",
+      "expected": [
+        {
+          "tool": "list_pending_actions",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "quantas candidaturas enviei esta semana?",
+      "expected": [
+        {
+          "tool": "list_pending_actions",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "quais são minhas configurações?",
+      "expected": [
+        {
+          "tool": "get_settings",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "mostre minhas buscas salvas",
+      "expected": [
+        {
+          "tool": "get_settings",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "text": "meu inglês agora é fluente e não cite pretensão em e-mail",
+      "expected": [
+        {
+          "tool": "update_language_level",
+          "params": {
+            "level": "fluente"
+          }
+        },
+        {
+          "tool": "set_preference",
+          "params": {
+            "key": "email.include_salary",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 61, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 61",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 62, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 62",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 63, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 63",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 64",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 64"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 65, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 65",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 66, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 66",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 67, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 67",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 68",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 68"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 69, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 69",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 70, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 70",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 71, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 71",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 72",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 72"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 73, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 73",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 74, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 74",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 75, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 75",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 76",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 76"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 77, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 77",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 78, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 78",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 79, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 79",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 80",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 80"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 81, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 81",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 82, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 82",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 83, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 83",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 84",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 84"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 85, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 85",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 86, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 86",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 87, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 87",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 88",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 88"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 89, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 89",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 90, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 90",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 91, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 91",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 92",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 92"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 93, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 93",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 94, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 94",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 95, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 95",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 96",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 96"
+          }
+        }
+      ]
+    },
+    {
+      "text": "quero vagas de SRE em Curitiba 97, remoto, toda manhã",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "SRE",
+            "location": "Curitiba 97",
+            "workModel": "remoto",
+            "frequency": "diaria",
+            "timeOfDay": "manha"
+          }
+        }
+      ]
+    },
+    {
+      "text": "me avise de vagas de DevOps em Salvador 98, híbrido, toda tarde",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "DevOps",
+            "location": "Salvador 98",
+            "workModel": "hibrido",
+            "frequency": "diaria",
+            "timeOfDay": "tarde"
+          }
+        }
+      ]
+    },
+    {
+      "text": "busque vagas de analista de dados em Recife 99, presencial, semanal",
+      "expected": [
+        {
+          "tool": "create_saved_search",
+          "params": {
+            "query": "analista de dados",
+            "location": "Recife 99",
+            "workModel": "presencial",
+            "frequency": "semanal"
+          }
+        }
+      ]
+    },
+    {
+      "text": "não quero vagas da Empresa Fictícia Lote 100",
+      "expected": [
+        {
+          "tool": "add_excluded_company",
+          "params": {
+            "company": "Empresa Fictícia Lote 100"
+          }
+        }
+      ]
+    }
+  ]
+}

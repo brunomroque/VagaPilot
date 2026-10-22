@@ -1,0 +1,11 @@
+---
+description: Contexto geral do projeto VagaPilot
+alwaysApply: true
+---
+
+- Produto: assistente de candidaturas a vagas para profissionais no Brasil. Especificação em docs/ESPEC.md (fonte da verdade).
+- Idioma da UI e das mensagens ao usuário: pt-BR (via next-intl). Código, nomes de variáveis e commits em inglês.
+- Monorepo pnpm + Turborepo. Regras de negócio puras ficam em packages/core (sem I/O). Não duplique lógica entre web e extensão.
+- Antes de implementar, leia a seção relevante da especificação e cite-a no resumo do PR.
+- Ao terminar, atualize docs/PROGRESSO.md com o que foi feito e pendências.
+- Nunca use dados pessoais reais em seeds, fixtures, testes ou exemplos: apenas perfis fictícios.

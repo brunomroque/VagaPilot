@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: "0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint, typecheck, test, and build
+        run: pnpm turbo lint typecheck test build
+
+  evals:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: "0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Blocking eval — no-fabrication (spec 10.6)
+        run: pnpm eval:no-fabrication
+
+      - name: AI guardrail evals (fake provider)
+        run: pnpm evals
+
+      - name: Email classify eval (fake provider)
+        run: pnpm eval:email
+
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: "0"
+      CI: "1"
+      E2E_PORT: "3100"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium --with-deps
+        working-directory: apps/web
+
+      - name: Playwright e2e (port 3100)
+        run: pnpm --filter web test:e2e
+        working-directory: .
+
+  rls:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: "0"
+      # Fail instead of skipping when the local stack is missing.
+      VAGAPILOT_REQUIRE_SUPABASE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Start Supabase
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,mailpit
+
+      - name: Reset database and run RLS tests
+        run: pnpm db:reset && pnpm --filter @vagapilot/db test

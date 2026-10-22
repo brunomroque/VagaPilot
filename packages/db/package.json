@@ -1,0 +1,28 @@
+{
+  "name": "@vagapilot/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server/index.ts",
+    "./testing": "./test/local-supabase.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@vagapilot/config": "workspace:*",
+    "eslint": "^10",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "@vagapilot/core": "workspace:*",
+    "drizzle-orm": "^0.45.4"
+  }
+}

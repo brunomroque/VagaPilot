@@ -1,0 +1,35 @@
+{
+  "name": "@vagapilot/jobs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@vagapilot/config": "workspace:*",
+    "docx": "^9.13.0",
+    "eslint": "^10",
+    "pdf-lib": "^1.17.1",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "@vagapilot/ai": "workspace:*",
+    "@vagapilot/ats-adapters": "workspace:*",
+    "@vagapilot/core": "workspace:*",
+    "@vagapilot/db": "workspace:*",
+    "@vagapilot/gmail": "workspace:*",
+    "inngest": "^4.25.0",
+    "mammoth": "^1.13.0",
+    "unpdf": "^1.9.1",
+    "zod": "^4.6.6"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@vagapilot/ats-adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixture-fetch.ts",
+    "./form": "./src/form/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@vagapilot/config": "workspace:*",
+    "eslint": "^10",
+    "happy-dom": "^20.0.10",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@vagapilot/core": "workspace:*",
+    "cheerio": "^1.2.0"
+  }
+}

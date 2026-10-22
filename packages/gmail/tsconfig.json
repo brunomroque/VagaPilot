@@ -1,0 +1,13 @@
+{
+  "extends": "@vagapilot/config/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src",
+    "test",
+    "eval",
+    "vitest.config.ts",
+    "vitest.eval.config.ts"
+  ]
+}

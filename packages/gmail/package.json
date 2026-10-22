@@ -1,0 +1,31 @@
+{
+  "name": "@vagapilot/gmail",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "eval:email": "vitest run --config vitest.eval.config.ts"
+  },
+  "devDependencies": {
+    "@vagapilot/config": "workspace:*",
+    "eslint": "^10",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "@vagapilot/ai": "workspace:*",
+    "@vagapilot/core": "workspace:*",
+    "@vagapilot/db": "workspace:*",
+    "ai": "^7.0.147",
+    "zod": "^4.6.6"
+  }
+}

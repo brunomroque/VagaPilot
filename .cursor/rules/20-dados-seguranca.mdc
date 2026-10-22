@@ -1,0 +1,12 @@
+---
+description: Banco de dados, RLS, criptografia e LGPD
+globs: ["packages/db/**", "supabase/**", "apps/web/app/api/**", "packages/jobs/**"]
+---
+
+- Toda tabela com dados do usuário tem user_id, RLS habilitada e políticas user_id = auth.uid(). Adicione teste de RLS para cada nova tabela.
+- Campos sensíveis (documentos, endereço, telefone, data de nascimento, diversidade, salário atual, tokens) usam sufixo _enc e encryptField/decryptField de packages/core/crypto.
+- Nunca enviar dados sensíveis a LLMs; use placeholders resolvidos localmente.
+- Nunca persistir corpo completo de e-mail; apenas metadados e snippet <= 500 caracteres.
+- service_role só em código de servidor/jobs; nunca no cliente nem na extensão.
+- Logs sem PII (use redactPII). Toda ação com efeito externo ou mudança automática de status chama logAudit.
+- Storage sempre privado com URLs assinadas de curta duração.

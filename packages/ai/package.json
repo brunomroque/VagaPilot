@@ -1,0 +1,32 @@
+{
+  "name": "@vagapilot/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures/cv-ficticio.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "eval:fit": "vitest run src/evals/fit.eval.test.ts --silent=false",
+    "eval:no-fabrication": "vitest run src/evals/no-fabrication.eval.test.ts --silent=false",
+    "evals": "vitest run src/evals --silent=false"
+  },
+  "devDependencies": {
+    "@vagapilot/config": "workspace:*",
+    "eslint": "^10",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@ai-sdk/provider": "4.0.31",
+    "@vagapilot/ats-adapters": "workspace:*",
+    "@vagapilot/core": "workspace:*",
+    "ai": "^7.0.147",
+    "zod": "^4.6.6"
+  }
+}

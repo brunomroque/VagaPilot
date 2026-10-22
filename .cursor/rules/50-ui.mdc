@@ -1,0 +1,10 @@
+---
+description: Padrões de UI
+globs: ["apps/web/app/**", "apps/web/components/**", "packages/ui/**", "apps/extension/**/*.tsx"]
+---
+
+- shadcn/ui + Tailwind; componentes acessíveis (WCAG 2.1 AA), foco visível, rótulos ARIA, navegação por teclado.
+- Todas as strings via next-intl (pt-BR padrão, en). Sem textos fixos no JSX.
+- Cards do chat: JobCard, ApprovalCard, QuestionCard, EmailDraftCard, ActionList, StatusChangeCard em packages/ui.
+- Ações de botões de widgets chamam server actions diretamente (não passam pelo LLM).
+- Estados vazios, carregando e erro sempre tratados; feedback otimista em ações rápidas (Pular/Aplicar).

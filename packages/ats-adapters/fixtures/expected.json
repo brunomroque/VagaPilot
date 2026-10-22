@@ -1,0 +1,101 @@
+{
+  "$comment": "Hand labels for the CA4.1 subset (company and title as a person reads them on the page).",
+  "postings": [
+    {
+      "url": "https://boards.greenhouse.io/empresaficticia/jobs/4001001",
+      "source": "greenhouse",
+      "company": "Empresa Fictícia Pagamentos",
+      "title": "Engineering Manager, Plataforma"
+    },
+    {
+      "url": "https://job-boards.greenhouse.io/lojaexemplo/jobs/4001002?gh_src=abc",
+      "source": "greenhouse",
+      "company": "Loja Exemplo",
+      "title": "Senior Backend Engineer"
+    },
+    {
+      "url": "https://jobs.lever.co/exemplotech/8b1c2d3e-0000-4000-8000-000000000001",
+      "source": "lever",
+      "company": "Exemplotech",
+      "title": "Gerente de Engenharia"
+    },
+    {
+      "url": "https://jobs.lever.co/dadosficticios/8b1c2d3e-0000-4000-8000-000000000002/apply",
+      "source": "lever",
+      "company": "Dadosficticios",
+      "title": "Data Engineering Lead"
+    },
+    {
+      "url": "https://empresaficticia.gupy.io/jobs/1001?jobBoardSource=gupy_public_page",
+      "source": "gupy",
+      "company": "Empresa Fictícia Varejo",
+      "title": "Coordenador(a) de Infraestrutura"
+    },
+    {
+      "url": "https://varejoexemplo.gupy.io/jobs/1002",
+      "source": "gupy",
+      "company": "Varejo Exemplo",
+      "title": "Analista de Dados Pleno"
+    },
+    {
+      "url": "https://www.linkedin.com/jobs/view/3900000001/",
+      "source": "linkedin",
+      "company": "Banco Fictício",
+      "title": "Head de Engenharia"
+    },
+    {
+      "url": "https://br.linkedin.com/jobs/view/gerente-de-ti-at-industria-exemplo-3900000002?trk=public",
+      "source": "linkedin",
+      "company": "Indústria Exemplo",
+      "title": "Gerente de TI"
+    },
+    {
+      "url": "https://industriaficticia.wd5.myworkdayjobs.com/pt-BR/Carreiras/job/Sao-Paulo/Gerente-de-Plataforma-de-Dados_R-1001",
+      "source": "workday",
+      "company": "Indústria Fictícia S.A.",
+      "title": "Gerente de Plataforma de Dados"
+    },
+    {
+      "url": "https://exemplosaude.inhire.app/vagas/1a2b3c4d-0000-4000-8000-000000000001/gerente-de-produto",
+      "source": "inhire",
+      "company": "Exemplo Saúde",
+      "title": "Gerente de Produto"
+    },
+    {
+      "url": "https://career5.successfactors.eu/career?company=FicticiaEnergia&career_job_req_id=5001&utm_source=x",
+      "source": "successfactors",
+      "company": "Fictícia Energia",
+      "title": "Coordenador de TI"
+    },
+    {
+      "url": "https://jobs.quickin.io/empresaficticia/jobs/6001",
+      "source": "quickin",
+      "company": "Empresa Fictícia Fintech",
+      "title": "Desenvolvedor(a) Sênior Node.js"
+    },
+    {
+      "url": "https://www.jobbol.com.br/vagas/analista-de-sistemas-7001",
+      "source": "jobbol",
+      "company": "Exemplo Agro",
+      "title": "Analista de Sistemas"
+    },
+    {
+      "url": "https://exemploconstrucoes.vagas.solides.com.br/vaga/8001",
+      "source": "solides",
+      "company": "Exemplo Construções",
+      "title": "Gerente Administrativo"
+    },
+    {
+      "url": "https://carreiras.exemplo.com.br/vagas/sre-9001?utm_campaign=x",
+      "source": "outro",
+      "company": "Exemplo Cloud",
+      "title": "SRE Pleno"
+    },
+    {
+      "url": "https://empresa-sem-jsonld.exemplo.com.br/vaga/9002",
+      "source": "outro",
+      "company": "Empresa Sem JSON-LD",
+      "title": "Tech Lead"
+    }
+  ]
+}

@@ -1,0 +1,1813 @@
+{
+  "Metadata": {
+    "title": "VagaPilot",
+    "description": "Assistente de candidaturas: análise de fit com seus fatos confirmados, controle dos processos e próximas ações. Nada é enviado sem sua aprovação."
+  },
+  "Brand": {
+    "name": "VagaPilot"
+  },
+  "Common": {
+    "comingSoon": "Em breve",
+    "toasts": "Avisos",
+    "close": "Fechar"
+  },
+  "Home": {
+    "title": "VagaPilot",
+    "tagline": "Seu copiloto de candidaturas.",
+    "body": "Analise vagas com base nos seus fatos confirmados, acompanhe cada processo e saiba qual é a próxima ação. Nada é enviado sem sua aprovação.",
+    "signIn": "Entrar",
+    "signUp": "Criar conta",
+    "plans": "Planos e preços",
+    "terms": "Termos",
+    "privacy": "Privacidade",
+    "aiUsage": "Como usamos IA"
+  },
+  "Auth": {
+    "email": "E-mail",
+    "emailPlaceholder": "voce@exemplo.com",
+    "password": "Senha",
+    "passwordHint": "Mínimo de 8 caracteres.",
+    "or": "ou",
+    "google": "Continuar com Google",
+    "googleHint": "Pelo Google pedimos só nome, e-mail e foto. O Gmail é conectado depois, se você quiser.",
+    "login": {
+      "title": "Entrar no VagaPilot",
+      "description": "Use seu e-mail e senha ou sua conta Google.",
+      "submit": "Entrar",
+      "noAccount": "Ainda não tem conta?",
+      "signUpLink": "Criar conta"
+    },
+    "signup": {
+      "title": "Criar sua conta",
+      "description": "Você confirma o e-mail antes do primeiro acesso.",
+      "submit": "Criar conta",
+      "hasAccount": "Já tem conta?",
+      "signInLink": "Entrar"
+    },
+    "verify": {
+      "title": "Confirme seu e-mail",
+      "description": "Enviamos um link de confirmação. Abra o e-mail neste mesmo navegador para continuar.",
+      "back": "Voltar para o login"
+    },
+    "errors": {
+      "invalid_input": "Revise os campos destacados.",
+      "invalid_credentials": "E-mail ou senha incorretos.",
+      "email_not_confirmed": "Confirme seu e-mail antes de entrar. Procure o link na sua caixa de entrada.",
+      "not_configured": "A autenticação não está configurada neste ambiente. Rode o Supabase local e preencha o .env.local.",
+      "google_unavailable": "O login com Google está indisponível neste ambiente.",
+      "weak_password": "Escolha uma senha mais forte.",
+      "rate_limited": "Muitas tentativas. Aguarde alguns minutos.",
+      "link_invalid": "O link expirou ou foi aberto em outro navegador. Entre novamente.",
+      "unknown": "Algo deu errado. Tente de novo."
+    },
+    "validation": {
+      "email": "Informe um e-mail válido.",
+      "passwordMin": "A senha precisa de pelo menos 8 caracteres."
+    }
+  },
+  "Consent": {
+    "title": "Antes de começar",
+    "description": "Leia e aceite os documentos abaixo para usar o VagaPilot. Você pode revisar seus consentimentos depois em Configurações.",
+    "legend": "Documentos obrigatórios",
+    "terms": "Li e aceito os Termos de uso",
+    "termsLink": "Ler os termos",
+    "privacy": "Li e aceito a Política de privacidade",
+    "privacyLink": "Ler a política",
+    "version": "Versão {version}",
+    "submit": "Aceitar e continuar",
+    "required": "Marque as duas opções para continuar.",
+    "error": "Não foi possível registrar o aceite. Tente de novo."
+  },
+  "Legal": {
+    "termsTitle": "Termos de uso",
+    "privacyTitle": "Política de privacidade",
+    "aiTitle": "Como usamos IA",
+    "draft": "Rascunho jurídico em revisão. O texto definitivo entra antes do lançamento público.",
+    "back": "Voltar"
+  },
+  "Activity": {
+    "title": "Atividade",
+    "description": "Registro das ações importantes na sua conta (spec 10.7).",
+    "empty": "Nenhum evento registrado ainda.",
+    "signIn": "Entre na conta para ver a atividade."
+  },
+  "Billing": {
+    "title": "Planos",
+    "subtitle": "Limites aplicados no servidor antes de chamadas de IA (ESPEC §14).",
+    "legalDraft": "Preços e condições são rascunho até revisão jurídica.",
+    "cta": "Assinar ou gerenciar",
+    "plans": {
+      "free": {
+        "name": "Grátis",
+        "price": "R$ 0",
+        "features": [
+          "15 análises/mês",
+          "1 trilha de CV",
+          "5 candidaturas assistidas/mês",
+          "Sem Gmail"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "R$ 49/mês · trial 7 dias",
+        "features": [
+          "200 análises/mês",
+          "Até 6 versões de CV",
+          "Gmail e e-mail com aprovação",
+          "Exportação CSV/PDF"
+        ]
+      },
+      "executive": {
+        "name": "Executivo",
+        "price": "R$ 129/mês",
+        "features": [
+          "Análises ilimitadas (uso justo)",
+          "Gmail e extensão",
+          "Suporte prioritário (beta)"
+        ]
+      }
+    }
+  },
+  "Nav": {
+    "label": "Navegação principal",
+    "mobileDescription": "Menu com as páginas do VagaPilot.",
+    "workspace": "Workspace",
+    "assistant": "Assistente",
+    "overview": "Visão geral",
+    "applications": "Candidaturas",
+    "tasks": "Tarefas",
+    "resumes": "Currículos",
+    "chat": "Conversar",
+    "searches": "Buscas salvas",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "signOut": "Sair",
+    "accountMenu": "Menu da conta",
+    "memory": "Memória"
+  },
+  "Plan": {
+    "name": "Plano Pro",
+    "usage": "{used} de {limit} análises"
+  },
+  "Profile": {
+    "completion": "Perfil {percent}% completo"
+  },
+  "Topbar": {
+    "greeting": "Olá, {name} — vamos avançar?",
+    "search": "Buscar",
+    "notifications": "Notificações",
+    "unread": "Há notificações não lidas",
+    "analyze": "Analisar nova vaga",
+    "toggleSidebar": "Alternar menu lateral"
+  },
+  "Command": {
+    "title": "Buscar",
+    "description": "Busque candidaturas e páginas.",
+    "placeholder": "Buscar candidatura ou página...",
+    "empty": "Nada encontrado.",
+    "pages": "Páginas",
+    "applications": "Candidaturas"
+  },
+  "AnalyzeDialog": {
+    "title": "Vamos analisar uma nova vaga",
+    "description": "Cole até 20 links. Eu extraio os requisitos, verifico duplicidade e comparo com seus fatos confirmados.",
+    "label": "Links das vagas",
+    "placeholder": "Cole um ou mais links, um por linha",
+    "invalid": "Cole pelo menos um link válido de vaga.",
+    "trust": "Nada será enviado sem sua aprovação.",
+    "cancel": "Agora não",
+    "submit": "Analisar com IA",
+    "tooMany": "Envie até {max} links por vez."
+  },
+  "Metrics": {
+    "label": "Resumo de desempenho",
+    "applications": "Candidaturas este mês",
+    "lastMonth": "{count} no mês passado",
+    "weekly": "Candidaturas por semana nas últimas 8 semanas: {counts}",
+    "fit": "Fit médio das vagas",
+    "fitSamples": "{count, plural, =0 {Nenhuma com fit} one {# com fit} other {# com fit}}",
+    "pending": "Ações pendentes",
+    "pendingNote": "Requer atenção",
+    "overdue": "{count, plural, one {# atrasada} other {# atrasadas}}",
+    "dueSoon": "{count, plural, one {# vence em 48 h} other {# vencem em 48 h}}",
+    "nothingUrgent": "Nada urgente",
+    "response": "Taxa de retorno",
+    "responseNote": "{count, plural, =0 {Nenhuma candidatura enviada ainda} one {Sobre # candidatura enviada} other {Sobre # candidaturas enviadas}}"
+  },
+  "Board": {
+    "title": "Pipeline de candidaturas",
+    "count": "{shown} de {total}",
+    "description": "Arraste os cards entre as etapas. Só valem as mudanças permitidas pelo fluxo de status.",
+    "label": "Kanban de candidaturas",
+    "addJob": "Adicionar vaga",
+    "fit": "fit",
+    "fitLabel": "{fit}% de aderência",
+    "fitNone": "sem fit calculado",
+    "card": "{role} na {company}, {fit}, status {status}, coluna {column}",
+    "columns": {
+      "descobertas": "Descobertas",
+      "candidatadas": "Candidatadas",
+      "em_processo": "Em processo",
+      "decisao": "Decisão"
+    },
+    "columnDescriptions": {
+      "descobertas": "Para avaliar",
+      "candidatadas": "Enviadas e em análise",
+      "em_processo": "Exigem atenção",
+      "decisao": "Ciclo finalizado"
+    },
+    "dnd": {
+      "instructions": "Para mover um card, pressione espaço. Use as setas esquerda e direita para trocar de etapa e espaço de novo para soltar. Esc cancela. Enter abre os detalhes.",
+      "picked": "{company} selecionada em {column}.",
+      "over": "{company} sobre {column}.",
+      "dropped": "{company} solta em {column}.",
+      "cancelled": "Movimento de {company} cancelado."
+    }
+  },
+  "Status": {
+    "rascunho": "Rascunho",
+    "descartada": "Pulada",
+    "em_andamento": "Em preenchimento",
+    "enviada": "Enviada",
+    "em_analise": "Em análise",
+    "etapa_pendente": "Teste/Etapa pendente",
+    "entrevista": "Entrevista",
+    "proposta": "Proposta",
+    "reprovada": "Reprovada",
+    "encerrada": "Encerrada"
+  },
+  "Rail": {
+    "nextActions": "Próximas ações",
+    "seeAll": "Ver todas",
+    "noActions": "Nada pendente",
+    "noActionsDescription": "Defina a próxima ação no detalhe de cada candidatura.",
+    "insightLabel": "Insight do VagaPilot",
+    "insightTitle": "Seu momento está forte.",
+    "insightBody": "Vagas com foco em <strong>liderança de plataforma</strong> têm gerado 2× mais retornos no seu perfil.",
+    "insightAction": "Ver vagas semelhantes",
+    "gmailTitle": "Gmail conectado",
+    "gmailDescription": "Última leitura {time}",
+    "gmailNeverSynced": "Aguardando a primeira sincronização",
+    "gmailOff": "Gmail não conectado",
+    "gmailOffDescription": "Conecte em Configurações para acompanhar respostas das empresas.",
+    "gmailConnect": "Conectar o Gmail",
+    "gmailReview": "{count, plural, one {# e-mail para revisar} other {# e-mails para revisar}}",
+    "gmailErrorTitle": "Reconecte o Gmail",
+    "gmailErrorDescription": "O Google recusou o acesso. Conecte de novo em Configurações."
+  },
+  "JobSheet": {
+    "title": "Detalhes da candidatura",
+    "fitExcellent": "Aderência excelente",
+    "fitHigh": "Aderência alta",
+    "fitModerate": "Aderência moderada",
+    "fitNote": "Fit calculado só com fatos confirmados. A decisão é sua.",
+    "openLink": "Abrir vaga",
+    "status": "Status",
+    "changeStatus": "Mudar status",
+    "chooseStatus": "Escolha o novo status",
+    "noTransitions": "Nenhuma mudança disponível",
+    "applyStatus": "Aplicar",
+    "statusHint": "Só aparecem as mudanças permitidas a partir do status atual.",
+    "nextAction": "Próxima ação",
+    "nextActionLabel": "O que fazer",
+    "nextActionPlaceholder": "Ex.: Enviar teste técnico",
+    "dueLabel": "Prazo",
+    "saveNextAction": "Salvar próxima ação",
+    "nextActionSaved": "Próxima ação salva",
+    "notes": "Notas",
+    "saveNotes": "Salvar notas",
+    "notesSaved": "Notas salvas",
+    "saveError": "Não foi possível salvar. Tente de novo.",
+    "timeline": "Linha do tempo",
+    "loadError": "Não foi possível carregar o histórico.",
+    "evidences": "Evidências",
+    "noEvidence": "Nenhuma evidência registrada ainda.",
+    "evidenceImage": "Captura da confirmação da candidatura na {company}",
+    "evidenceKinds": {
+      "screenshot": "Captura de tela",
+      "protocol_text": "Protocolo",
+      "email": "E-mail recebido",
+      "sent_email": "E-mail enviado",
+      "file": "Arquivo"
+    },
+    "archive": "Arquivar",
+    "prepare": "Preparar próxima etapa"
+  },
+  "Tasks": {
+    "title": "Suas ações",
+    "description": "Próximas ações das suas candidaturas, da mais urgente para a mais distante.",
+    "listLabel": "Próximas ações",
+    "done": "Feito",
+    "doneLabel": "Marcar como feita: {title} ({company})",
+    "completed": "Ação concluída",
+    "allDone": "Tudo em dia",
+    "allDoneDescription": "Nenhuma ação pendente agora. Defina a próxima ação no detalhe de cada candidatura.",
+    "due": {
+      "overdue": "Atrasada · {date}",
+      "soon": "{date}",
+      "scheduled": "{date}",
+      "undated": "Sem prazo"
+    }
+  },
+  "Resumes": {
+    "title": "Seus currículos",
+    "description": "Versões por trilha e idioma, sempre apoiadas em fatos confirmados.",
+    "add": "Adicionar versão",
+    "completeness": "{score}% de completude",
+    "languages": {
+      "pt-BR": "PT-BR",
+      "en": "EN"
+    }
+  },
+  "Placeholder": {
+    "backToOverview": "Ir para a visão geral",
+    "chat": {
+      "title": "Converse com o VagaPilot",
+      "description": "Cole links de vagas ou peça ajustes nas suas buscas e preferências."
+    },
+    "searches": {
+      "title": "Nenhuma busca salva",
+      "description": "Você poderá salvar critérios de cargo, local, modelo e faixa para receber vagas compatíveis."
+    },
+    "profile": {
+      "title": "Seu perfil",
+      "description": "Contato, experiências, idiomas, pretensão e respostas padrão ficam aqui. Esses dados são a única base que a IA usa sobre você."
+    },
+    "settings": {
+      "title": "Configurações",
+      "description": "Integrações, dispositivos pareados, privacidade e plano ficam aqui."
+    }
+  },
+  "Tracker": {
+    "title": "Candidaturas",
+    "description": "Todas as suas candidaturas com status, prazos e histórico. Exporte quando precisar.",
+    "new": "Nova candidatura",
+    "importAction": "Importar CSV",
+    "exportAction": "Exportar",
+    "exportCsv": "Planilha CSV (Excel)",
+    "exportPdf": "Relatório PDF",
+    "count": "{shown} de {total} candidaturas",
+    "loadError": {
+      "title": "Não foi possível carregar suas candidaturas",
+      "description": "Verifique a conexão com o banco e recarregue a página."
+    },
+    "tabs": {
+      "table": "Tabela",
+      "board": "Kanban"
+    },
+    "search": {
+      "label": "Buscar candidaturas",
+      "placeholder": "Empresa, cargo ou nota"
+    },
+    "filters": {
+      "label": "Filtros das candidaturas",
+      "button": "Filtros",
+      "active": "{count, plural, one {# filtro ativo} other {# filtros ativos}}",
+      "clear": "Limpar filtros",
+      "status": "Status",
+      "source": "Fonte",
+      "route": "Rota",
+      "fit": "Fit",
+      "period": "Período",
+      "periods": {
+        "tudo": "Todo o período",
+        "mes_atual": "Este mês",
+        "30d": "Últimos 30 dias",
+        "90d": "Últimos 90 dias",
+        "ano": "Este ano"
+      }
+    },
+    "sources": {
+      "linkedin": "LinkedIn",
+      "gupy": "Gupy",
+      "inhire": "InHire",
+      "greenhouse": "Greenhouse",
+      "lever": "Lever",
+      "workday": "Workday",
+      "successfactors": "SuccessFactors",
+      "quickin": "Quickin",
+      "jobbol": "Jobbol",
+      "solides": "Sólides",
+      "email": "E-mail",
+      "indicacao": "Indicação",
+      "outro": "Outro"
+    },
+    "routes": {
+      "extensao": "Extensão",
+      "email": "E-mail",
+      "manual": "Manual",
+      "autonomo": "Autônomo"
+    },
+    "regimes": {
+      "clt": "CLT",
+      "pj": "PJ",
+      "ambos": "CLT ou PJ",
+      "nao_informado": "Não informado"
+    },
+    "fit": {
+      "alto": "Alto",
+      "medio": "Médio",
+      "baixo": "Baixo",
+      "sem_fit": "Sem fit"
+    },
+    "table": {
+      "company": "Empresa e cargo",
+      "status": "Status",
+      "source": "Fonte",
+      "route": "Rota",
+      "fit": "Fit",
+      "date": "Data",
+      "next": "Próxima ação",
+      "actions": "Ações",
+      "rowActions": "Ações da candidatura {company}",
+      "open": "Abrir detalhes",
+      "changeStatus": "Mudar status para",
+      "noTransitions": "Nenhuma mudança disponível",
+      "emptyTitle": "Nenhuma candidatura ainda",
+      "emptyDescription": "Registre uma candidatura manualmente ou importe sua planilha.",
+      "emptyFiltered": "Nada com esses filtros",
+      "emptyFilteredDescription": "Ajuste a busca ou limpe os filtros para ver todas.",
+      "pagination": "Paginação da tabela",
+      "page": "Página {page} de {pages}",
+      "previous": "Anterior",
+      "nextPage": "Próxima"
+    },
+    "transitions": {
+      "moved": "{company}: {status}",
+      "invalid": "{company} não pode ir de {from} para {to}.",
+      "invalidColumn": "{company} não pode ir de {from} para {column}.",
+      "conflict": "A candidatura mudou enquanto você editava. Os dados foram atualizados.",
+      "error": "Não foi possível salvar a mudança. Tente de novo.",
+      "chooseTitle": "Qual é o novo status?",
+      "chooseDescription": "{company} vai para {column}. Escolha o status exato.",
+      "cancel": "Cancelar",
+      "reasons": {
+        "same_status": "A candidatura já está nesse status.",
+        "not_allowed": "Essa mudança não faz parte do fluxo de status.",
+        "terminal_requires_user": "Status final só pode ser reaberto por você.",
+        "regression": "Atualizações automáticas não fazem o status voltar.",
+        "missing_evidence": "Atualizações automáticas precisam de evidência.",
+        "needs_review": "Confiança baixa: a mudança vai para revisão."
+      }
+    },
+    "events": {
+      "empty": "Nenhum evento registrado.",
+      "created": "Candidatura registrada como {to}",
+      "imported": "Importada da planilha como {to}",
+      "statusChange": "{from} → {to}",
+      "deadlineSet": "Próxima ação: {action}",
+      "deadlineCleared": "Próxima ação removida",
+      "actionDone": "Feito: {action}",
+      "note": "Notas atualizadas",
+      "questionAnswered": "Pergunta respondida",
+      "emailLinked": "E-mail vinculado",
+      "evidenceAdded": "Evidência adicionada",
+      "confidence": "confiança {value}%",
+      "due": "prazo {date}",
+      "email": "E-mail: {subject}",
+      "withEvidence": "com evidência"
+    },
+    "eventSources": {
+      "usuario": "Você",
+      "agente": "Assistente",
+      "extensao": "Extensão",
+      "gmail": "Gmail",
+      "worker": "Automação",
+      "sistema": "Sistema"
+    },
+    "form": {
+      "title": "Nova candidatura",
+      "description": "Registre uma candidatura feita fora do VagaPilot. Você pode completar os dados depois.",
+      "fromAnalyze": "A análise automática por link chega em breve. Por enquanto, registre a vaga manualmente.",
+      "company": "Empresa",
+      "role": "Cargo",
+      "link": "Link da vaga",
+      "source": "Fonte",
+      "route": "Rota",
+      "status": "Status",
+      "appliedAt": "Data de envio",
+      "cv": "CV usado",
+      "cvNone": "Não informado",
+      "salary": "Pretensão informada",
+      "salaryHint": "Como você informou à empresa, por exemplo “R$ 30.000 CLT”.",
+      "nextAction": "Próxima ação",
+      "dueAt": "Prazo da próxima ação",
+      "notes": "Notas",
+      "submit": "Criar candidatura",
+      "cancel": "Cancelar",
+      "created": "Candidatura na {company} criada",
+      "error": "Não foi possível criar a candidatura. Tente de novo.",
+      "errors": {
+        "required": "Campo obrigatório.",
+        "tooLong": "Texto longo demais.",
+        "invalidUrl": "Informe um link que comece com http:// ou https://.",
+        "invalidDate": "Data inválida."
+      }
+    },
+    "import": {
+      "title": "Importar planilha",
+      "description": "Traga as candidaturas que você já controla em planilha. Nada é enviado a empresas.",
+      "file": "Arquivo CSV",
+      "fileHint": "Separador ; ou , com cabeçalho na primeira linha. Até 2 MB e {max} linhas.",
+      "tooLarge": "O arquivo passa de 2 MB.",
+      "emptyFile": "O arquivo não tem cabeçalho e linhas de dados.",
+      "mapping": "Mapeie as colunas",
+      "mappingHint": "{file}: {count, plural, one {# linha} other {# linhas}}. Confira o que cada coluna representa.",
+      "field": "Campo do VagaPilot",
+      "column": "Coluna da planilha",
+      "sample": "Exemplo (1ª linha)",
+      "skip": "Não importar",
+      "unnamed": "Coluna {index}",
+      "required": "obrigatório",
+      "missingRequired": "Mapeie as colunas de Empresa e Cargo para continuar.",
+      "fields": {
+        "company": "Empresa",
+        "roleTitle": "Cargo",
+        "source": "Fonte",
+        "route": "Rota",
+        "status": "Status",
+        "appliedAt": "Data de envio",
+        "link": "Link",
+        "salaryInformed": "Pretensão",
+        "nextAction": "Próxima ação",
+        "nextActionDueAt": "Prazo",
+        "notes": "Notas"
+      },
+      "submit": "Importar {count, plural, one {# linha} other {# linhas}}",
+      "importing": "Importando…",
+      "cancel": "Cancelar",
+      "error": "Não foi possível importar o arquivo. Tente de novo.",
+      "inserted": "{count, plural, =0 {Nenhuma candidatura importada} one {# candidatura importada} other {# candidaturas importadas}} em {seconds} s",
+      "processed": "{count, plural, one {# linha processada.} other {# linhas processadas.}}",
+      "truncated": "Só as primeiras {max} linhas foram lidas.",
+      "rejectedTitle": "{count, plural, one {# linha rejeitada} other {# linhas rejeitadas}}",
+      "line": "Linha {line}",
+      "reasons": {
+        "missing_company": "empresa vazia",
+        "missing_role": "cargo vazio",
+        "invalid_status": "status desconhecido",
+        "invalid_source": "fonte desconhecida",
+        "invalid_route": "rota desconhecida",
+        "invalid_date": "data de envio inválida",
+        "invalid_due_date": "prazo inválido",
+        "invalid_link": "link inválido",
+        "too_long": "texto longo demais"
+      },
+      "another": "Importar outro arquivo",
+      "close": "Concluir"
+    },
+    "export": {
+      "columns": {
+        "date": "Data",
+        "company": "Empresa",
+        "role": "Cargo",
+        "source": "Fonte",
+        "route": "Rota",
+        "link": "Link",
+        "cv": "CV usado",
+        "salary": "Pretensão",
+        "regime": "Regime",
+        "status": "Status",
+        "nextAction": "Próxima ação",
+        "dueAt": "Prazo",
+        "notes": "Notas"
+      },
+      "pdf": {
+        "title": "Relatório de candidaturas",
+        "subtitle": "Preparado para {name}",
+        "periodRange": "Período: {period} ({from} a {to})",
+        "periodAll": "Período: todas as candidaturas",
+        "generated": "Gerado em {date}",
+        "totals": "Totais",
+        "total": "Candidaturas no relatório",
+        "responseRate": "Taxa de retorno",
+        "byStatus": "Por status",
+        "bySource": "Por fonte",
+        "byTrack": "Por trilha de CV",
+        "withoutTrack": "Sem CV informado",
+        "table": "Candidaturas",
+        "legend": "Legenda de cores",
+        "empty": "Nenhuma candidatura com esses filtros.",
+        "actions": "Suas ações",
+        "actionsEmpty": "Nenhuma ação pendente.",
+        "noDue": "Sem prazo",
+        "nextColumn": "Próxima ação e prazo",
+        "page": "Página {page} de {total}"
+      }
+    }
+  },
+  "Forms": {
+    "save": "Salvar",
+    "saved": "Alterações salvas",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "delete": "Remover",
+    "editItem": "Editar {item}",
+    "deleteItem": "Remover {item}",
+    "confirmDeleteTitle": "Remover este item?",
+    "confirmDeleteDescription": "“{item}” será removido do seu perfil. Esta ação não pode ser desfeita.",
+    "notConfigured": "Não há conexão com o banco de dados nesta sessão. Rode o Supabase local e entre novamente.",
+    "errors": {
+      "unauthorized": "Sua sessão expirou. Entre novamente.",
+      "not_configured": "O banco de dados não está configurado neste ambiente.",
+      "invalid_request": "Revise os campos e tente de novo.",
+      "not_found": "Não encontramos este item. Atualize a página.",
+      "conflict": "Já existe um item igual. Edite o existente.",
+      "consent_required": "Ative o consentimento de diversidade antes de salvar esses dados.",
+      "internal_error": "Não foi possível salvar. Tente de novo."
+    },
+    "validation": {
+      "required": "Campo obrigatório.",
+      "tooLong": "Texto longo demais.",
+      "invalidUrl": "Informe um link completo, começando com https://.",
+      "invalidEmail": "Informe um e-mail válido.",
+      "invalidPhone": "Informe um telefone válido.",
+      "invalidDate": "Informe uma data válida.",
+      "invalidState": "Use a sigla do estado, por exemplo SP.",
+      "invalidMonth": "Informe mês e ano.",
+      "invalidYear": "Informe o ano com 4 dígitos.",
+      "invalidCpf": "CPF inválido. Confira os dígitos.",
+      "invalidAmount": "Informe um valor, por exemplo 12.000,00.",
+      "invalidKey": "Use letras minúsculas, números e _ (ex.: possui_cnh).",
+      "endRequired": "Informe o fim ou marque “Trabalho aqui atualmente”.",
+      "endBeforeStart": "O fim não pode ser antes do início.",
+      "minAboveTarget": "O mínimo não pode ser maior que o alvo.",
+      "pickOne": "Escolha pelo menos uma opção.",
+      "patternNeedsName": "O padrão precisa ter '{first}', '{last}' ou '{full}'.",
+      "invalid": "Valor inválido."
+    }
+  },
+  "ProfileOptions": {
+    "employmentType": {
+      "clt": "CLT",
+      "pj": "PJ",
+      "autonomo": "Autônomo",
+      "estagio": "Estágio",
+      "temporario": "Temporário",
+      "cooperado": "Cooperado",
+      "outro": "Outro"
+    },
+    "seniority": {
+      "estagio": "Estágio",
+      "junior": "Júnior",
+      "pleno": "Pleno",
+      "senior": "Sênior",
+      "especialista": "Especialista",
+      "coordenador": "Coordenação",
+      "gerente": "Gerência",
+      "head": "Head",
+      "diretor": "Diretoria",
+      "vp": "VP",
+      "c_level": "C-level"
+    },
+    "workModel": {
+      "presencial": "Presencial",
+      "hibrido": "Híbrido",
+      "remoto": "Remoto"
+    },
+    "regime": {
+      "clt": "CLT",
+      "pj": "PJ"
+    },
+    "languageLevel": {
+      "basico": "Básico",
+      "intermediario": "Intermediário",
+      "avancado": "Avançado",
+      "fluente": "Fluente",
+      "nativo": "Nativo"
+    },
+    "cefrNone": "Sem CEFR",
+    "educationLevel": {
+      "medio": "Ensino médio",
+      "tecnico": "Técnico",
+      "graduacao": "Graduação",
+      "pos_graduacao": "Pós-graduação",
+      "mba": "MBA",
+      "mestrado": "Mestrado",
+      "doutorado": "Doutorado",
+      "outro": "Outro"
+    },
+    "educationStatus": {
+      "concluido": "Concluído",
+      "cursando": "Cursando",
+      "trancado": "Trancado"
+    },
+    "period": {
+      "mensal": "Mensal",
+      "anual": "Anual",
+      "hora": "Por hora"
+    },
+    "availability": {
+      "imediata": "Imediata",
+      "15_dias": "Em 15 dias",
+      "30_dias": "Em 30 dias",
+      "60_dias": "Em 60 dias",
+      "a_combinar": "A combinar"
+    },
+    "yesNoMaybe": {
+      "sim": "Sim",
+      "nao": "Não",
+      "a_combinar": "A combinar"
+    },
+    "situation": {
+      "empregado": "Empregado(a)",
+      "nao_empregado": "Não empregado(a)"
+    },
+    "payMode": {
+      "informar": "Informar valor",
+      "zero": "Informar 0 (sem remuneração atual)",
+      "prefiro_nao_informar": "Prefiro não informar"
+    },
+    "cvLanguage": {
+      "pt-BR": "Português (PT)",
+      "en": "Inglês (EN)",
+      "es": "Espanhol (ES)"
+    },
+    "gender": {
+      "mulher": "Mulher",
+      "homem": "Homem",
+      "nao_binario": "Pessoa não binária",
+      "outro": "Outro",
+      "prefiro_nao_informar": "Prefiro não informar"
+    },
+    "orientation": {
+      "heterossexual": "Heterossexual",
+      "homossexual": "Homossexual",
+      "bissexual": "Bissexual",
+      "outra": "Outra",
+      "prefiro_nao_informar": "Prefiro não informar"
+    },
+    "race": {
+      "branca": "Branca",
+      "preta": "Preta",
+      "parda": "Parda",
+      "amarela": "Amarela",
+      "indigena": "Indígena",
+      "prefiro_nao_informar": "Prefiro não informar"
+    },
+    "pcd": {
+      "sim": "Sim",
+      "nao": "Não",
+      "prefiro_nao_informar": "Prefiro não informar"
+    },
+    "answerKey": {
+      "salario_atual": "Salário atual",
+      "remuneracao_atual": "Remuneração atual",
+      "disponibilidade_inicio": "Disponibilidade para início",
+      "possui_cnh": "Possui CNH",
+      "aceita_viagens": "Aceita viagens",
+      "como_soube_da_vaga": "Como soube da vaga",
+      "nivel_ingles": "Nível de inglês",
+      "pcd": "Pessoa com deficiência (PcD)"
+    }
+  },
+  "ProfilePage": {
+    "title": "Seu perfil",
+    "description": "Estes dados são a única base que a IA usa sobre você. Nada é inventado e nada é enviado sem sua aprovação.",
+    "tabsLabel": "Seções do perfil",
+    "encrypted": "Criptografado",
+    "tabs": {
+      "contato": "Contato e documentos",
+      "trajetoria": "Experiências e formação",
+      "idiomas": "Idiomas e competências",
+      "preferencias": "Preferências e pretensão",
+      "respostas": "Respostas padrão",
+      "bloqueadas": "Empresas bloqueadas",
+      "diversidade": "Diversidade"
+    },
+    "contact": {
+      "title": "Contato",
+      "description": "Como os recrutadores falam com você e como seu nome aparece nos currículos.",
+      "firstName": "Primeiro nome",
+      "lastName": "Sobrenome",
+      "displayName": "Nome de exibição",
+      "displayNameHint": "Usado no app e nas saudações.",
+      "email": "E-mail de contato",
+      "phone": "Telefone",
+      "city": "Cidade",
+      "state": "UF",
+      "birthDate": "Data de nascimento",
+      "linkedin": "Perfil do LinkedIn",
+      "portfolio": "Portfólio ou site",
+      "cvPattern": "Padrão do nome do arquivo de CV",
+      "cvPatternHint": "Use '{first}', '{last}' e '{lang}'. Exemplo: CV-'{first}'-'{last}'-'{lang}' vira CV-Marina-Alves-PT.pdf. O nome original do upload nunca é usado."
+    },
+    "address": {
+      "title": "Endereço",
+      "description": "Opcional. Só é usado para preencher formulários que pedem endereço.",
+      "postalCode": "CEP",
+      "street": "Rua",
+      "number": "Número",
+      "complement": "Complemento",
+      "district": "Bairro"
+    },
+    "documents": {
+      "title": "Documentos",
+      "description": "Opcionais e criptografados. Nunca vão para a IA; só preenchem formulários com sua aprovação.",
+      "cpf": "CPF",
+      "rg": "RG",
+      "cnh": "CNH"
+    },
+    "situation": {
+      "title": "Situação atual",
+      "description": "Ajuda a responder perguntas como “empresa atual” e “remuneração atual”.",
+      "situation": "Situação",
+      "currentCompany": "Empresa atual",
+      "currentCompanyHint": "Se trabalha como autônomo(a), escreva como prefere que apareça.",
+      "payMode": "Remuneração atual",
+      "currentPay": "Valor mensal (R$)"
+    },
+    "preferences": {
+      "title": "Preferências",
+      "description": "Filtros que o assistente respeita ao analisar vagas.",
+      "workModels": "Modelos de trabalho aceitos",
+      "regimes": "Regimes aceitos",
+      "regimesHint": "Marque PJ se aceita propostas como pessoa jurídica.",
+      "cities": "Cidades de interesse",
+      "citiesHint": "Separe por vírgulas.",
+      "availability": "Disponibilidade para início",
+      "travel": "Aceita viagens",
+      "relocation": "Aceita mudança de cidade"
+    },
+    "experiences": {
+      "title": "Experiências",
+      "description": "Datas em mês/ano e tipo de vínculo. Os anos de experiência saem daqui.",
+      "add": "Adicionar experiência",
+      "edit": "Editar experiência",
+      "dialogDescription": "Use exatamente o que consta no seu histórico.",
+      "company": "Empresa",
+      "role": "Cargo",
+      "employmentType": "Tipo de vínculo",
+      "start": "Início (mês/ano)",
+      "end": "Fim (mês/ano)",
+      "current": "Trabalho aqui atualmente",
+      "location": "Local",
+      "descriptionField": "Descrição",
+      "currentShort": "atual",
+      "empty": "Nenhuma experiência cadastrada",
+      "emptyDescription": "Adicione manualmente ou envie um CV e confirme as experiências detectadas.",
+      "deleted": "Experiência removida"
+    },
+    "educations": {
+      "title": "Formação",
+      "description": "Cursos, graduações e pós.",
+      "add": "Adicionar formação",
+      "edit": "Editar formação",
+      "empty": "Nenhuma formação cadastrada",
+      "institution": "Instituição",
+      "degree": "Curso",
+      "degreePlaceholder": "Bacharelado, MBA...",
+      "field": "Área",
+      "level": "Nível",
+      "status": "Situação",
+      "startYear": "Ano de início",
+      "endYear": "Ano de conclusão",
+      "deleted": "Formação removida"
+    },
+    "languages": {
+      "title": "Idiomas",
+      "description": "Nível em rótulo PT e, se quiser, o CEFR.",
+      "add": "Adicionar idioma",
+      "edit": "Editar idioma",
+      "empty": "Nenhum idioma cadastrado",
+      "language": "Idioma",
+      "languagePlaceholder": "Inglês",
+      "level": "Nível",
+      "cefr": "CEFR (opcional)",
+      "deleted": "Idioma removido"
+    },
+    "skills": {
+      "title": "Competências",
+      "description": "O que você digita aqui vira fato confirmado, porque é afirmação sua.",
+      "label": "Nova competência",
+      "placeholder": "Kubernetes",
+      "add": "Adicionar",
+      "hint": "Uma por vez. Remover uma competência revoga o fato.",
+      "empty": "Nenhuma competência cadastrada.",
+      "remove": "Remover {skill}",
+      "added": "Competência adicionada",
+      "removed": "Competência removida"
+    },
+    "salary": {
+      "title": "Pretensão salarial",
+      "description": "Regras por senioridade × regime. O assistente sugere a pretensão a partir delas, sem inventar valores.",
+      "add": "Adicionar regra",
+      "edit": "Editar regra",
+      "dialogDescription": "Uma regra por combinação de senioridade e regime.",
+      "empty": "Nenhuma regra de pretensão",
+      "emptyDescription": "Exemplo: Gerência + CLT = alvo R$ 32.000.",
+      "minValue": "mín. {value}",
+      "targetValue": "alvo {value}",
+      "seniority": "Senioridade",
+      "regime": "Regime",
+      "min": "Mínimo (opcional)",
+      "target": "Alvo",
+      "currency": "Moeda",
+      "period": "Período",
+      "deleted": "Regra removida"
+    },
+    "answers": {
+      "title": "Respostas padrão",
+      "description": "Respostas reutilizáveis para perguntas de formulário. As sensíveis ficam criptografadas.",
+      "add": "Adicionar resposta",
+      "edit": "Editar resposta",
+      "empty": "Nenhuma resposta padrão",
+      "emptyDescription": "Exemplos: disponibilidade para início, possui CNH, como soube da vaga.",
+      "key": "Chave",
+      "keyHint": "Identificador curto. Sugestões: {examples}.",
+      "question": "Pergunta de exemplo",
+      "questionPlaceholder": "Qual sua disponibilidade para início?",
+      "answer": "Resposta",
+      "language": "Idioma da resposta",
+      "sensitive": "Resposta sensível",
+      "sensitiveHint": "Respostas sensíveis são criptografadas e nunca vão para a IA.",
+      "sensitiveForced": "Esta chave é sempre tratada como sensível.",
+      "deleted": "Resposta removida"
+    },
+    "blocklist": {
+      "title": "Empresas bloqueadas",
+      "description": "Vagas dessas empresas são marcadas e nunca sugeridas. Variações como “Ltda.”, “S.A.” e “Brasil” já são reconhecidas.",
+      "add": "Bloquear empresa",
+      "edit": "Editar empresa bloqueada",
+      "dialogDescription": "Informe o nome e, se souber, apelidos e domínios.",
+      "empty": "Nenhuma empresa bloqueada",
+      "emptyDescription": "Bloqueie seu empregador atual ou empresas em que não quer trabalhar.",
+      "company": "Empresa",
+      "aliases": "Apelidos",
+      "domains": "Domínios",
+      "listHint": "Separe por vírgulas.",
+      "reason": "Motivo (opcional)",
+      "deleted": "Empresa desbloqueada"
+    },
+    "diversity": {
+      "title": "Diversidade",
+      "description": "Opcional e sensível. Só é guardado com seu consentimento e fica criptografado. O padrão é “Prefiro não informar”.",
+      "consentLabel": "Autorizo o tratamento dos meus dados de diversidade",
+      "consentHint": "Você pode revogar a qualquer momento. Ao revogar, apagamos os dados de diversidade salvos.",
+      "consentGranted": "Consentimento registrado",
+      "consentRevoked": "Consentimento revogado e dados apagados",
+      "disabledTitle": "Campos desabilitados",
+      "disabledDescription": "Sem o consentimento específico, não salvamos dados de diversidade.",
+      "gender": "Gênero",
+      "orientation": "Orientação sexual",
+      "race": "Raça/cor",
+      "pcd": "Pessoa com deficiência",
+      "save": "Salvar diversidade"
+    }
+  },
+  "Cvs": {
+    "title": "Seus currículos",
+    "description": "Versões por trilha e idioma. No download, o arquivo sempre recebe o nome neutro do seu perfil.",
+    "reviewFacts": "{count, plural, one {Revisar # fato} other {Revisar # fatos}}",
+    "listLabel": "Versões de currículo",
+    "noTrackTitle": "Sem trilha",
+    "default": "Padrão",
+    "factsToReview": "{count, plural, one {# fato para revisar} other {# fatos para revisar}}",
+    "assignHint": "Associe a uma trilha para poder marcar como padrão.",
+    "previous": "{count, plural, one {# versão anterior} other {# versões anteriores}}",
+    "downloadVersion": "Baixar versão {label}",
+    "makeDefaultVersion": "Tornar {label} a versão padrão",
+    "defaultSet": "Versão padrão atualizada",
+    "download": "Baixar",
+    "edit": "Editar",
+    "reprocess": "Reprocessar",
+    "reprocessed": "Currículo reprocessado",
+    "deleted": "Versão removida",
+    "deleteVersion": "Remover versão {label}",
+    "editVersion": "Editar versão",
+    "label": "Rótulo interno",
+    "labelHint": "Só você vê. O arquivo baixado usa o nome neutro.",
+    "empty": {
+      "title": "Nenhum currículo ainda",
+      "description": "Envie um PDF ou DOCX. Extraímos o texto e propomos fatos para você confirmar."
+    },
+    "status": {
+      "pendente": "Processando",
+      "pronto": "Texto extraído",
+      "falhou": "Não foi possível ler"
+    },
+    "upload": {
+      "title": "Enviar currículo",
+      "description": "PDF ou DOCX de até 10 MB e até 15 páginas. O arquivo fica em uma pasta privada sua.",
+      "file": "Arquivo do currículo",
+      "hint": "PDF ou DOCX, até 10 MB cada. Até {max} arquivos por vez.",
+      "track": "Trilha",
+      "noTrack": "Definir depois",
+      "language": "Idioma do currículo",
+      "submit": "Enviar e extrair fatos",
+      "sending": "Enviando...",
+      "done": "{count, plural, one {Currículo enviado} other {# currículos enviados}}. {facts, plural, =0 {Nenhum fato proposto.} one {# fato para revisar.} other {# fatos para revisar.}}",
+      "errors": {
+        "file_too_large": "O arquivo passa de 10 MB.",
+        "file_empty": "O arquivo está vazio.",
+        "unsupported_type": "Envie um PDF ou DOCX válido.",
+        "too_many_pages": "O PDF tem mais de 15 páginas.",
+        "no_text": "Não encontramos texto no arquivo. Ele pode ser uma imagem escaneada.",
+        "unreadable": "Não conseguimos ler o arquivo.",
+        "invalid_track": "Trilha inválida.",
+        "unauthorized": "Sua sessão expirou. Entre novamente.",
+        "unknown": "Não foi possível enviar. Tente de novo.",
+        "tooMany": "Envie no máximo {max} arquivos por vez.",
+        "noFile": "Escolha um arquivo."
+      }
+    },
+    "tracks": {
+      "title": "Trilhas",
+      "description": "Agrupe versões por foco de carreira, como “Operações/Plataforma” ou “Gestão de Engenharia”.",
+      "add": "Nova trilha",
+      "edit": "Editar trilha",
+      "empty": "Nenhuma trilha criada.",
+      "deleted": "Trilha removida",
+      "dialogDescription": "As versões continuam salvas se a trilha for removida.",
+      "name": "Nome",
+      "namePlaceholder": "Gestão de Engenharia",
+      "descriptionField": "Descrição",
+      "keywords": "Palavras-chave",
+      "keywordsHint": "Separe por vírgulas. Ajudam a recomendar a trilha certa para cada vaga."
+    }
+  },
+  "Facts": {
+    "title": "Confirme seus fatos",
+    "description": "Só fatos confirmados entram no assistente. Cada sugestão mostra o trecho do CV de onde saiu.",
+    "selectAll": "Selecionar todos",
+    "selectedCount": "{count} de {total} selecionados",
+    "confirmSelected": "Confirmar selecionados",
+    "rejectSelected": "Rejeitar selecionados",
+    "otherGroup": "Outros fatos",
+    "otherDescription": "Idiomas, competências e certificações.",
+    "linked": "Experiência do perfil",
+    "detected": "Detectada no CV",
+    "factCount": "{count, plural, one {# fato} other {# fatos}}",
+    "addExperience": "Adicionar ao perfil",
+    "confirmGroup": "Confirmar todos",
+    "select": "Selecionar: {fact}",
+    "edited": "Editado",
+    "manual": "Manual",
+    "excerpt": "Trecho do CV",
+    "confirm": "Confirmar",
+    "confirmOne": "Confirmar: {fact}",
+    "edit": "Editar",
+    "editOne": "Editar e confirmar: {fact}",
+    "reject": "Rejeitar",
+    "rejectOne": "Rejeitar: {fact}",
+    "confirmed": "{count, plural, one {Fato confirmado} other {# fatos confirmados}}",
+    "rejected": "{count, plural, one {Fato rejeitado} other {# fatos rejeitados}}",
+    "editTitle": "Editar e confirmar fato",
+    "editDescription": "Ajuste o texto para que ele diga exatamente o que é verdade. O trecho original fica registrado.",
+    "editSubmit": "Salvar e confirmar",
+    "statement": "Fato",
+    "kind": "Tipo",
+    "goToCvs": "Enviar currículo",
+    "kinds": {
+      "conquista": "Conquista",
+      "competencia": "Competência",
+      "ferramenta": "Ferramenta",
+      "certificacao": "Certificação",
+      "idioma": "Idioma",
+      "dominio": "Domínio",
+      "metrica": "Métrica"
+    },
+    "status": {
+      "label": "Filtrar fatos por estado",
+      "proposto": "Para revisar",
+      "confirmado": "Confirmados",
+      "rejeitado": "Rejeitados"
+    },
+    "empty": {
+      "proposto": {
+        "title": "Nenhum fato para revisar",
+        "description": "Envie um currículo para receber sugestões de fatos com o trecho de origem."
+      },
+      "confirmado": {
+        "title": "Nenhum fato confirmado ainda",
+        "description": "Confirme as sugestões para que o assistente possa usá-las."
+      },
+      "rejeitado": {
+        "title": "Nenhum fato rejeitado",
+        "description": "Fatos rejeitados nunca são usados pelo assistente."
+      }
+    }
+  },
+  "Onboarding": {
+    "title": "Configure seu VagaPilot",
+    "description": "Leva uns 10 minutos. Você pode parar e continuar depois de onde parou.",
+    "later": "Continuar depois",
+    "stepOf": "Etapa {step} de {total}",
+    "progress": "Progresso: etapa {step} de {total}",
+    "navLabel": "Navegação do onboarding",
+    "back": "Voltar",
+    "next": "Continuar",
+    "skipOrContinue": "Continuar (pode revisar depois)",
+    "finish": "Concluir e ir para o chat",
+    "saveError": "Não foi possível salvar o progresso.",
+    "savedForLater": "Progresso salvo. Continue quando quiser.",
+    "cannotFinish": "Falta enviar um currículo ou preencher as respostas obrigatórias.",
+    "finished": "Tudo pronto! Cole o link de uma vaga para começar.",
+    "blockedTitle": "Para continuar",
+    "missingTitle": "Antes de concluir",
+    "checklist": "Respostas obrigatórias",
+    "done": "(feito)",
+    "pending": "(pendente)",
+    "steps": {
+      "cvs": {
+        "label": "Currículos",
+        "title": "Envie seus currículos",
+        "description": "De 1 a 6 arquivos PDF ou DOCX. Extraímos o texto e propomos fatos com o trecho de origem."
+      },
+      "fatos": {
+        "label": "Fatos",
+        "title": "Confirme seus fatos",
+        "description": "Marque o que é verdade, edite ou rejeite. Pode pular e voltar depois em Currículos."
+      },
+      "trilhas": {
+        "label": "Trilhas e idiomas",
+        "title": "Organize por trilha e idioma",
+        "description": "Crie trilhas como “Operações/Plataforma” e diga o idioma de cada versão."
+      },
+      "respostas": {
+        "label": "Respostas",
+        "title": "Respostas obrigatórias",
+        "description": "Pretensão por senioridade, disponibilidade, modelo de trabalho, regimes e idiomas."
+      },
+      "bloqueadas": {
+        "label": "Empresas bloqueadas",
+        "title": "Empresas que você não quer",
+        "description": "Opcional. Bloqueie seu empregador atual ou empresas que prefere evitar."
+      },
+      "convites": {
+        "label": "Integrações",
+        "title": "Integrações opcionais",
+        "description": "Gmail e extensão chegam nas próximas fases. Você pode concluir sem elas."
+      }
+    },
+    "requirements": {
+      "hasCv": "Pelo menos 1 currículo enviado",
+      "hasSalaryRule": "Pretensão por senioridade",
+      "hasLanguage": "Nível de pelo menos 1 idioma",
+      "hasWorkModels": "Modelo de trabalho aceito",
+      "hasRegimes": "Regimes aceitos (CLT/PJ)",
+      "hasAvailability": "Disponibilidade para início"
+    },
+    "blocked": {
+      "cvs": "Envie pelo menos um currículo para seguir.",
+      "respostas": "Preencha as respostas obrigatórias da lista acima para seguir."
+    },
+    "cvs": {
+      "uploaded": "Currículos enviados",
+      "facts": "{count, plural, =0 {sem fatos} one {# fato} other {# fatos}}"
+    },
+    "facts": {
+      "emptyTitle": "Nenhum fato para revisar",
+      "emptyDescription": "Tudo revisado, ou o currículo ainda está sendo processado."
+    },
+    "invites": {
+      "soon": "Em breve",
+      "gmail": {
+        "title": "Conectar o Gmail",
+        "description": "Atualiza o status das candidaturas a partir dos e-mails de recrutadores. Só leitura, com seu consentimento.",
+        "action": "Conectar Gmail"
+      },
+      "extension": {
+        "title": "Instalar a extensão",
+        "description": "Preenche formulários de candidatura com seus dados aprovados. O clique final é sempre seu.",
+        "action": "Instalar extensão"
+      }
+    },
+    "chatCta": {
+      "title": "Termine de configurar seu perfil",
+      "description": "Com um currículo e as respostas obrigatórias, o assistente consegue analisar vagas usando só fatos confirmados.",
+      "action": "Continuar configuração"
+    }
+  },
+  "Settings": {
+    "title": "Configurações",
+    "description": "Gerencie integrações, a extensão Chrome e preferências da conta.",
+    "integrations": "Integrações",
+    "integrationsDescription": "Conecte o Gmail para acompanhar respostas das empresas e pareie a extensão para preencher formulários. Você decide o que ligar e pode revogar a qualquer momento.",
+    "more": "Exportação de dados, cobrança e preferências avançadas de privacidade chegam nas próximas fases. Preferências do assistente ficam em Memória; perfil e CVs nas rotas correspondentes.",
+    "extension": {
+      "title": "Extensão Chrome",
+      "description": "Pareie a extensão com um código de 6 dígitos (válido por 10 minutos). O token fica só neste navegador.",
+      "hint": "Instale a extensão VagaPilot, clique em Parear e digite o código aqui gerado.",
+      "generate": "Gerar código",
+      "generated": "Código gerado. Digite-o na extensão em até 10 minutos.",
+      "codeLabel": "Código de pareamento",
+      "expires": "Expira às {time}"
+    }
+  },
+  "SettingsModel": {
+    "yes": "Sim",
+    "no": "Não",
+    "fields": {
+      "query": "Cargo ou palavras-chave",
+      "seniority": "Nível",
+      "location": "Local",
+      "radiusKm": "Raio (km)",
+      "workModel": "Modelo",
+      "regime": "Regime",
+      "language": "Idioma da vaga",
+      "salaryMin": "Salário mínimo (R$)",
+      "salaryMax": "Salário máximo (R$)",
+      "postedWithinDays": "Publicada em até",
+      "excludedCompanies": "Empresas excluídas",
+      "frequency": "Frequência",
+      "timeOfDay": "Horário",
+      "company_name": "Empresa",
+      "level": "Nível",
+      "cefr": "CEFR",
+      "approval_mode": "Modo de aprovação",
+      "value": "Valor",
+      "active": "Ativa",
+      "work_model": "Modelo",
+      "time_of_day": "Horário",
+      "excluded_companies": "Empresas excluídas",
+      "posted_within_days": "Publicada em até",
+      "salary_min": "Salário mínimo",
+      "salary_max": "Salário máximo",
+      "radius_km": "Raio (km)",
+      "preference": "Preferência",
+      "salaryRules": "Pretensões"
+    },
+    "values": {
+      "seniority": {
+        "estagio": "Estágio",
+        "junior": "Júnior",
+        "pleno": "Pleno",
+        "senior": "Sênior",
+        "especialista": "Especialista",
+        "coordenador": "Coordenação",
+        "gerente": "Gerência",
+        "head": "Head",
+        "diretor": "Diretoria",
+        "vp": "VP",
+        "c_level": "C-level"
+      },
+      "workModel": {
+        "presencial": "Presencial",
+        "hibrido": "Híbrido",
+        "remoto": "Remoto"
+      },
+      "frequency": {
+        "diaria": "Diária",
+        "dias_uteis": "Dias úteis",
+        "semanal": "Semanal"
+      },
+      "timeOfDay": {
+        "manha": "Manhã",
+        "tarde": "Tarde",
+        "noite": "Noite"
+      },
+      "approvalMode": {
+        "pausar_antes": "Pausar antes de enviar",
+        "envie_direto": "Envie direto"
+      },
+      "fit": {
+        "alto": "Fit alto",
+        "medio": "Fit médio",
+        "baixo": "Fit baixo"
+      },
+      "level": {
+        "basico": "Básico",
+        "intermediario": "Intermediário",
+        "avancado": "Avançado",
+        "fluente": "Fluente",
+        "nativo": "Nativo"
+      },
+      "regime": {
+        "clt": "CLT",
+        "pj": "PJ",
+        "ambos": "CLT ou PJ"
+      },
+      "language": {
+        "pt-BR": "Português",
+        "en": "Inglês",
+        "es": "Espanhol"
+      }
+    },
+    "preferences": {
+      "email": {
+        "include_salary": "Citar pretensão em e-mails quando a vaga pedir"
+      },
+      "searches": {
+        "min_fit": "Fit mínimo nos resultados das buscas"
+      }
+    },
+    "default": "Padrão"
+  },
+  "Gmail": {
+    "title": "Gmail",
+    "description": "Acompanhe respostas das empresas e atualize suas candidaturas com a prova do e-mail.",
+    "status": {
+      "ativo": "Conectado",
+      "erro": "Precisa reconectar",
+      "revogado": "Desconectado",
+      "off": "Não conectado"
+    },
+    "mockBadge": "Modo de teste: e-mails fictícios",
+    "notConfiguredTitle": "Conexão indisponível neste ambiente",
+    "notConfiguredDev": "Defina GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET para usar o Google, ou VAGAPILOT_GMAIL_MOCK=1 para testar com e-mails fictícios.",
+    "notConfiguredProd": "A conexão com o Gmail ainda não está disponível. Tente mais tarde.",
+    "readsTitle": "O que lemos",
+    "reads1": "E-mails de plataformas de recrutamento (Gupy, InHire, Greenhouse, Lever, Workday e outras) e com termos de processo seletivo, dos últimos 90 dias e depois a cada 2 horas.",
+    "reads2": "E-mails que citam empresas onde você se candidatou.",
+    "reads3": "Guardamos só remetente, assunto, data, a classificação e um trecho de até 500 caracteres.",
+    "notReadsTitle": "O que não lemos",
+    "notReads1": "Nenhum e-mail fora desse filtro é aberto.",
+    "notReads2": "O corpo completo nunca é guardado, e nenhuma pessoa lê seus e-mails.",
+    "notReads3": "Códigos de verificação são ignorados. Seus e-mails não treinam modelos nem viram publicidade.",
+    "notReads4": "Conteúdo de e-mail nunca dispara envio nem qualquer ação fora do app.",
+    "connect": "Conectar para acompanhar status",
+    "connectHint": "Pedimos só leitura (gmail.readonly). Você pode desconectar quando quiser.",
+    "account": "Conta",
+    "permissions": "Permissões",
+    "permissionRead": "Leitura de e-mails de processos",
+    "permissionSend": "Envio de candidaturas por e-mail",
+    "lastSync": "Última sincronização",
+    "neverSynced": "Ainda não sincronizado",
+    "toReview": "Revise",
+    "reviewLink": "{count, plural, =0 {Nada para revisar} one {# e-mail para revisar} other {# e-mails para revisar}}",
+    "syncNow": "Sincronizar agora",
+    "syncing": "Sincronizando…",
+    "synced": "Sincronizado: {applied, plural, =0 {nenhuma atualização} one {# atualização} other {# atualizações}} e {review, plural, =0 {nada para revisar} one {# para revisar} other {# para revisar}}.",
+    "syncQueued": "Sincronização iniciada. Os resultados aparecem em instantes.",
+    "syncLocked": "Já há uma sincronização em andamento. Tente em alguns minutos.",
+    "syncNotConnected": "Conecte o Gmail para sincronizar.",
+    "syncFailed": "Não foi possível sincronizar. Tente de novo.",
+    "allowSend": "Permitir envio de candidaturas por e-mail",
+    "allowSendHint": "Pedimos gmail.send separadamente. O envio de candidaturas chega numa próxima fase e sempre pede sua aprovação.",
+    "disconnect": "Desconectar",
+    "disconnectTitle": "Desconectar o Gmail?",
+    "disconnectDescription": "Revogamos o acesso no Google, apagamos o token e paramos a sincronização agora. E-mails já vinculados continuam como evidência nas candidaturas.",
+    "cancel": "Cancelar",
+    "disconnected": "Gmail desconectado",
+    "disconnectFailed": "Não foi possível desconectar. Tente de novo.",
+    "googleRevokeFailed": "Apagamos o acesso aqui, mas o Google não respondeu. Revogue também na sua conta Google.",
+    "manageGoogle": "Gerenciar acesso na conta Google",
+    "demo": "Simular e-mails de exemplo",
+    "demoDelivered": "{count, plural, one {# e-mail fictício entregue} other {# e-mails fictícios entregues}}. Clique em Sincronizar agora.",
+    "demoFailed": "Não foi possível entregar os e-mails de exemplo.",
+    "errorTitle": "A conexão precisa de atenção",
+    "errorDescription": "O Google recusou o acesso. Conecte de novo para retomar o acompanhamento.",
+    "flash": {
+      "conectado": "Gmail conectado. Lemos os últimos 90 dias filtrados.",
+      "envio": "Envio de candidaturas por e-mail autorizado.",
+      "erro": "Não foi possível conectar o Gmail."
+    },
+    "errors": {
+      "invalid_state": "A conexão expirou ou começou em outra aba. Tente de novo.",
+      "denied": "Você cancelou a autorização no Google.",
+      "not_configured": "A conexão com o Gmail não está configurada neste ambiente.",
+      "read_first": "Conecte a leitura antes de permitir o envio.",
+      "scope_not_granted": "O Google não concedeu a permissão pedida.",
+      "missing_refresh_token": "O Google não devolveu um acesso permanente. Remova o app na sua conta Google e conecte de novo.",
+      "oauth_failed": "O Google não confirmou a autorização. Tente de novo.",
+      "risk_acceptance_required": "Aceite o aviso de risco desta integração antes de conectar."
+    }
+  },
+  "Review": {
+    "title": "Revise",
+    "description": "E-mails que o VagaPilot não aplicou sozinho. Confirme, corrija ou ignore.",
+    "count": "{count, plural, one {# e-mail} other {# e-mails}}",
+    "classes": {
+      "confirmacao": "Confirmação",
+      "reprovacao": "Reprovação",
+      "teste_etapa": "Teste ou etapa",
+      "convite_entrevista": "Convite para entrevista",
+      "recrutador_contato": "Contato de recrutador",
+      "vaga_alerta": "Alerta de vagas",
+      "irrelevante": "Outro"
+    },
+    "confidence": "Confiança {value}%",
+    "from": "De {from}",
+    "linked": "{company} · {role}",
+    "currentStatus": "Hoje: {status}",
+    "noApplication": "Sem candidatura vinculada",
+    "createdFromEmail": "Candidatura criada a partir deste e-mail",
+    "suggestion": "Sugestão: mover para {status}",
+    "suggestionKeep": "Sugestão: manter a candidatura criada como Enviada",
+    "suggestionNone": "Sem mudança de status sugerida",
+    "deadline": "Prazo: {date}",
+    "interview": "Entrevista: {date}",
+    "reasons": {
+      "needs_review": "Confiança abaixo de 80%",
+      "terminal_requires_user": "A candidatura está encerrada; só você pode reabrir",
+      "regression": "Seria um retrocesso no status",
+      "not_allowed": "Mudança fora do fluxo normal",
+      "same_status": "O status já está assim",
+      "missing_evidence": "Sem evidência",
+      "ambiguous_link": "Mais de uma candidatura parecida",
+      "weak_link": "Vínculo com a candidatura pouco claro",
+      "no_application": "Não encontramos a candidatura",
+      "created_from_email": "Candidatura feita fora do app"
+    },
+    "confirm": "Confirmar",
+    "correct": "Corrigir",
+    "ignore": "Ignorar",
+    "confirmed": "Confirmado. A candidatura foi atualizada com o e-mail como evidência.",
+    "corrected": "Correção salva.",
+    "ignored": "E-mail ignorado.",
+    "failed": "Não foi possível salvar. Tente de novo.",
+    "invalidTransition": "Essa mudança não é permitida a partir do status atual.",
+    "correctTitle": "Corrigir vínculo e status",
+    "correctDescription": "Escolha a candidatura certa e, se quiser, o novo status. A mudança fica registrada com o e-mail como evidência.",
+    "application": "Candidatura",
+    "chooseApplication": "Escolha a candidatura",
+    "status": "Novo status",
+    "keepStatus": "Manter o status atual",
+    "save": "Salvar correção",
+    "cancel": "Cancelar"
+  },
+  "Notifications": {
+    "title": "Notificações",
+    "empty": "Nada novo por aqui.",
+    "unread": "{count, plural, one {# não lida} other {# não lidas}}",
+    "status_changed": "{company}: status atualizado para {status} pelo Gmail",
+    "review_needed": "{count, plural, one {# e-mail para revisar} other {# e-mails para revisar}}",
+    "deadline_reminder": "Prazo em {window}: {action} · {company}",
+    "gmail_error": "O Gmail precisa ser reconectado",
+    "windows": {
+      "48h": "48 horas",
+      "12h": "12 horas"
+    }
+  },
+  "Chat": {
+    "title": "Conversar",
+    "newConversation": "Nova conversa",
+    "logLabel": "Mensagens da conversa",
+    "thinking": "Pensando…",
+    "working": "Trabalhando nisso…",
+    "assistantLabel": "VagaPilot respondeu:",
+    "inputLabel": "Mensagem",
+    "placeholder": "Cole links de vagas ou peça algo, como “quero vagas de gerente de TI em São Paulo”",
+    "hint": "Enter envia · Shift+Enter quebra a linha",
+    "counter": "{count} de {max} caracteres",
+    "send": "Enviar",
+    "empty": {
+      "title": "Por onde começamos?",
+      "description": "Cole links de vagas (até 20) para ver aderência, CV sugerido e pretensão, ou ajuste buscas e preferências conversando. Nada é enviado sem sua aprovação.",
+      "examples": {
+        "search": "Quero vagas de gerente de TI em São Paulo, híbrido, toda manhã",
+        "pending": "O que tenho pendente?",
+        "preference": "Não cite pretensão em e-mail"
+      }
+    },
+    "errors": {
+      "generic": "Não consegui responder agora. Tente de novo em instantes.",
+      "tooLong": "Sua mensagem passou de {max} caracteres. Encurte e tente de novo."
+    },
+    "pendingQuestions": {
+      "sectionLabel": "Perguntas da extensão",
+      "heading": "A extensão precisa da sua resposta",
+      "optionsLabel": "Escolha uma opção",
+      "placeholder": "Digite a resposta para o formulário",
+      "send": "Enviar resposta",
+      "answered": "Resposta enviada à extensão.",
+      "failed": "Não foi possível salvar a resposta."
+    },
+    "api": {
+      "unauthorized": "Entre na sua conta para conversar.",
+      "invalid": "Mensagem inválida.",
+      "tooLong": "Sua mensagem passou de {max} caracteres. Encurte e tente de novo.",
+      "rateLimited": "Você enviou muitas mensagens em pouco tempo (limite de {limit} por minuto). Aguarde um minuto e tente de novo.",
+      "tooManyLinks": "Envie até {max} links por vez. Divida a lista em partes.",
+      "failed": "Não consegui concluir a resposta. Tente de novo.",
+      "planLimit": "Você atingiu o limite do seu plano ou o teto diário de uso de IA. Veja Planos em Configurações."
+    },
+    "refusals": {
+      "off_topic": "Posso ajudar com suas vagas, CVs e candidaturas. Quer analisar uma vaga? Cole o link aqui.",
+      "injection": "Não sigo instruções que tentam mudar minhas regras. Posso ajudar com suas vagas, CVs e candidaturas.",
+      "prompt_leak": "Não compartilho minhas instruções internas. Posso ajudar com suas vagas, CVs e candidaturas.",
+      "fraud": "Não ajudo a falsificar documentos, certificações ou referências, nem a mentir em candidaturas. Posso ajudar a mostrar o que você já fez, com base nos seus fatos confirmados.",
+      "discriminatory": "Não crio filtros por gênero, raça, idade, religião, deficiência ou outras características pessoais. Posso filtrar por cargo, local, modelo, regime, idioma e faixa salarial."
+    },
+    "settings": {
+      "applied": "Aplicada",
+      "undone": "Desfeita",
+      "cancelled": "Cancelada",
+      "undo": "Desfazer",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "before": "Antes",
+      "after": "Depois",
+      "confirmDescription": "Esta mudança só vale depois que você confirmar.",
+      "failed": "Não foi possível concluir. Tente de novo.",
+      "options": "Opções",
+      "intents": {
+        "create_saved_search": "Nova busca salva",
+        "update_saved_search": "Busca salva alterada",
+        "delete_saved_search": "Excluir busca salva",
+        "add_excluded_company": "Empresa excluída",
+        "remove_excluded_company": "Empresa liberada",
+        "update_language_level": "Nível de idioma",
+        "set_salary_rules": "Pretensão salarial",
+        "set_preference": "Preferência",
+        "set_approval_mode": "Modo de aprovação",
+        "unknown": "Configuração"
+      }
+    },
+    "widgets": {
+      "pendingTitle": "Suas ações",
+      "pendingEmpty": "Nenhuma ação pendente agora.",
+      "pendingCounts": "{sentThisWeek} enviadas nos últimos 7 dias · {active} em andamento · {pending} ações pendentes",
+      "factTitle": "Confirmar novo fato",
+      "factDescription": "O fato só entra na sua base depois que você confirmar.",
+      "factLabel": "Fato",
+      "factConfirm": "Confirmar fato",
+      "factReject": "Descartar",
+      "factConfirmed": "Confirmado",
+      "factRejected": "Descartado",
+      "factFailed": "Não foi possível registrar sua decisão."
+    }
+  },
+  "ChatTools": {
+    "ingest": "{count, plural, one {Analisando # vaga. O cartão aparece aqui assim que ficar pronto.} other {Analisando # vagas. Os cartões aparecem aqui conforme ficam prontos.}}",
+    "ingestFailed": "Não consegui iniciar a análise. Tente de novo.",
+    "notFound": "Não encontrei essa vaga entre as suas análises.",
+    "jobMatch": "Aqui está a análise de “{title}”.",
+    "duplicate": {
+      "nao_aplicado": "Você ainda não se candidatou a esta vaga.",
+      "ja_aplicado": "Você já se candidatou a esta vaga.",
+      "possivel_duplicata": "Pode ser uma vaga que já está no seu controle."
+    },
+    "facts": "{count, plural, =0 {Nenhum fato confirmado encontrado.} one {# fato confirmado encontrado.} other {# fatos confirmados encontrados.}}",
+    "profile": "Resumo do perfil carregado.",
+    "cv": "CV sugerido: {label}.",
+    "noCv": "Nenhum CV disponível para esta vaga.",
+    "salary": "Pretensão pela sua regra: R$ {amount}.",
+    "noSalary": "Não há regra de pretensão para essa senioridade e regime.",
+    "denied": "Não posso fazer isso a partir desse conteúdo. Confirme pelo cartão.",
+    "decision": {
+      "aplicar": "Candidatura a “{title}” em preenchimento.",
+      "pular": "“{title}” marcada como pulada.",
+      "salvar": "“{title}” salva para depois."
+    },
+    "pending": "{pending, plural, =0 {Nenhuma ação pendente.} one {Você tem # ação pendente.} other {Você tem # ações pendentes.}} {sentThisWeek} enviadas nos últimos 7 dias.",
+    "settingsRead": "Você tem {searches} buscas salvas e {excluded} empresas excluídas.",
+    "clarification": "Escolha uma opção para eu continuar.",
+    "factProposed": "Anotei como fato proposto. Confirme no cartão para ele valer.",
+    "emailDraft": "Rascunho de e-mail criado. Revise antes de pedir envio.",
+    "emailApproval": "Pedido de envio registrado. Confirme no cartão de aprovação.",
+    "emailSent": "E-mail enviado pela sua conta Gmail.",
+    "exportTracker": "Use o link para baixar o controle em {format}.",
+    "settings": {
+      "applied": {
+        "create_saved_search": "Busca salva criada: {subject}.",
+        "update_saved_search": "Busca “{subject}” atualizada.",
+        "delete_saved_search": "Busca excluída. Você pode desfazer na Memória.",
+        "add_excluded_company": "{subject} adicionada às empresas excluídas (todas as vagas e buscas).",
+        "remove_excluded_company": "{subject} voltou a aparecer nas vagas.",
+        "update_language_level": "Nível de {subject} atualizado. Revise seus CVs e perfis (LinkedIn, Gupy) com o novo nível; regenerar CVs sempre pede sua confirmação.",
+        "set_salary_rules": "Pretensões atualizadas.",
+        "set_preference": "Preferência atualizada.",
+        "set_approval_mode": "Modo de aprovação alterado."
+      },
+      "pending": {
+        "create_saved_search": "Confirme para criar a busca “{subject}”.",
+        "update_saved_search": "Confirme para alterar a busca “{subject}”.",
+        "delete_saved_search": "Confirme para excluir esta busca salva.",
+        "add_excluded_company": "Confirme para excluir {subject} das suas vagas.",
+        "remove_excluded_company": "Confirme para voltar a mostrar vagas de {subject}.",
+        "update_language_level": "Confirme para atualizar o nível de {subject}.",
+        "set_salary_rules": "Confirme para atualizar as pretensões.",
+        "set_preference": "Confirme para mudar a preferência.",
+        "set_approval_mode": "Mudar o modo de aprovação sempre pede sua confirmação."
+      },
+      "undone": {
+        "create_saved_search": "Busca “{subject}” desfeita.",
+        "update_saved_search": "Alteração da busca “{subject}” desfeita.",
+        "delete_saved_search": "Busca restaurada.",
+        "add_excluded_company": "{subject} voltou a aparecer nas vagas.",
+        "remove_excluded_company": "{subject} voltou para as excluídas.",
+        "update_language_level": "Nível de {subject} restaurado.",
+        "set_salary_rules": "Pretensões restauradas.",
+        "set_preference": "Preferência restaurada.",
+        "set_approval_mode": "Modo de aprovação restaurado."
+      },
+      "cancelled": {
+        "create_saved_search": "Criação da busca cancelada.",
+        "update_saved_search": "Alteração cancelada.",
+        "delete_saved_search": "Exclusão cancelada. A busca continua ativa.",
+        "add_excluded_company": "Nada mudou nas empresas excluídas.",
+        "remove_excluded_company": "Nada mudou nas empresas excluídas.",
+        "update_language_level": "Nível de idioma mantido.",
+        "set_salary_rules": "Pretensões mantidas.",
+        "set_preference": "Preferência mantida.",
+        "set_approval_mode": "Modo de aprovação mantido."
+      },
+      "noop": {
+        "add_excluded_company": "Essa empresa já estava nas excluídas."
+      },
+      "errors": {
+        "not_found": "Não encontrei essa configuração. Confira o nome e tente de novo.",
+        "invalid_request": "Não entendi todos os parâmetros. Pode reformular?",
+        "superseded": "Essa mudança já foi decidida ou há uma mais recente no mesmo item. Desfaça a mais recente primeiro.",
+        "write_failed": "Não consegui salvar agora. Tente de novo.",
+        "denied": "Essa mudança não pode ser feita a partir daqui."
+      }
+    }
+  },
+  "Jobs": {
+    "unknownCompany": "Empresa não informada",
+    "fit": {
+      "alto": "Fit alto",
+      "medio": "Fit médio",
+      "baixo": "Fit baixo"
+    },
+    "fitWithScore": "{fit} · {score}",
+    "gapPreferred": "{requirement} (desejável)",
+    "labels": {
+      "reasons": "Motivos",
+      "gaps": "Lacunas",
+      "noGaps": "Nenhuma lacuna nos requisitos.",
+      "cv": "CV sugerido",
+      "salary": "Pretensão",
+      "alerts": "Alertas",
+      "actions": "Ações para {title}"
+    },
+    "actions": {
+      "apply": "Aplicar",
+      "skip": "Pular",
+      "save": "Salvar",
+      "changeCv": "Trocar CV",
+      "adjustSalary": "Ajustar pretensão",
+      "details": "Ver detalhes",
+      "salaryInput": "Valor mensal (R$)",
+      "salarySubmit": "Salvar valor",
+      "salaryCancel": "Cancelar"
+    },
+    "decided": {
+      "aplicar": "Abrimos a vaga em outra aba. A candidatura está em preenchimento.",
+      "pular": "Vaga pulada.",
+      "salvar": "Vaga salva para depois."
+    },
+    "errors": {
+      "decision": "Não foi possível registrar. Tente de novo.",
+      "generic": "Não foi possível atualizar o cartão."
+    },
+    "blocked": "Pulada automaticamente: a empresa está na sua lista de bloqueadas ou excluídas.",
+    "analyzeAnyway": "Analisar mesmo assim",
+    "openTracker": "Ver no controle",
+    "duplicate": {
+      "ja_aplicado": "Você já se candidatou em {date}.",
+      "possivel_duplicata": "Possível duplicata: uma vaga parecida já está no seu controle.",
+      "gmail_hint": "Seu Gmail tem e-mails de candidatura que podem ser desta vaga. Confira antes de aplicar."
+    },
+    "alerts": {
+      "idioma": "Idioma: a vaga pede {language} {required}; você declarou {declared}.",
+      "local": "Local fora das cidades que você aceita ({location}).",
+      "modelo": "Modelo {model} fora das suas preferências.",
+      "regime": "Regime {regime} fora dos que você aceita.",
+      "senioridade_acima": "Senioridade muito acima do nível que você busca.",
+      "senioridade_abaixo": "Senioridade muito abaixo do nível que você busca.",
+      "salario_fora_abaixo": "A faixa da vaga está abaixo da sua pretensão.",
+      "salario_fora_acima": "Sua pretensão está abaixo da faixa da vaga."
+    },
+    "levels": {
+      "basico": "básico",
+      "intermediario": "intermediário",
+      "avancado": "avançado",
+      "fluente": "fluente",
+      "nativo": "nativo",
+      "nao_informado": "não informado"
+    },
+    "workModels": {
+      "presencial": "Presencial",
+      "hibrido": "Híbrido",
+      "remoto": "Remoto"
+    },
+    "regimes": {
+      "clt": "CLT",
+      "pj": "PJ",
+      "ambos": "CLT ou PJ"
+    },
+    "periods": {
+      "mensal": "/mês",
+      "anual": "/ano",
+      "hora": "/hora"
+    },
+    "salary": {
+      "jobRange": "vaga: {range}",
+      "noRule": "Sem regra para esta senioridade",
+      "noSeniority": "Senioridade não identificada"
+    },
+    "severity": {
+      "obrigatorio": "obrigatório",
+      "desejavel": "desejável"
+    },
+    "sources": {
+      "linkedin": "LinkedIn",
+      "gupy": "Gupy",
+      "inhire": "InHire",
+      "greenhouse": "Greenhouse",
+      "lever": "Lever",
+      "workday": "Workday",
+      "successfactors": "SuccessFactors",
+      "quickin": "Quickin",
+      "jobbol": "Jobbol",
+      "solides": "Sólides",
+      "email": "E-mail",
+      "indicacao": "Indicação",
+      "outro": "Outro site"
+    },
+    "detail": {
+      "openPosting": "Abrir vaga",
+      "required": "Requisitos obrigatórios",
+      "preferred": "Desejáveis",
+      "description": "Descrição",
+      "none": "Não informado.",
+      "applyEmail": "E-mail para candidatura",
+      "versions": "Modelo: {model} · Prompt: {prompt}"
+    },
+    "batch": {
+      "progress": "{done} de {total} prontas…",
+      "done": "{total, plural, one {# vaga analisada.} other {# vagas analisadas.}}",
+      "analyzing": "Analisando {host}…",
+      "pastedText": "texto colado",
+      "failedTitle": "Não consegui ler a vaga {host}",
+      "errors": {
+        "blocked": "O site limitou o acesso agora. Cole o texto da vaga abaixo que eu analiso.",
+        "not_found": "A página não foi encontrada ou saiu do ar. Se ainda tiver a descrição, cole abaixo.",
+        "timeout": "O site demorou demais para responder. Cole o texto da vaga abaixo.",
+        "generic": "Não consegui extrair a vaga. Cole o texto da vaga abaixo.",
+        "pasteTooShort": "Cole pelo menos algumas linhas da descrição."
+      },
+      "pasteLabel": "Texto da vaga",
+      "pastePlaceholder": "Cole aqui a descrição completa (cargo, empresa, requisitos…)",
+      "pasteSubmit": "Analisar texto"
+    }
+  },
+  "Searches": {
+    "title": "Buscas salvas",
+    "description": "Critérios que rodam na frequência escolhida e trazem vagas com fit já calculado.",
+    "new": "Nova busca",
+    "newTitle": "Nova busca salva",
+    "editTitle": "Editar busca",
+    "formDescription": "Os mesmos campos que você pode pedir no chat. Cargo é obrigatório.",
+    "empty": {
+      "title": "Nenhuma busca salva",
+      "description": "Crie pelo formulário ou peça no chat, por exemplo: “quero vagas de gerente de TI em São Paulo, híbrido, toda manhã”."
+    },
+    "listLabel": "Suas buscas",
+    "lastRun": "Última execução: {date}",
+    "neverRun": "Ainda não executada",
+    "active": "Busca {query} ativa",
+    "on": "Ativa",
+    "off": "Pausada",
+    "excludedChip": "sem {company}",
+    "results": "Últimos resultados",
+    "runNow": "Executar agora",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "deleteTitle": "Excluir esta busca?",
+    "deleteDescription": "A busca “{query}” deixa de rodar. Você pode desfazer na Memória.",
+    "cancel": "Cancelar",
+    "ran": "{count, plural, one {# vaga nova} other {# vagas novas}}",
+    "ranEmpty": "Nenhuma vaga nova desde a última execução.",
+    "preview": "Prévia",
+    "previewAction": "Ver prévia",
+    "previewEmpty": "Nenhuma vaga encontrada com esses critérios no catálogo atual.",
+    "save": "Salvar busca",
+    "errors": {
+      "save": "Não foi possível salvar a busca.",
+      "preview": "Não foi possível gerar a prévia.",
+      "run": "Não foi possível executar a busca."
+    },
+    "form": {
+      "any": "Qualquer",
+      "queryPlaceholder": "Ex.: Gerente de TI",
+      "locationPlaceholder": "Ex.: São Paulo",
+      "days": "{count, plural, one {# dia} other {# dias}}",
+      "excludedHint": "Separe por vírgulas."
+    }
+  },
+  "Memory": {
+    "title": "Memória",
+    "description": "Tudo o que você mudou pelo chat ou por formulário, com origem, frase e diferença. Desfazer volta exatamente ao estado anterior.",
+    "preferencesTitle": "Preferências do assistente",
+    "preferencesDescription": "As mesmas configurações que você pode pedir no chat.",
+    "excludedTitle": "Empresas excluídas",
+    "excludedDescription": "Vagas dessas empresas não aparecem nas análises nem nas buscas.",
+    "excludedAdd": "Excluir empresa",
+    "excludedPlaceholder": "Nome da empresa",
+    "excludedEmpty": "Nenhuma empresa excluída.",
+    "excludedRemove": "Voltar a mostrar vagas de {company}",
+    "eventsTitle": "Mudanças",
+    "emptyTitle": "Nenhuma mudança ainda",
+    "emptyDescription": "Quando você pedir algo no chat ou mudar um formulário, aparece aqui.",
+    "status": {
+      "aplicada": "Aplicada",
+      "desfeita": "Desfeita",
+      "pendente": "Aguardando confirmação",
+      "cancelada": "Cancelada"
+    },
+    "origin": {
+      "chat": "Chat",
+      "formulario": "Formulário",
+      "automacao": "Automação"
+    },
+    "edit": "Editar",
+    "failed": "Não foi possível concluir.",
+    "approvalConfirmTitle": "Mudar o modo de aprovação?",
+    "approvalConfirmDescription": "O novo modo será “{mode}”. No MVP o clique final de envio continua sempre seu."
+  }
+}

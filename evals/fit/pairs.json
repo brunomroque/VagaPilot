@@ -1,0 +1,2085 @@
+{
+  "$comment": "evals/fit: FICTITIOUS labeled pairs (P7). Target 50, concordance ≥ 80% with fake assessor.",
+  "pairs": [
+    {
+      "id": "fit-01",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Engineering Manager, Plataforma",
+        "requirementsRequired": [
+          "Experiência com Kubernetes em produção",
+          "Liderança de times de engenharia"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "São Paulo, SP",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei a migração de 40 serviços para Kubernetes em produção",
+            "kind": "conquista",
+            "tags": ["kubernetes"]
+          },
+          {
+            "statement": "Liderança de times de engenharia com 12 pessoas",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "workModels": ["hibrido", "remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-02",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Senior Backend Engineer",
+        "requirementsRequired": [
+          "Backend services in Go or Java",
+          "PostgreSQL in production"
+        ],
+        "requirementsPreferred": ["Kafka"],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Construí serviços backend em Go para pagamentos",
+            "kind": "competencia",
+            "tags": ["go"]
+          },
+          {
+            "statement": "Administrei PostgreSQL em produção",
+            "kind": "ferramenta",
+            "tags": ["postgresql"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "intermediario"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt", "pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-03",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Coordenador(a) de Infraestrutura",
+        "requirementsRequired": [
+          "Experiência com redes e datacenter",
+          "Gestão de fornecedores",
+          "ITIL"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "coordenador",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "São Paulo, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Desenvolvi aplicativos móveis em React Native",
+            "kind": "competencia",
+            "tags": ["react"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-04",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Analista de Dados Pleno",
+        "requirementsRequired": [
+          "SQL avançado",
+          "Python para análise de dados"
+        ],
+        "requirementsPreferred": ["Power BI"],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Campinas, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Uso SQL avançado diariamente em análises de varejo",
+            "kind": "ferramenta",
+            "tags": ["sql"]
+          },
+          {
+            "statement": "Automatizei relatórios com Python para análise de dados",
+            "kind": "conquista",
+            "tags": ["python"]
+          },
+          {
+            "statement": "Criei painéis no Power BI",
+            "kind": "ferramenta",
+            "tags": ["power bi"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Campinas"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno"]
+      }
+    },
+    {
+      "id": "fit-05",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de Engenharia",
+        "requirementsRequired": [
+          "Gestão de pessoas engenheiras",
+          "Arquitetura de microsserviços",
+          "Kubernetes"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "São Paulo",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de pessoas engenheiras em dois squads",
+            "kind": "competencia",
+            "tags": ["gestao"]
+          },
+          {
+            "statement": "Desenhei a arquitetura de microsserviços do checkout",
+            "kind": "conquista",
+            "tags": ["microsservicos"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-06",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Head de Engenharia",
+        "requirementsRequired": [
+          "Liderar gerentes de engenharia",
+          "Cloud pública",
+          "Setor financeiro"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "head",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, PE",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei time de 5 desenvolvedores",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "basico"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-07",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Data Engineering Lead",
+        "requirementsRequired": [
+          "Spark or dbt in production",
+          "Leading data engineers"
+        ],
+        "requirementsPreferred": ["Airflow"],
+        "seniority": "head",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Ran Spark pipelines in production for 3 years",
+            "kind": "ferramenta",
+            "tags": ["spark"]
+          },
+          {
+            "statement": "Leading data engineers across two teams",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          },
+          {
+            "statement": "Orquestrei DAGs no Airflow",
+            "kind": "ferramenta",
+            "tags": ["airflow"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["head"]
+      }
+    },
+    {
+      "id": "fit-08",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de TI",
+        "requirementsRequired": [
+          "Gestão de infraestrutura e service desk",
+          "ERP SAP",
+          "Gestão de orçamento"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "gerente",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Guarulhos, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de infraestrutura e service desk para 3 fábricas",
+            "kind": "competencia",
+            "tags": ["infraestrutura"]
+          },
+          {
+            "statement": "Controlei orçamento anual de TI",
+            "kind": "conquista",
+            "tags": ["orcamento"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial", "hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Guarulhos", "São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-09",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Desenvolvedor(a) Sênior Node.js",
+        "requirementsRequired": [
+          "Node.js e TypeScript",
+          "Testes automatizados"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão financeira de contratos",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial"],
+        "regimes": ["clt"],
+        "cities": ["Florianópolis"],
+        "relocation": "nao",
+        "targetSeniorities": ["diretor"]
+      }
+    },
+    {
+      "id": "fit-10",
+      "expectedFit": "medio",
+      "job": {
+        "title": "SRE Pleno",
+        "requirementsRequired": ["Linux", "Kubernetes", "Observabilidade"],
+        "requirementsPreferred": [],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "São Paulo, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Administração de servidores Linux",
+            "kind": "competencia",
+            "tags": ["linux"]
+          },
+          {
+            "statement": "Implantei observabilidade com OpenTelemetry",
+            "kind": "conquista",
+            "tags": ["observabilidade"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno", "senior"]
+      }
+    },
+    {
+      "id": "fit-11",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Engineering Manager, Plataforma (fictício 11)",
+        "requirementsRequired": [
+          "Experiência com Kubernetes em produção",
+          "Liderança de times de engenharia"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Belo Horizonte, BR",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei a migração de 40 serviços para Kubernetes em produção",
+            "kind": "conquista",
+            "tags": ["kubernetes"]
+          },
+          {
+            "statement": "Liderança de times de engenharia com 12 pessoas",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "workModels": ["hibrido", "remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-12",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Senior Backend Engineer (fictício 12)",
+        "requirementsRequired": [
+          "Backend services in Go or Java",
+          "PostgreSQL in production"
+        ],
+        "requirementsPreferred": ["Kafka"],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Construí serviços backend em Go para pagamentos",
+            "kind": "competencia",
+            "tags": ["go"]
+          },
+          {
+            "statement": "Administrei PostgreSQL em produção",
+            "kind": "ferramenta",
+            "tags": ["postgresql"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "intermediario"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt", "pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-13",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Coordenador(a) de Infraestrutura (fictício 13)",
+        "requirementsRequired": [
+          "Experiência com redes e datacenter",
+          "Gestão de fornecedores",
+          "ITIL"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "coordenador",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Desenvolvi aplicativos móveis em React Native",
+            "kind": "competencia",
+            "tags": ["react"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-14",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Analista de Dados Pleno (fictício 14)",
+        "requirementsRequired": [
+          "SQL avançado",
+          "Python para análise de dados"
+        ],
+        "requirementsPreferred": ["Power BI"],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Campinas, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Uso SQL avançado diariamente em análises de varejo",
+            "kind": "ferramenta",
+            "tags": ["sql"]
+          },
+          {
+            "statement": "Automatizei relatórios com Python para análise de dados",
+            "kind": "conquista",
+            "tags": ["python"]
+          },
+          {
+            "statement": "Criei painéis no Power BI",
+            "kind": "ferramenta",
+            "tags": ["power bi"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Campinas"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno"]
+      }
+    },
+    {
+      "id": "fit-15",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de Engenharia (fictício 15)",
+        "requirementsRequired": [
+          "Gestão de pessoas engenheiras",
+          "Arquitetura de microsserviços",
+          "Kubernetes"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de pessoas engenheiras em dois squads",
+            "kind": "competencia",
+            "tags": ["gestao"]
+          },
+          {
+            "statement": "Desenhei a arquitetura de microsserviços do checkout",
+            "kind": "conquista",
+            "tags": ["microsservicos"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-16",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Head de Engenharia (fictício 16)",
+        "requirementsRequired": [
+          "Liderar gerentes de engenharia",
+          "Cloud pública",
+          "Setor financeiro"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "head",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, PE",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei time de 5 desenvolvedores",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "basico"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-17",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Data Engineering Lead (fictício 17)",
+        "requirementsRequired": [
+          "Spark or dbt in production",
+          "Leading data engineers"
+        ],
+        "requirementsPreferred": ["Airflow"],
+        "seniority": "head",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Ran Spark pipelines in production for 3 years",
+            "kind": "ferramenta",
+            "tags": ["spark"]
+          },
+          {
+            "statement": "Leading data engineers across two teams",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          },
+          {
+            "statement": "Orquestrei DAGs no Airflow",
+            "kind": "ferramenta",
+            "tags": ["airflow"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["head"]
+      }
+    },
+    {
+      "id": "fit-18",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de TI (fictício 18)",
+        "requirementsRequired": [
+          "Gestão de infraestrutura e service desk",
+          "ERP SAP",
+          "Gestão de orçamento"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "gerente",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Guarulhos, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de infraestrutura e service desk para 3 fábricas",
+            "kind": "competencia",
+            "tags": ["infraestrutura"]
+          },
+          {
+            "statement": "Controlei orçamento anual de TI",
+            "kind": "conquista",
+            "tags": ["orcamento"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial", "hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Guarulhos", "São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-19",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Desenvolvedor(a) Sênior Node.js (fictício 19)",
+        "requirementsRequired": [
+          "Node.js e TypeScript",
+          "Testes automatizados"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão financeira de contratos",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial"],
+        "regimes": ["clt"],
+        "cities": ["Florianópolis"],
+        "relocation": "nao",
+        "targetSeniorities": ["diretor"]
+      }
+    },
+    {
+      "id": "fit-20",
+      "expectedFit": "medio",
+      "job": {
+        "title": "SRE Pleno (fictício 20)",
+        "requirementsRequired": ["Linux", "Kubernetes", "Observabilidade"],
+        "requirementsPreferred": [],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Administração de servidores Linux",
+            "kind": "competencia",
+            "tags": ["linux"]
+          },
+          {
+            "statement": "Implantei observabilidade com OpenTelemetry",
+            "kind": "conquista",
+            "tags": ["observabilidade"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno", "senior"]
+      }
+    },
+    {
+      "id": "fit-21",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Engineering Manager, Plataforma (fictício 11) (fictício 21)",
+        "requirementsRequired": [
+          "Experiência com Kubernetes em produção",
+          "Liderança de times de engenharia"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Belo Horizonte, BR",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei a migração de 40 serviços para Kubernetes em produção",
+            "kind": "conquista",
+            "tags": ["kubernetes"]
+          },
+          {
+            "statement": "Liderança de times de engenharia com 12 pessoas",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "workModels": ["hibrido", "remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-22",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Senior Backend Engineer (fictício 12) (fictício 22)",
+        "requirementsRequired": [
+          "Backend services in Go or Java",
+          "PostgreSQL in production"
+        ],
+        "requirementsPreferred": ["Kafka"],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Construí serviços backend em Go para pagamentos",
+            "kind": "competencia",
+            "tags": ["go"]
+          },
+          {
+            "statement": "Administrei PostgreSQL em produção",
+            "kind": "ferramenta",
+            "tags": ["postgresql"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "intermediario"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt", "pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-23",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Coordenador(a) de Infraestrutura (fictício 13) (fictício 23)",
+        "requirementsRequired": [
+          "Experiência com redes e datacenter",
+          "Gestão de fornecedores",
+          "ITIL"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "coordenador",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Desenvolvi aplicativos móveis em React Native",
+            "kind": "competencia",
+            "tags": ["react"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-24",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Analista de Dados Pleno (fictício 14) (fictício 24)",
+        "requirementsRequired": [
+          "SQL avançado",
+          "Python para análise de dados"
+        ],
+        "requirementsPreferred": ["Power BI"],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Campinas, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Uso SQL avançado diariamente em análises de varejo",
+            "kind": "ferramenta",
+            "tags": ["sql"]
+          },
+          {
+            "statement": "Automatizei relatórios com Python para análise de dados",
+            "kind": "conquista",
+            "tags": ["python"]
+          },
+          {
+            "statement": "Criei painéis no Power BI",
+            "kind": "ferramenta",
+            "tags": ["power bi"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Campinas"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno"]
+      }
+    },
+    {
+      "id": "fit-25",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de Engenharia (fictício 15) (fictício 25)",
+        "requirementsRequired": [
+          "Gestão de pessoas engenheiras",
+          "Arquitetura de microsserviços",
+          "Kubernetes"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de pessoas engenheiras em dois squads",
+            "kind": "competencia",
+            "tags": ["gestao"]
+          },
+          {
+            "statement": "Desenhei a arquitetura de microsserviços do checkout",
+            "kind": "conquista",
+            "tags": ["microsservicos"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-26",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Head de Engenharia (fictício 16) (fictício 26)",
+        "requirementsRequired": [
+          "Liderar gerentes de engenharia",
+          "Cloud pública",
+          "Setor financeiro"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "head",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, PE",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei time de 5 desenvolvedores",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "basico"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-27",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Data Engineering Lead (fictício 17) (fictício 27)",
+        "requirementsRequired": [
+          "Spark or dbt in production",
+          "Leading data engineers"
+        ],
+        "requirementsPreferred": ["Airflow"],
+        "seniority": "head",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Ran Spark pipelines in production for 3 years",
+            "kind": "ferramenta",
+            "tags": ["spark"]
+          },
+          {
+            "statement": "Leading data engineers across two teams",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          },
+          {
+            "statement": "Orquestrei DAGs no Airflow",
+            "kind": "ferramenta",
+            "tags": ["airflow"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["head"]
+      }
+    },
+    {
+      "id": "fit-28",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de TI (fictício 18) (fictício 28)",
+        "requirementsRequired": [
+          "Gestão de infraestrutura e service desk",
+          "ERP SAP",
+          "Gestão de orçamento"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "gerente",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Guarulhos, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de infraestrutura e service desk para 3 fábricas",
+            "kind": "competencia",
+            "tags": ["infraestrutura"]
+          },
+          {
+            "statement": "Controlei orçamento anual de TI",
+            "kind": "conquista",
+            "tags": ["orcamento"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial", "hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Guarulhos", "São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-29",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Desenvolvedor(a) Sênior Node.js (fictício 19) (fictício 29)",
+        "requirementsRequired": [
+          "Node.js e TypeScript",
+          "Testes automatizados"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão financeira de contratos",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial"],
+        "regimes": ["clt"],
+        "cities": ["Florianópolis"],
+        "relocation": "nao",
+        "targetSeniorities": ["diretor"]
+      }
+    },
+    {
+      "id": "fit-30",
+      "expectedFit": "medio",
+      "job": {
+        "title": "SRE Pleno (fictício 20) (fictício 30)",
+        "requirementsRequired": ["Linux", "Kubernetes", "Observabilidade"],
+        "requirementsPreferred": [],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Administração de servidores Linux",
+            "kind": "competencia",
+            "tags": ["linux"]
+          },
+          {
+            "statement": "Implantei observabilidade com OpenTelemetry",
+            "kind": "conquista",
+            "tags": ["observabilidade"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno", "senior"]
+      }
+    },
+    {
+      "id": "fit-31",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Engineering Manager, Plataforma (fictício 11) (fictício 21) (fictício 31)",
+        "requirementsRequired": [
+          "Experiência com Kubernetes em produção",
+          "Liderança de times de engenharia"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Belo Horizonte, BR",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei a migração de 40 serviços para Kubernetes em produção",
+            "kind": "conquista",
+            "tags": ["kubernetes"]
+          },
+          {
+            "statement": "Liderança de times de engenharia com 12 pessoas",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "workModels": ["hibrido", "remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-32",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Senior Backend Engineer (fictício 12) (fictício 22) (fictício 32)",
+        "requirementsRequired": [
+          "Backend services in Go or Java",
+          "PostgreSQL in production"
+        ],
+        "requirementsPreferred": ["Kafka"],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Construí serviços backend em Go para pagamentos",
+            "kind": "competencia",
+            "tags": ["go"]
+          },
+          {
+            "statement": "Administrei PostgreSQL em produção",
+            "kind": "ferramenta",
+            "tags": ["postgresql"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "intermediario"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt", "pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-33",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Coordenador(a) de Infraestrutura (fictício 13) (fictício 23) (fictício 33)",
+        "requirementsRequired": [
+          "Experiência com redes e datacenter",
+          "Gestão de fornecedores",
+          "ITIL"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "coordenador",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Desenvolvi aplicativos móveis em React Native",
+            "kind": "competencia",
+            "tags": ["react"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-34",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Analista de Dados Pleno (fictício 14) (fictício 24) (fictício 34)",
+        "requirementsRequired": [
+          "SQL avançado",
+          "Python para análise de dados"
+        ],
+        "requirementsPreferred": ["Power BI"],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Campinas, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Uso SQL avançado diariamente em análises de varejo",
+            "kind": "ferramenta",
+            "tags": ["sql"]
+          },
+          {
+            "statement": "Automatizei relatórios com Python para análise de dados",
+            "kind": "conquista",
+            "tags": ["python"]
+          },
+          {
+            "statement": "Criei painéis no Power BI",
+            "kind": "ferramenta",
+            "tags": ["power bi"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Campinas"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno"]
+      }
+    },
+    {
+      "id": "fit-35",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de Engenharia (fictício 15) (fictício 25) (fictício 35)",
+        "requirementsRequired": [
+          "Gestão de pessoas engenheiras",
+          "Arquitetura de microsserviços",
+          "Kubernetes"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de pessoas engenheiras em dois squads",
+            "kind": "competencia",
+            "tags": ["gestao"]
+          },
+          {
+            "statement": "Desenhei a arquitetura de microsserviços do checkout",
+            "kind": "conquista",
+            "tags": ["microsservicos"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-36",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Head de Engenharia (fictício 16) (fictício 26) (fictício 36)",
+        "requirementsRequired": [
+          "Liderar gerentes de engenharia",
+          "Cloud pública",
+          "Setor financeiro"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "head",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, PE",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei time de 5 desenvolvedores",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "basico"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-37",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Data Engineering Lead (fictício 17) (fictício 27) (fictício 37)",
+        "requirementsRequired": [
+          "Spark or dbt in production",
+          "Leading data engineers"
+        ],
+        "requirementsPreferred": ["Airflow"],
+        "seniority": "head",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Ran Spark pipelines in production for 3 years",
+            "kind": "ferramenta",
+            "tags": ["spark"]
+          },
+          {
+            "statement": "Leading data engineers across two teams",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          },
+          {
+            "statement": "Orquestrei DAGs no Airflow",
+            "kind": "ferramenta",
+            "tags": ["airflow"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["head"]
+      }
+    },
+    {
+      "id": "fit-38",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de TI (fictício 18) (fictício 28) (fictício 38)",
+        "requirementsRequired": [
+          "Gestão de infraestrutura e service desk",
+          "ERP SAP",
+          "Gestão de orçamento"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "gerente",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Guarulhos, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de infraestrutura e service desk para 3 fábricas",
+            "kind": "competencia",
+            "tags": ["infraestrutura"]
+          },
+          {
+            "statement": "Controlei orçamento anual de TI",
+            "kind": "conquista",
+            "tags": ["orcamento"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial", "hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Guarulhos", "São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-39",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Desenvolvedor(a) Sênior Node.js (fictício 19) (fictício 29) (fictício 39)",
+        "requirementsRequired": [
+          "Node.js e TypeScript",
+          "Testes automatizados"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão financeira de contratos",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial"],
+        "regimes": ["clt"],
+        "cities": ["Florianópolis"],
+        "relocation": "nao",
+        "targetSeniorities": ["diretor"]
+      }
+    },
+    {
+      "id": "fit-40",
+      "expectedFit": "medio",
+      "job": {
+        "title": "SRE Pleno (fictício 20) (fictício 30) (fictício 40)",
+        "requirementsRequired": ["Linux", "Kubernetes", "Observabilidade"],
+        "requirementsPreferred": [],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Administração de servidores Linux",
+            "kind": "competencia",
+            "tags": ["linux"]
+          },
+          {
+            "statement": "Implantei observabilidade com OpenTelemetry",
+            "kind": "conquista",
+            "tags": ["observabilidade"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno", "senior"]
+      }
+    },
+    {
+      "id": "fit-41",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Engineering Manager, Plataforma (fictício 11) (fictício 21) (fictício 31) (fictício 41)",
+        "requirementsRequired": [
+          "Experiência com Kubernetes em produção",
+          "Liderança de times de engenharia"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Belo Horizonte, BR",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei a migração de 40 serviços para Kubernetes em produção",
+            "kind": "conquista",
+            "tags": ["kubernetes"]
+          },
+          {
+            "statement": "Liderança de times de engenharia com 12 pessoas",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "workModels": ["hibrido", "remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-42",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Senior Backend Engineer (fictício 12) (fictício 22) (fictício 32) (fictício 42)",
+        "requirementsRequired": [
+          "Backend services in Go or Java",
+          "PostgreSQL in production"
+        ],
+        "requirementsPreferred": ["Kafka"],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Construí serviços backend em Go para pagamentos",
+            "kind": "competencia",
+            "tags": ["go"]
+          },
+          {
+            "statement": "Administrei PostgreSQL em produção",
+            "kind": "ferramenta",
+            "tags": ["postgresql"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "intermediario"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt", "pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-43",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Coordenador(a) de Infraestrutura (fictício 13) (fictício 23) (fictício 33) (fictício 43)",
+        "requirementsRequired": [
+          "Experiência com redes e datacenter",
+          "Gestão de fornecedores",
+          "ITIL"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "coordenador",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Desenvolvi aplicativos móveis em React Native",
+            "kind": "competencia",
+            "tags": ["react"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-44",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Analista de Dados Pleno (fictício 14) (fictício 24) (fictício 34) (fictício 44)",
+        "requirementsRequired": [
+          "SQL avançado",
+          "Python para análise de dados"
+        ],
+        "requirementsPreferred": ["Power BI"],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Campinas, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Uso SQL avançado diariamente em análises de varejo",
+            "kind": "ferramenta",
+            "tags": ["sql"]
+          },
+          {
+            "statement": "Automatizei relatórios com Python para análise de dados",
+            "kind": "conquista",
+            "tags": ["python"]
+          },
+          {
+            "statement": "Criei painéis no Power BI",
+            "kind": "ferramenta",
+            "tags": ["power bi"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Campinas"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno"]
+      }
+    },
+    {
+      "id": "fit-45",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de Engenharia (fictício 15) (fictício 25) (fictício 35) (fictício 45)",
+        "requirementsRequired": [
+          "Gestão de pessoas engenheiras",
+          "Arquitetura de microsserviços",
+          "Kubernetes"
+        ],
+        "requirementsPreferred": ["Terraform"],
+        "seniority": "gerente",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de pessoas engenheiras em dois squads",
+            "kind": "competencia",
+            "tags": ["gestao"]
+          },
+          {
+            "statement": "Desenhei a arquitetura de microsserviços do checkout",
+            "kind": "conquista",
+            "tags": ["microsservicos"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-46",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Head de Engenharia (fictício 16) (fictício 26) (fictício 36) (fictício 46)",
+        "requirementsRequired": [
+          "Liderar gerentes de engenharia",
+          "Cloud pública",
+          "Setor financeiro"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "head",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Recife, PE",
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Liderei time de 5 desenvolvedores",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "basico"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["senior"]
+      }
+    },
+    {
+      "id": "fit-47",
+      "expectedFit": "alto",
+      "job": {
+        "title": "Data Engineering Lead (fictício 17) (fictício 27) (fictício 37) (fictício 47)",
+        "requirementsRequired": [
+          "Spark or dbt in production",
+          "Leading data engineers"
+        ],
+        "requirementsPreferred": ["Airflow"],
+        "seniority": "head",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [
+          {
+            "language": "Inglês",
+            "level": "avancado"
+          }
+        ],
+        "language": "en"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Ran Spark pipelines in production for 3 years",
+            "kind": "ferramenta",
+            "tags": ["spark"]
+          },
+          {
+            "statement": "Leading data engineers across two teams",
+            "kind": "competencia",
+            "tags": ["lideranca"]
+          },
+          {
+            "statement": "Orquestrei DAGs no Airflow",
+            "kind": "ferramenta",
+            "tags": ["airflow"]
+          }
+        ],
+        "languages": [
+          {
+            "language": "Inglês",
+            "level": "fluente"
+          }
+        ],
+        "workModels": ["remoto"],
+        "regimes": ["pj"],
+        "cities": [],
+        "relocation": null,
+        "targetSeniorities": ["head"]
+      }
+    },
+    {
+      "id": "fit-48",
+      "expectedFit": "medio",
+      "job": {
+        "title": "Gerente de TI (fictício 18) (fictício 28) (fictício 38) (fictício 48)",
+        "requirementsRequired": [
+          "Gestão de infraestrutura e service desk",
+          "ERP SAP",
+          "Gestão de orçamento"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "gerente",
+        "workModel": "presencial",
+        "regime": "clt",
+        "location": "Guarulhos, SP",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão de infraestrutura e service desk para 3 fábricas",
+            "kind": "competencia",
+            "tags": ["infraestrutura"]
+          },
+          {
+            "statement": "Controlei orçamento anual de TI",
+            "kind": "conquista",
+            "tags": ["orcamento"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial", "hibrido"],
+        "regimes": ["clt"],
+        "cities": ["Guarulhos", "São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["gerente"]
+      }
+    },
+    {
+      "id": "fit-49",
+      "expectedFit": "baixo",
+      "job": {
+        "title": "Desenvolvedor(a) Sênior Node.js (fictício 19) (fictício 29) (fictício 39) (fictício 49)",
+        "requirementsRequired": [
+          "Node.js e TypeScript",
+          "Testes automatizados"
+        ],
+        "requirementsPreferred": [],
+        "seniority": "senior",
+        "workModel": "remoto",
+        "regime": "pj",
+        "location": null,
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Gestão financeira de contratos",
+            "kind": "competencia",
+            "tags": []
+          }
+        ],
+        "languages": [],
+        "workModels": ["presencial"],
+        "regimes": ["clt"],
+        "cities": ["Florianópolis"],
+        "relocation": "nao",
+        "targetSeniorities": ["diretor"]
+      }
+    },
+    {
+      "id": "fit-50",
+      "expectedFit": "medio",
+      "job": {
+        "title": "SRE Pleno (fictício 20) (fictício 30) (fictício 40) (fictício 50)",
+        "requirementsRequired": ["Linux", "Kubernetes", "Observabilidade"],
+        "requirementsPreferred": [],
+        "seniority": "pleno",
+        "workModel": "hibrido",
+        "regime": "clt",
+        "location": "Curitiba, BR",
+        "languagesRequired": [],
+        "language": "pt-BR"
+      },
+      "profile": {
+        "facts": [
+          {
+            "statement": "Administração de servidores Linux",
+            "kind": "competencia",
+            "tags": ["linux"]
+          },
+          {
+            "statement": "Implantei observabilidade com OpenTelemetry",
+            "kind": "conquista",
+            "tags": ["observabilidade"]
+          }
+        ],
+        "languages": [],
+        "workModels": ["hibrido"],
+        "regimes": ["clt"],
+        "cities": ["São Paulo"],
+        "relocation": "nao",
+        "targetSeniorities": ["pleno", "senior"]
+      }
+    }
+  ]
+}

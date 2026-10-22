@@ -1,0 +1,12 @@
+---
+description: Extensão Chrome e automação de navegador
+globs: ["apps/extension/**", "apps/browser-worker/**", "packages/ats-adapters/**"]
+---
+
+- Manifest V3, permissões mínimas (activeTab, scripting, storage, sidePanel; hosts apenas de ATS suportados).
+- No MVP a extensão NUNCA clica em enviar/submit; o clique final é do usuário.
+- Nunca resolver, contornar ou terceirizar captcha; detectar e devolver ao usuário. Nunca automatizar dentro da conta LinkedIn do usuário (no LinkedIn: apenas sugestões no painel lateral).
+- Nunca usar cookies/sessão do usuário para extrair vagas no servidor.
+- Disparar eventos input/change compatíveis com frameworks; testar contra fixtures/ats/*.html.
+- Enviar ao backend apenas: rótulos/opções de perguntas, texto de confirmação, screenshot da confirmação.
+- Upload de CV sempre com nome neutro (buildCvFilename).

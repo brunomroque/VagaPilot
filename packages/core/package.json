@@ -1,0 +1,54 @@
+{
+  "name": "@vagapilot/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./audit": "./src/audit.ts",
+    "./blocklist": "./src/blocklist.ts",
+    "./br-documents": "./src/br-documents.ts",
+    "./consents": "./src/consents.ts",
+    "./crypto": "./src/crypto.ts",
+    "./cv-filename": "./src/cv-filename.ts",
+    "./email": "./src/email.ts",
+    "./email-dates": "./src/email-dates.ts",
+    "./email-linking": "./src/email-linking.ts",
+    "./email-outcome": "./src/email-outcome.ts",
+    "./facts": "./src/facts.ts",
+    "./integrations": "./src/integrations.ts",
+    "./reminders": "./src/reminders.ts",
+    "./redact": "./src/redact.ts",
+    "./csv": "./src/csv.ts",
+    "./dates": "./src/dates.ts",
+    "./status": "./src/status.ts",
+    "./tracker": "./src/tracker.ts",
+    "./tracker-csv": "./src/tracker-csv.ts",
+    "./job-text": "./src/job-text.ts",
+    "./job-rules": "./src/job-rules.ts",
+    "./settings": "./src/settings.ts",
+    "./policy": "./src/policy.ts",
+    "./guardrails": "./src/guardrails.ts",
+    "./grounding": "./src/grounding.ts",
+    "./application-package": "./src/application-package.ts",
+    "./ext-auth": "./src/ext-auth.ts",
+    "./apply-url": "./src/apply-url.ts",
+    "./entitlements": "./src/entitlements.ts",
+    "./application-email": "./src/application-email.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@vagapilot/config": "workspace:*",
+    "eslint": "^10",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "zod": "^4.6.6"
+  }
+}

@@ -1,0 +1,11 @@
+---
+description: Padrões de TypeScript e código
+globs: ["**/*.ts", "**/*.tsx"]
+---
+
+- TypeScript strict; proibido `any` (use `unknown` + Zod). Prefira tipos inferidos de schemas Zod.
+- Validar com Zod toda entrada externa: request bodies, query params, respostas de LLM, mensagens da extensão, webhooks.
+- Erros de API no formato { error: { code, message } }; nunca vazar stack trace ao cliente.
+- Funções pequenas e puras quando possível; efeitos colaterais isolados em services/route handlers/jobs.
+- Datas: armazenar em UTC (timestamptz); exibir no fuso do usuário (padrão America/Sao_Paulo) com Intl.
+- Dinheiro: numeric no banco, formatar com Intl.NumberFormat('pt-BR', { style: 'currency', currency }).

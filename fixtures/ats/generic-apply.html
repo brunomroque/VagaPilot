@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Candidatura | Empresa Fictícia</title>
+  </head>
+  <body>
+    <h1>Formulário de candidatura</h1>
+    <form id="apply">
+      <label for="first">Primeiro nome</label>
+      <input id="first" name="first_name" autocomplete="given-name" required />
+
+      <label for="last">Último nome</label>
+      <input id="last" name="last_name" autocomplete="family-name" required />
+
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+
+      <label for="phone">Telefone</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" />
+
+      <label for="senha">Senha da conta</label>
+      <input id="senha" name="password" type="password" autocomplete="current-password" />
+
+      <label for="cv">Currículo (PDF)</label>
+      <input id="cv" name="resume" type="file" accept=".pdf" />
+
+      <label for="motivation">Por que você quer esta vaga?</label>
+      <textarea id="motivation" name="motivation"></textarea>
+
+      <button type="submit">Enviar candidatura</button>
+    </form>
+  </body>
+</html>

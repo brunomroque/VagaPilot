@@ -1,0 +1,17 @@
+{
+  "id": "8b1c2d3e-0000-4000-8000-000000000002",
+  "text": "Data Engineering Lead",
+  "categories": { "location": "Remote - LATAM", "commitment": "Contractor" },
+  "workplaceType": "remote",
+  "descriptionPlain": "Dados Fictícios is hiring a Data Engineering Lead to own our data platform.",
+  "lists": [
+    {
+      "text": "Requirements",
+      "content": "<li>Spark or dbt in production</li><li>Leading data engineers</li><li>Advanced English</li>"
+    },
+    { "text": "Nice to have", "content": "<li>Airflow</li>" }
+  ],
+  "hostedUrl": "https://jobs.lever.co/dadosficticios/8b1c2d3e-0000-4000-8000-000000000002",
+  "applyUrl": "https://jobs.lever.co/dadosficticios/8b1c2d3e-0000-4000-8000-000000000002/apply",
+  "createdAt": 1791500000000
+}

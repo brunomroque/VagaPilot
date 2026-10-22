@@ -1,0 +1,3 @@
+{
+  "extends": "@vagapilot/config/tsconfig/base.json"
+}

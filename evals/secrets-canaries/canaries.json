@@ -1,0 +1,30 @@
+{
+  "$comment": "FICTITIOUS secret canaries for secrets-scan (spec 10.6). Never use in production data.",
+  "strings": [
+    {
+      "id": "canary-password",
+      "raw": "senha=VP-FICTICIA-9xK2mQ!nunca-commitar",
+      "mustNotAppearInRedactedOutput": true
+    },
+    {
+      "id": "canary-otp",
+      "raw": "Seu código OTP fictício é 847291 — válido por 10 minutos",
+      "mustNotAppearInRedactedOutput": false
+    },
+    {
+      "id": "canary-api-key",
+      "raw": "api_key=vp_test_ficticio_0123456789abcdef",
+      "mustNotAppearInRedactedOutput": true
+    },
+    {
+      "id": "canary-cpf",
+      "raw": "CPF do perfil fictício: 529.982.247-25",
+      "mustNotAppearInRedactedOutput": true
+    },
+    {
+      "id": "canary-email",
+      "raw": "Contato: marina.ficticia@exemplo.test",
+      "mustNotAppearInRedactedOutput": true
+    }
+  ]
+}

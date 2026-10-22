@@ -1,0 +1,76 @@
+{
+  "$comment": "Recorded responses for FICTITIOUS postings. Keys are the exact URLs the adapters request. No network in tests.",
+  "routes": {
+    "https://boards-api.greenhouse.io/v1/boards/empresaficticia/jobs/4001001?questions=true": {
+      "file": "greenhouse/4001001.json",
+      "contentType": "application/json"
+    },
+    "https://boards-api.greenhouse.io/v1/boards/lojaexemplo/jobs/4001002?questions=true": {
+      "file": "greenhouse/4001002.json",
+      "contentType": "application/json"
+    },
+    "https://api.lever.co/v0/postings/exemplotech/8b1c2d3e-0000-4000-8000-000000000001": {
+      "file": "lever/0001.json",
+      "contentType": "application/json"
+    },
+    "https://api.lever.co/v0/postings/dadosficticios/8b1c2d3e-0000-4000-8000-000000000002": {
+      "file": "lever/0002.json",
+      "contentType": "application/json"
+    },
+    "https://empresaficticia.gupy.io/jobs/1001": {
+      "file": "gupy/1001.html",
+      "contentType": "text/html"
+    },
+    "https://varejoexemplo.gupy.io/jobs/1002": {
+      "file": "gupy/1002.html",
+      "contentType": "text/html"
+    },
+    "https://logisticaficticia.gupy.io/jobs/1666": {
+      "file": "gupy/1666.html",
+      "contentType": "text/html"
+    },
+    "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/3900000001": {
+      "file": "linkedin/3900000001.html",
+      "contentType": "text/html"
+    },
+    "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/3900000002": {
+      "file": "linkedin/3900000002.html",
+      "contentType": "text/html"
+    },
+    "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/3900000999": {
+      "status": 429
+    },
+    "https://industriaficticia.wd5.myworkdayjobs.com/wday/cxs/industriaficticia/Carreiras/job/Sao-Paulo/Gerente-de-Plataforma-de-Dados_R-1001": {
+      "file": "workday/R-1001.json",
+      "contentType": "application/json"
+    },
+    "https://exemplosaude.inhire.app/vagas/1a2b3c4d-0000-4000-8000-000000000001": {
+      "file": "inhire/vaga-0001.html",
+      "contentType": "text/html"
+    },
+    "https://career5.successfactors.eu/career?career_job_req_id=5001&company=FicticiaEnergia": {
+      "file": "successfactors/5001.html",
+      "contentType": "text/html"
+    },
+    "https://jobs.quickin.io/empresaficticia/jobs/6001": {
+      "file": "quickin/6001.html",
+      "contentType": "text/html"
+    },
+    "https://jobbol.com.br/vagas/analista-de-sistemas-7001": {
+      "file": "jobbol/7001.html",
+      "contentType": "text/html"
+    },
+    "https://exemploconstrucoes.vagas.solides.com.br/vaga/8001": {
+      "file": "solides/8001.html",
+      "contentType": "text/html"
+    },
+    "https://carreiras.exemplo.com.br/vagas/sre-9001": {
+      "file": "generic/9001.html",
+      "contentType": "text/html"
+    },
+    "https://empresa-sem-jsonld.exemplo.com.br/vaga/9002": {
+      "file": "generic/9002.html",
+      "contentType": "text/html"
+    }
+  }
+}

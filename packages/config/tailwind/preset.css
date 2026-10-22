@@ -1,0 +1,5 @@
+/*
+ * Shared Tailwind v4 preset.
+ * Semantic tokens live in packages/ui/src/styles/globals.css (shadcn, style base-nova).
+ * Later phases extend this file. Components use semantic utilities, not raw colors.
+ */
