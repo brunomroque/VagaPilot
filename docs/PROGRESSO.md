@@ -353,3 +353,8 @@ Não são requisitos novos; fecham questões da seção 20 para não travar o in
 - Encaminhamento de e-mail (plano B do Gmail) não entra no MVP.
 - “Encerrada” por inatividade: 45 dias, configurável no perfil.
 - Dados de teste somente fictícios. Nenhuma senha de ATS é persistida.
+
+## Infra dev — Stripe + Resend (2026-10-22)
+
+- Guia: [CONFIG_STRIPE_RESEND.md](./CONFIG_STRIPE_RESEND.md) — conta Stripe **VagaPilot** (test), produtos/preços BRL com `metadata.project=vagapilot`, chave Resend **`VagaPilot (dev)`**, webhook e DNS documentados.
+- Pendência: colar chaves em `.env.local` localmente; verificar domínio `vagapilot.app` no Resend para `EMAIL_FROM` de produção.
