@@ -57,6 +57,13 @@ const ALERT =
 const OTP_BODY =
   /codigo de (verificacao|acesso|seguranca)|verification code|one-time (pass)?code/
 
+const OFFER =
+  /carta (oferta|proposta)|proposta (de trabalho|salarial|formal)|temos o prazer de (te )?(oferecer|fazer uma proposta)|job offer|offer letter|pleased to offer|salario (oferecido|proposto)|data de inicio/
+const DOCUMENTS =
+  /(envi\w*|encaminh\w*|anex\w*|solicitamos|precisamos d\w*)[^.\n]{0,60}(documentos?|rg|cpf|comprovante|carteira de trabalho|ctps|exame admissional)|documentos? (para|da) admissao|send (us )?(the following )?documents/
+const UNDER_REVIEW =
+  /(curriculo|perfil|candidatura) (esta |segue |foi )?(em analise|em avaliacao|sendo analisad|avancou para (a )?triagem)|under review|being reviewed|reviewing your application/
+
 type Verdict = { class: ClassifierClass; confidence: number; why: string }
 
 function decide(
@@ -81,6 +88,12 @@ function decide(
   const stage = STAGE_WORD.test(all) && STAGE_CALL.test(all)
   const confirmation = CONFIRMATION.test(all)
 
+  if (!rejection && OFFER.test(all))
+    return { class: "proposta", confidence: 0.88, why: "job offer" }
+  if (!rejection && DOCUMENTS.test(all))
+    return { class: "documentos", confidence: 0.86, why: "documents requested" }
+  if (!rejection && !interview && !stage && UNDER_REVIEW.test(all))
+    return { class: "em_analise", confidence: 0.85, why: "under review" }
   if (rejection) {
     const mixed = interview || stage || REJECTION_HEDGE.test(all)
     return {
@@ -187,7 +200,7 @@ export function fakeClassifyEmail(
     verdict.class !== "codigo_verificacao" &&
     verdict.class !== "vaga_alerta"
   const deadline =
-    verdict.class === "teste_etapa"
+    verdict.class === "teste_etapa" || verdict.class === "documentos"
       ? parseDeadline(`${input.subject}\n${text}`, input.receivedAt, {
           fallbackToFirst: true,
         })

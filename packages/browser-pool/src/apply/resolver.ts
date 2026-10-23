@@ -1,4 +1,5 @@
 import { matchProfileValue, type FormField } from "@vagapilot/ats-adapters/form"
+import { isConsentLabel } from "@vagapilot/core/risks"
 
 import type {
   FieldInfo,
@@ -63,6 +64,32 @@ export function pickOption(options: string[], answer: string): string | null {
   return contains.length === 1 ? contains[0]![0] : null
 }
 
+export const CONSENT_ACCEPT = "Aceito"
+export const CONSENT_CANCEL = "Cancelar"
+
+/** Terms / privacy / marketing / consent checkbox (never ticked without the user's "Aceito"). */
+export function isConsentField(field: Pick<FieldInfo, "kind" | "label" | "name">): boolean {
+  return (
+    field.kind === "checkbox" &&
+    isConsentLabel(`${field.label} ${field.name ?? ""}`)
+  )
+}
+
+/**
+ * Consent checkboxes: ticked only when the user answered "Aceito" in this run. Optional ones
+ * the user did not accept are left (or put back) unchecked. Never resolved from the profile
+ * or standard answers.
+ */
+function resolveConsent(field: FieldInfo, ctx: FillContext): ResolvedAnswer | null {
+  const key = normalizeLabel(field.label || field.name || "")
+  const answer = key ? ctx.runAnswers[key] : undefined
+  if (answer !== undefined && normalizeLabel(answer) === normalizeLabel(CONSENT_ACCEPT))
+    return { label: field.label, value: "sim", source: "run_answer" }
+  if (!field.required && /^(sim|yes|true|on)$/i.test(field.currentValue ?? ""))
+    return { label: field.label, value: "nao", source: "run_answer" }
+  return null
+}
+
 /**
  * Value for one field from (1) answers the user gave in this run, (2) the profile,
  * (3) standard answers. Returns null instead of inventing anything.
@@ -72,6 +99,7 @@ export function resolveField(
   ctx: FillContext
 ): ResolvedAnswer | null {
   if (isSensitive(field)) return null
+  if (isConsentField(field)) return resolveConsent(field, ctx)
   if (field.kind === "file") {
     return ctx.cvPath &&
       /curr[ií]culo|cv|resume|anexo|arquivo/i.test(
@@ -103,6 +131,8 @@ export function resolveField(
   }
   if (field.kind === "checkbox") {
     const normalized = normalizeLabel(value)
+    if (normalized === normalizeLabel(CONSENT_ACCEPT) && source === "run_answer")
+      return { label: field.label, value: "sim", source }
     if (!/^(sim|yes|true|nao|no|false)$/.test(normalized)) return null
   }
   return { label: field.label, value, source }
@@ -125,18 +155,25 @@ export function partitionFields(
       answers.push({ field, answer })
       continue
     }
+    const consent = isConsentField(field)
     const hasValue = Boolean(field.currentValue && field.currentValue.trim())
-    if (!field.required || hasValue || field.kind === "file") continue
+    // A required consent box pre-checked by the site still needs the user's own decision.
+    if (!field.required || (hasValue && !consent) || field.kind === "file") continue
     const label = field.label || field.name || "Pergunta sem rótulo"
     const norm = normalizeLabel(label)
     if (seen.has(norm)) continue
     seen.add(norm)
-    unknown.push({
-      label,
-      kind: field.kind,
-      options: field.options,
-      required: field.required,
-    })
+    unknown.push(
+      consent
+        ? {
+            label,
+            kind: field.kind,
+            options: [CONSENT_ACCEPT, CONSENT_CANCEL],
+            required: true,
+            consent: { termsUrl: field.linkHref ?? null },
+          }
+        : { label, kind: field.kind, options: field.options, required: field.required }
+    )
   }
   return { answers, unknown }
 }

@@ -283,6 +283,14 @@ const answerQuestionSchema = z.object({
   questionId: z.uuid(),
   answer: z.string().min(1).max(4000),
   remember: z.boolean().optional(),
+  /** Category grant for "Sempre permitir neste site" (permission cards). */
+  grant: z
+    .object({
+      categories: z.array(z.string().max(40)).max(20),
+      acknowledged: z.boolean(),
+      sensitiveConfirmation: z.string().max(80).nullable().optional(),
+    })
+    .optional(),
 })
 
 export async function answerPendingQuestionAction(
@@ -292,13 +300,64 @@ export async function answerPendingQuestionAction(
   if (!parsed.success) return fail("invalid_request", "Invalid answer.")
   const auth = await session()
   if ("error" in auth) return auth.error
+  const { consentMeta } = await import("@/lib/legal/server")
+  const { CONSENT_ACCEPT, CONSENT_CANCEL } = await import("@vagapilot/browser-pool/apply")
+  const current = await auth.ctx.supabase
+    .from("pending_questions")
+    .select("question_text, proposed_from")
+    .eq("id", parsed.data.questionId)
+    .eq("user_id", auth.ctx.user.id)
+    .maybeSingle()
+  const currentRow = current.data as { question_text: string; proposed_from: unknown } | null
+  const consent = consentMeta(currentRow?.proposed_from)
+  const pf = (currentRow?.proposed_from ?? null) as
+    | { permission?: boolean; action?: string; host?: string; categories?: string[]; missing?: string[] }
+    | null
+  const isPermission = pf?.permission === true
+  let answer = parsed.data.answer.trim()
+  const { cardChoiceFor } = await import("@vagapilot/core/permissions")
+  const choice = consent || isPermission ? cardChoiceFor(answer) : null
+  if (choice) {
+    // Run card: "Sempre ..." persists a site rule (allow requires the category grant).
+    const { applyCardChoice } = await import("@/lib/permissions/server")
+    const { sessionIdFromClaims } = await import("@/lib/legal/server")
+    const { data: claims } = await auth.ctx.supabase.auth.getClaims()
+    const applied = await applyCardChoice(
+      {
+        id: auth.ctx.user.id,
+        email: auth.ctx.user.email,
+        sessionId: sessionIdFromClaims(claims?.claims as Record<string, unknown> | undefined),
+      },
+      pf ?? {},
+      choice,
+      parsed.data.grant ?? null
+    )
+    if (!applied.ok) return fail("invalid_request", applied.error)
+    if (choice === "always" || choice === "denyAlways")
+      await audit({
+        userId: auth.ctx.user.id,
+        actor: "usuario",
+        action: "agent_permission.changed",
+        targetType: "pending_question",
+        targetId: parsed.data.questionId,
+        details: { choice, action: pf?.action ?? null, site: pf?.host ?? null, rule_id: applied.data.ruleId },
+      }).catch(() => undefined)
+    answer = isPermission
+      ? applied.data.allow ? "Permitir" : "Negar"
+      : applied.data.allow ? CONSENT_ACCEPT : CONSENT_CANCEL
+  }
+  // Terms/privacy/marketing boxes: only an explicit decision of THIS run; never remembered.
+  if (consent && answer !== CONSENT_ACCEPT && answer !== CONSENT_CANCEL)
+    return fail("invalid_request", "Responda Aceito ou Cancelar.")
+  if (isPermission && answer !== "Permitir" && answer !== "Negar")
+    return fail("invalid_request", "Responda Permitir ou Negar.")
   const { data, error } = await auth.ctx.supabase
     .from("pending_questions")
     .update({
-      answer: parsed.data.answer.trim(),
+      answer,
       status: "respondida",
       answered_at: new Date().toISOString(),
-      remember: parsed.data.remember ?? false,
+      remember: consent || isPermission ? false : (parsed.data.remember ?? false),
     })
     .eq("id", parsed.data.questionId)
     .eq("user_id", auth.ctx.user.id)
@@ -319,6 +378,36 @@ export async function answerPendingQuestionAction(
   })
   const applicationId = (data as { application_id: string | null })
     .application_id
+  if (consent) {
+    const decision = answer === CONSENT_ACCEPT ? "aceito" : "cancelado"
+    const { recordConsentDecision } = await import("@/lib/legal/server")
+    await recordConsentDecision({
+      userId: auth.ctx.user.id,
+      applicationId,
+      questionId: parsed.data.questionId,
+      fieldLabel: currentRow?.question_text ?? "",
+      meta: consent,
+      decision,
+    })
+    await audit({
+      userId: auth.ctx.user.id,
+      actor: "usuario",
+      action: "apply.consent_decided",
+      targetType: "pending_question",
+      targetId: parsed.data.questionId,
+      details: {
+        decision,
+        site: consent.site ?? null,
+        terms_url: consent.terms_url ?? null,
+        terms_sha256: consent.terms_sha256 ?? null,
+      },
+    })
+    if (decision === "cancelado" && consent.run_id) {
+      const { cancelApplyRun } = await import("@/lib/apply/server")
+      await cancelApplyRun(auth.ctx.user.id, consent.run_id).catch(() => false)
+      return ok({ id: parsed.data.questionId })
+    }
+  }
   if (applicationId) {
     // Cloud apply: resume the paused run once every question of this application is answered.
     const open = await auth.ctx.supabase

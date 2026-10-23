@@ -38,6 +38,11 @@ export type CreateSessionOptions = {
   timeoutSeconds: number
   /** Headful sessions give a human-usable live view (login, captcha, 2FA). */
   headful?: boolean
+  /**
+   * Native login persistence per provider (Browserbase Context id, Kernel Profile id). Only the
+   * entry matching the chosen provider is used; `save` writes the browser state back on close.
+   */
+  persistence?: Partial<Record<ProviderType, { ref: string; save: boolean }>>
 }
 
 export type CloudSession = {
@@ -47,7 +52,10 @@ export type CloudSession = {
   liveViewUrl: string | null
 }
 
-export type SessionUsage = { durationSeconds: number | null; units: number | null }
+export type SessionUsage = {
+  durationSeconds: number | null
+  units: number | null
+}
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>
 
@@ -61,6 +69,9 @@ export interface BrowserProviderAdapter {
    * Some providers (Browserless) only hand out a live view through a CDP command on a page.
    * `send` is a CDP session bound to the page the user should see.
    */
+  /** Creates a native persistence handle (Browserbase Context / Kernel Profile); returns its id. */
+  createPersistence?(name: string): Promise<string>
+  deletePersistence?(ref: string): Promise<void>
   liveViewFromCdp?(
     send: (method: string, params?: Record<string, unknown>) => Promise<unknown>
   ): Promise<string | null>

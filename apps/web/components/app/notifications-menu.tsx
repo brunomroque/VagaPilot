@@ -57,10 +57,13 @@ export function NotificationsMenu() {
     switch (notification.kind) {
       case "status_changed": {
         const to = text(params, "to")
-        return t("status_changed", {
+        const changed = t("status_changed", {
           company: text(params, "company"),
           status: isApplicationStatus(to) ? tStatus(to) : to,
         })
+        // Suggested next step from the e-mail (never an automatic reply).
+        const next = text(params, "next_step")
+        return next ? `${changed} · ${next}` : changed
       }
       case "review_needed":
         return t("review_needed", { count: Number(params.count ?? 0) })

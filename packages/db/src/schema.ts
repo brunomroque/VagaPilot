@@ -836,6 +836,8 @@ export const applyRuns = pgTable("apply_runs", {
   stateEnc: bytea("state_enc"),
   reviewSummary: jsonb("review_summary"),
   reviewScreenshotEnc: bytea("review_screenshot_enc"),
+  sensitiveReportEnc: bytea("sensitive_report_enc"),
+  sensitiveCounts: jsonb("sensitive_counts").notNull().default({}),
   approvalId: uuid("approval_id").references(() => approvals.id, {
     onDelete: "set null",
   }),
@@ -882,10 +884,241 @@ export const browserAuthStates = pgTable(
   {
     userId: ownerId(),
     site: text("site").notNull(),
+    provider: text("provider").notNull().default("legacy"),
     storageEnc: bytea("storage_enc").notNull(),
+    nativeRef: text("native_ref"),
+    status: text("status").notNull().default("active"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.site, t.provider] })]
+)
+
+export const browserLoginSessions = pgTable("browser_login_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: ownerId(),
+  site: text("site").notNull(),
+  loginUrl: text("login_url").notNull(),
+  applyRunId: uuid("apply_run_id").references(() => applyRuns.id, {
+    onDelete: "set null",
+  }),
+  status: text("status").notNull().default("starting"),
+  provider: text("provider"),
+  providerId: uuid("provider_id").references(() => browserProviders.id, {
+    onDelete: "set null",
+  }),
+  externalId: text("external_id"),
+  liveViewUrl: text("live_view_url"),
+  nativeRef: text("native_ref"),
+  lastError: text("last_error"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const atsCredentials = pgTable(
+  "ats_credentials",
+  {
+    userId: ownerId(),
+    site: text("site").notNull(),
+    email: text("email").notNull(),
+    passwordEnc: bytea("password_enc").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.site] })]
 )
+
+export const applyRunOutcomes = pgTable("apply_run_outcomes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  runId: uuid("run_id").references(() => applyRuns.id, {
+    onDelete: "set null",
+  }),
+  userId: uuid("user_id").references(() => authUsers.id, {
+    onDelete: "cascade",
+  }),
+  ats: text("ats").notNull(),
+  driver: text("driver").notNull(),
+  site: text("site").notNull(),
+  outcome: text("outcome").notNull(),
+  code: text("code"),
+  durationMs: integer("duration_ms").notNull().default(0),
+  llmCalls: integer("llm_calls").notNull().default(0),
+  llmTokens: integer("llm_tokens").notNull().default(0),
+  replayedSteps: integer("replayed_steps").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const atsRecipes = pgTable(
+  "ats_recipes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    domain: text("domain").notNull(),
+    platform: text("platform").notNull(),
+    version: integer("version").notNull(),
+    parentVersion: integer("parent_version"),
+    status: text("status").notNull().default("learning"),
+    steps: jsonb("steps").notNull().default([]),
+    successes: integer("successes").notNull().default(0),
+    failures: integer("failures").notNull().default(0),
+    lastValidatedAt: timestamp("last_validated_at", { withTimezone: true }),
+    driftHistory: jsonb("drift_history").notNull().default([]),
+    disabledBy: uuid("disabled_by").references(() => authUsers.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique().on(t.domain, t.version)]
+)
+
+export const legalDocuments = pgTable(
+  "legal_documents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    version: text("version").notNull(),
+    title: text("title").notNull(),
+    effectiveDate: text("effective_date").notNull(),
+    bodyMd: text("body_md").notNull(),
+    templateSha256: text("template_sha256").notNull(),
+    publishedAt: timestamp("published_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique().on(t.slug, t.version)]
+)
+
+export const legalAcceptances = pgTable("legal_acceptances", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  seq: bigserial("seq", { mode: "number" }).notNull(),
+  userId: uuid("user_id").notNull(),
+  email: text("email"),
+  action: text("action").notNull(),
+  documentId: uuid("document_id")
+    .notNull()
+    .references(() => legalDocuments.id, { onDelete: "restrict" }),
+  documentSlug: text("document_slug").notNull(),
+  documentVersion: text("document_version").notNull(),
+  documentSha256: text("document_sha256").notNull(),
+  checkboxes: jsonb("checkboxes").notNull().default({}),
+  typedConfirmation: text("typed_confirmation"),
+  acceptedAt: timestamp("accepted_at", { withTimezone: true }).notNull(),
+  recordedAt: timestamp("recorded_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  ip: text("ip"),
+  userAgent: text("user_agent"),
+  sessionId: text("session_id"),
+  locale: text("locale"),
+  uiVersion: text("ui_version"),
+  prevHash: text("prev_hash"),
+  recordHash: text("record_hash").notNull().unique(),
+})
+
+export const applyConsentDecisions = pgTable("apply_consent_decisions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  applicationId: uuid("application_id"),
+  questionId: uuid("question_id"),
+  site: text("site").notNull(),
+  fieldLabel: text("field_label").notNull(),
+  termsUrl: text("terms_url"),
+  termsSha256: text("terms_sha256"),
+  decision: text("decision").notNull(),
+  ip: text("ip"),
+  userAgent: text("user_agent"),
+  decidedAt: timestamp("decided_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const siteRiskLevels = pgTable("site_risk_levels", {
+  domain: text("domain").primaryKey(),
+  level: text("level").notNull(),
+  note: text("note"),
+  updatedBy: uuid("updated_by"),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const agentPermissions = pgTable(
+  "agent_permissions",
+  {
+    userId: uuid("user_id").notNull(),
+    actionType: text("action_type").notNull(),
+    mode: text("mode").notNull().default("ask"),
+    finalSubmitConfirmedAt: timestamp("final_submit_confirmed_at", {
+      withTimezone: true,
+    }),
+    categories: text("categories").array().notNull().default([]),
+    ackRecordHash: text("ack_record_hash"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.actionType] })]
+)
+
+export const agentPermissionRules = pgTable("agent_permission_rules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  actionType: text("action_type").notNull(),
+  domainPattern: text("domain_pattern").notNull(),
+  effect: text("effect").notNull(),
+  categories: text("categories").array().notNull().default([]),
+  source: text("source").notNull().default("settings"),
+  ackRecordHash: text("ack_record_hash"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+})
+
+export const agentPermissionEvents = pgTable("agent_permission_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  runId: uuid("run_id"),
+  actionType: text("action_type").notNull(),
+  site: text("site").notNull(),
+  decision: text("decision").notNull(),
+  reason: text("reason").notNull(),
+  ruleId: uuid("rule_id"),
+  categories: text("categories").array().notNull().default([]),
+  fieldLabel: text("field_label"),
+  termsUrl: text("terms_url"),
+  termsSha256: text("terms_sha256"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const agentPermissionPrefs = pgTable("agent_permission_prefs", {
+  userId: uuid("user_id").primaryKey(),
+  notifySensitiveEmail: boolean("notify_sensitive_email")
+    .notNull()
+    .default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})

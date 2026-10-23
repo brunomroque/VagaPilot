@@ -72,9 +72,9 @@ export const gmailUserSyncFunction = inngest.createFunction(
   }
 )
 
-/** Cron `0 *\/2 * * *` (8.4): fans out one event per active connection. */
+/** Cron every 15 min (application replies arrive fast; incremental history sync is cheap): fans out one event per active connection. */
 export const gmailIncrementalSyncFunction = inngest.createFunction(
-  { id: "gmail-incremental-sync", triggers: [cron("0 */2 * * *")] },
+  { id: "gmail-incremental-sync", triggers: [cron("*/15 * * * *")] },
   async ({ step }) => {
     const userIds = await step.run("active-connections", () =>
       getJobsGmailRuntime().store.listActiveUserIds()

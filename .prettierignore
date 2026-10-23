@@ -5,3 +5,5 @@ node_modules/
 coverage/
 pnpm-lock.yaml
 .pnpm-store/
+# Legal texts are hashed byte-for-byte (seeded in supabase/migrations)
+docs/legal/*.md

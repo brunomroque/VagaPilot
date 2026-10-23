@@ -1,0 +1,210 @@
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { z } from "zod"
+
+import { fail, ok, type ActionResult } from "@/lib/action-result"
+import type { ConnectedSite, SiteLoginView } from "@/lib/auth-sites/server"
+import { getUserContext } from "@/lib/server/context"
+
+async function userId(): Promise<string | { error: ActionResult<never> }> {
+  const result = await getUserContext()
+  if (!result.ok)
+    return { error: fail(result.error.code, result.error.message) }
+  return result.ctx.user.id
+}
+
+const START_ERRORS: Record<string, string> = {
+  pool_disabled: "O navegador na nuvem está desligado (BROWSER_POOL_ENABLED).",
+  invalid_url: "Informe o endereço da página de login (https://...).",
+  linkedin_disabled: "O LinkedIn fica desligado por padrão (termos de uso).",
+  not_configured: "Servidor sem Supabase configurado.",
+  insert_failed: "Não consegui iniciar o login.",
+  run_not_found: "Candidatura não encontrada.",
+}
+
+export async function startSiteLoginAction(
+  input: unknown
+): Promise<ActionResult<{ loginId: string }>> {
+  const parsed = z
+    .object({
+      url: z.string().min(3).max(2000),
+      applyRunId: z.uuid().nullish(),
+    })
+    .safeParse(input)
+  if (!parsed.success) return fail("invalid_request", START_ERRORS.invalid_url!)
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { startSiteLogin } = await import("@/lib/auth-sites/server")
+  const result = await startSiteLogin(uid, parsed.data)
+  if ("error" in result)
+    return fail(
+      result.error === "not_configured" ? "not_configured" : "invalid_request",
+      START_ERRORS[result.error] ?? result.error
+    )
+  return ok(result)
+}
+
+export async function loadSiteLoginAction(
+  input: unknown
+): Promise<ActionResult<SiteLoginView>> {
+  const parsed = z.object({ loginId: z.uuid() }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Login inválido.")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { loadSiteLogin } = await import("@/lib/auth-sites/server")
+  const view = await loadSiteLogin(uid, parsed.data.loginId)
+  return view ? ok(view) : fail("not_found", "Login não encontrado.")
+}
+
+export async function finishSiteLoginAction(
+  input: unknown
+): Promise<ActionResult<{ updated: boolean }>> {
+  const parsed = z
+    .object({ loginId: z.uuid(), action: z.enum(["confirm", "cancel"]) })
+    .safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Pedido inválido.")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { setSiteLoginStatus } = await import("@/lib/auth-sites/server")
+  const updated = await setSiteLoginStatus(
+    uid,
+    parsed.data.loginId,
+    parsed.data.action === "confirm" ? "confirm_requested" : "cancelled"
+  )
+  revalidatePath("/app/configuracoes")
+  return ok({ updated })
+}
+
+export async function listConnectedSitesAction(): Promise<
+  ActionResult<ConnectedSite[]>
+> {
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { listConnectedSites } = await import("@/lib/auth-sites/server")
+  return ok(await listConnectedSites(uid))
+}
+
+export async function deleteConnectedSiteAction(
+  input: unknown
+): Promise<ActionResult<{ deleted: boolean }>> {
+  const parsed = z
+    .object({
+      site: z.string().min(1).max(253),
+      provider: z.string().min(1).max(40),
+    })
+    .safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Pedido inválido.")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { deleteConnectedSite } = await import("@/lib/auth-sites/server")
+  const deleted = await deleteConnectedSite(
+    uid,
+    parsed.data.site,
+    parsed.data.provider
+  )
+  revalidatePath("/app/configuracoes")
+  return ok({ deleted })
+}
+
+export type SiteAccountView = {
+  site: string
+  email: string
+  updatedAt: string
+}
+
+async function credentialsDeps() {
+  const [{ adminFromEnv }, creds, { logAudit }, { SupabaseAuditSink }] =
+    await Promise.all([
+      import("@vagapilot/browser-pool/job"),
+      import("@vagapilot/browser-pool"),
+      import("@vagapilot/core/audit"),
+      import("@vagapilot/db/server"),
+    ])
+  const admin = adminFromEnv()
+  const audit = (
+    userId: string,
+    action: "apply.site_password_viewed" | "apply.site_password_reset",
+    site: string
+  ) =>
+    logAudit(new SupabaseAuditSink(admin), {
+      userId,
+      actor: "usuario",
+      action,
+      targetType: "ats_credential",
+      details: { site },
+    }).catch(() => undefined)
+  return { admin, creds, audit }
+}
+
+/** Site accounts the bot created with the user's e-mail (never returns passwords). */
+export async function listSiteAccountsAction(): Promise<
+  ActionResult<SiteAccountView[]>
+> {
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  try {
+    const { admin, creds } = await credentialsDeps()
+    const rows = await creds.listCredentials(admin, uid)
+    return ok(
+      rows.map((r) => ({
+        site: r.site,
+        email: r.email,
+        updatedAt: r.updated_at,
+      }))
+    )
+  } catch {
+    return ok([])
+  }
+}
+
+/** Reveals one site password to its owner (audited, never logged). */
+export async function revealSitePasswordAction(
+  input: unknown
+): Promise<ActionResult<{ password: string }>> {
+  const parsed = z.object({ site: z.string().min(1).max(253) }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Pedido inválido.")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { admin, creds, audit } = await credentialsDeps()
+  const found = await creds
+    .getCredential(admin, uid, parsed.data.site)
+    .catch(() => null)
+  if (!found) return fail("not_found", "Conta não encontrada.")
+  await audit(uid, "apply.site_password_viewed", parsed.data.site)
+  return ok({ password: found.password })
+}
+
+/**
+ * Replaces the stored password with a new one (generated, or typed by the user). The site keeps
+ * the old one until the user changes it there (e.g. "Esqueci minha senha").
+ */
+export async function resetSitePasswordAction(
+  input: unknown
+): Promise<ActionResult<{ password: string }>> {
+  const parsed = z
+    .object({
+      site: z.string().min(1).max(253),
+      password: z.string().min(8).max(128).nullish(),
+    })
+    .safeParse(input)
+  if (!parsed.success)
+    return fail("invalid_request", "Senha inválida (mínimo 8 caracteres).")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { admin, creds, audit } = await credentialsDeps()
+  const found = await creds
+    .getCredential(admin, uid, parsed.data.site)
+    .catch(() => null)
+  if (!found) return fail("not_found", "Conta não encontrada.")
+  const saved = await creds.saveNewCredential(
+    admin,
+    uid,
+    parsed.data.site,
+    found.email,
+    process.env,
+    parsed.data.password ?? creds.generatePassword()
+  )
+  await audit(uid, "apply.site_password_reset", parsed.data.site)
+  return ok({ password: saved.password })
+}

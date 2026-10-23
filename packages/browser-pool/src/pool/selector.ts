@@ -6,6 +6,7 @@ import {
   type CloudSession,
   type CreateSessionOptions,
   type ProviderConfig,
+  type ProviderType,
 } from "./types.js"
 
 export type SkipReason =
@@ -37,6 +38,13 @@ export type PoolDeps = {
 
 export type AcquireOptions = CreateSessionOptions & {
   exclude?: string[]
+  /** Provider types to try first, in order (e.g. live-view friendly ones for logins). */
+  prefer?: ProviderType[]
+  /** Runs after a provider is picked, before its session is created (e.g. native persistence). */
+  beforeCreate?(
+    config: ProviderConfig,
+    adapter: BrowserProviderAdapter
+  ): Promise<Partial<CreateSessionOptions> | void>
 }
 
 export type AcquiredBrowser = {
@@ -73,7 +81,12 @@ export async function rankProviders(
   const candidates: Candidate[] = []
   for (const config of deps.providers) {
     const skip = (reason: SkipReason) =>
-      attempts.push({ providerId: config.id, provider: config.provider, outcome: "skipped", reason })
+      attempts.push({
+        providerId: config.id,
+        provider: config.provider,
+        outcome: "skipped",
+        reason,
+      })
     if (!config.enabled) {
       skip("disabled")
       continue
@@ -82,7 +95,10 @@ export async function rankProviders(
       skip("excluded")
       continue
     }
-    if (config.keyExpiresAt && new Date(config.keyExpiresAt).getTime() <= now.getTime()) {
+    if (
+      config.keyExpiresAt &&
+      new Date(config.keyExpiresAt).getTime() <= now.getTime()
+    ) {
       skip("key_expired")
       continue
     }
@@ -98,8 +114,15 @@ export async function rankProviders(
       remainingRatio: status.limit > 0 ? status.remaining / status.limit : 0,
     })
   }
+  const rank = (type: ProviderType) => {
+    const index = options.prefer?.indexOf(type) ?? -1
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index
+  }
   return candidates.sort(
-    (a, b) => a.config.priority - b.config.priority || b.remainingRatio - a.remainingRatio
+    (a, b) =>
+      rank(a.config.provider) - rank(b.config.provider) ||
+      a.config.priority - b.config.priority ||
+      b.remainingRatio - a.remainingRatio
   )
 }
 
@@ -113,21 +136,47 @@ export async function acquireBrowser(
   for (const { config } of ranked) {
     const adapter = deps.adapterFor(config)
     if (!adapter) {
-      attempts.push({ providerId: config.id, provider: config.provider, outcome: "skipped", reason: "missing_secret" })
+      attempts.push({
+        providerId: config.id,
+        provider: config.provider,
+        outcome: "skipped",
+        reason: "missing_secret",
+      })
       continue
     }
     const timeoutSeconds = Math.max(
       30,
-      Math.min(options.timeoutSeconds, config.maxSessionSeconds ?? options.timeoutSeconds)
+      Math.min(
+        options.timeoutSeconds,
+        config.maxSessionSeconds ?? options.timeoutSeconds
+      )
     )
-    const gotSlot = await deps.concurrency.tryAcquire(config.id, config.concurrencyLimit, timeoutSeconds + 120)
+    const gotSlot = await deps.concurrency.tryAcquire(
+      config.id,
+      config.concurrencyLimit,
+      timeoutSeconds + 120
+    )
     if (!gotSlot) {
-      attempts.push({ providerId: config.id, provider: config.provider, outcome: "skipped", reason: "concurrency_full" })
+      attempts.push({
+        providerId: config.id,
+        provider: config.provider,
+        outcome: "skipped",
+        reason: "concurrency_full",
+      })
       continue
     }
     try {
-      const session = await adapter.createSession({ ...options, timeoutSeconds })
-      attempts.push({ providerId: config.id, provider: config.provider, outcome: "ok" })
+      const extra = (await options.beforeCreate?.(config, adapter)) ?? {}
+      const session = await adapter.createSession({
+        ...options,
+        ...extra,
+        timeoutSeconds,
+      })
+      attempts.push({
+        providerId: config.id,
+        provider: config.provider,
+        outcome: "ok",
+      })
       let released = false
       return {
         config,
@@ -154,7 +203,8 @@ export async function acquireBrowser(
         provider: config.provider,
         outcome: "failed",
         reason: error instanceof ProviderError ? error.code : "error",
-        message: error instanceof Error ? error.message.slice(0, 200) : undefined,
+        message:
+          error instanceof Error ? error.message.slice(0, 200) : undefined,
       })
       await deps.onFailure?.(config, error)
     }

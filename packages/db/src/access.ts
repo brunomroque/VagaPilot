@@ -66,6 +66,18 @@ export const serverOnlyTables = [
   "app_admins",
   "apply_runs",
   "browser_auth_states",
+  "browser_login_sessions",
+  "ats_credentials",
+  "apply_run_outcomes",
+  "ats_recipes",
+  "legal_documents",
+  "legal_acceptances",
+  "apply_consent_decisions",
+  "site_risk_levels",
+  "agent_permissions",
+  "agent_permission_rules",
+  "agent_permission_events",
+  "agent_permission_prefs",
 ] as const
 
 /** Readable/writable only by app admins (public.is_app_admin()); service_role writes sessions. */

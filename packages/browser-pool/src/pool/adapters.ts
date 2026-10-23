@@ -12,7 +12,10 @@ import {
   type SessionUsage,
 } from "./types.js"
 
-type AdapterDeps = { fetch?: FetchLike; endpoints?: Partial<Record<string, string>> }
+type AdapterDeps = {
+  fetch?: FetchLike
+  endpoints?: Partial<Record<string, string>>
+}
 
 const defaultFetch: FetchLike = (input, init) => fetch(input, init)
 
@@ -25,7 +28,9 @@ export function browserlessAdapter(
   secrets: ProviderSecrets,
   deps: AdapterDeps = {}
 ): BrowserProviderAdapter {
-  const base = (deps.endpoints?.browserless ?? "wss://production-sfo.browserless.io").replace(/\/$/, "")
+  const base = (
+    deps.endpoints?.browserless ?? "wss://production-sfo.browserless.io"
+  ).replace(/\/$/, "")
   return {
     type: "browserless",
     async createSession(options: CreateSessionOptions): Promise<CloudSession> {
@@ -76,13 +81,21 @@ export function steelAdapter(
   return {
     type: "steel",
     async createSession(options) {
-      const session = await requestJson<SteelSession>(f, "steel", `${api}/sessions`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ timeout: options.timeoutSeconds * 1000 }),
-      })
-      if (!session?.id) throw new ProviderError("bad_response", "steel: no session id")
-      const connect = new URL(deps.endpoints?.steelConnect ?? "wss://connect.steel.dev")
+      const session = await requestJson<SteelSession>(
+        f,
+        "steel",
+        `${api}/sessions`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ timeout: options.timeoutSeconds * 1000 }),
+        }
+      )
+      if (!session?.id)
+        throw new ProviderError("bad_response", "steel: no session id")
+      const connect = new URL(
+        deps.endpoints?.steelConnect ?? "wss://connect.steel.dev"
+      )
       connect.searchParams.set("apiKey", secrets.apiKey)
       connect.searchParams.set("sessionId", session.id)
       return {
@@ -92,10 +105,15 @@ export function steelAdapter(
       }
     },
     async closeSession(id) {
-      await requestJson(f, "steel", `${api}/sessions/${encodeURIComponent(id)}/release`, {
-        method: "POST",
-        headers,
-      })
+      await requestJson(
+        f,
+        "steel",
+        `${api}/sessions/${encodeURIComponent(id)}/release`,
+        {
+          method: "POST",
+          headers,
+        }
+      )
     },
     async sessionUsage(id): Promise<SessionUsage | null> {
       const session = await requestJson<SteelSession>(
@@ -107,8 +125,11 @@ export function steelAdapter(
       if (!session) return null
       return {
         durationSeconds:
-          typeof session.duration === "number" ? Math.round(session.duration / 1000) : null,
-        units: typeof session.creditsUsed === "number" ? session.creditsUsed : null,
+          typeof session.duration === "number"
+            ? Math.round(session.duration / 1000)
+            : null,
+        units:
+          typeof session.creditsUsed === "number" ? session.creditsUsed : null,
       }
     },
   }
@@ -134,15 +155,28 @@ export function kernelAdapter(
   return {
     type: "kernel",
     async createSession(options) {
-      const browser = await requestJson<KernelBrowser>(f, "kernel", `${api}/browsers`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          headless: !options.headful,
-          stealth: true,
-          timeout_seconds: options.timeoutSeconds,
-        }),
-      })
+      const browser = await requestJson<KernelBrowser>(
+        f,
+        "kernel",
+        `${api}/browsers`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            headless: !options.headful,
+            stealth: true,
+            timeout_seconds: options.timeoutSeconds,
+            ...(options.persistence?.kernel
+              ? {
+                  profile: {
+                    id: options.persistence.kernel.ref,
+                    save_changes: options.persistence.kernel.save,
+                  },
+                }
+              : {}),
+          }),
+        }
+      )
       if (!browser?.session_id || !browser.cdp_ws_url)
         throw new ProviderError("bad_response", "kernel: missing session")
       return {
@@ -152,10 +186,38 @@ export function kernelAdapter(
       }
     },
     async closeSession(id) {
-      await requestJson(f, "kernel", `${api}/browsers/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        headers,
-      })
+      await requestJson(
+        f,
+        "kernel",
+        `${api}/browsers/${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      )
+    },
+    async createPersistence(name) {
+      const profile = await requestJson<{ id?: string }>(
+        f,
+        "kernel",
+        `${api}/profiles`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ name: name.slice(0, 100) }),
+        }
+      )
+      if (!profile?.id)
+        throw new ProviderError("bad_response", "kernel: missing profile id")
+      return profile.id
+    },
+    async deletePersistence(ref) {
+      await requestJson(
+        f,
+        "kernel",
+        `${api}/profiles/${encodeURIComponent(ref)}`,
+        { method: "DELETE", headers }
+      )
     },
   }
 }
@@ -169,20 +231,38 @@ export function browserbaseAdapter(
 ): BrowserProviderAdapter {
   const f = deps.fetch ?? defaultFetch
   const api = deps.endpoints?.browserbase ?? "https://api.browserbase.com/v1"
-  const headers = { "x-bb-api-key": secrets.apiKey, "content-type": "application/json" }
+  const headers = {
+    "x-bb-api-key": secrets.apiKey,
+    "content-type": "application/json",
+  }
   if (!secrets.projectId)
     throw new ProviderError("auth", "browserbase: project id env var is empty")
   return {
     type: "browserbase",
     async createSession(options) {
-      const session = await requestJson<BrowserbaseSession>(f, "browserbase", `${api}/sessions`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          projectId: secrets.projectId,
-          timeout: options.timeoutSeconds,
-        }),
-      })
+      const session = await requestJson<BrowserbaseSession>(
+        f,
+        "browserbase",
+        `${api}/sessions`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            projectId: secrets.projectId,
+            timeout: options.timeoutSeconds,
+            ...(options.persistence?.browserbase
+              ? {
+                  browserSettings: {
+                    context: {
+                      id: options.persistence.browserbase.ref,
+                      persist: options.persistence.browserbase.save,
+                    },
+                  },
+                }
+              : {}),
+          }),
+        }
+      )
       if (!session?.id || !session.connectUrl)
         throw new ProviderError("bad_response", "browserbase: missing session")
       let liveViewUrl: string | null = null
@@ -200,11 +280,45 @@ export function browserbaseAdapter(
       return { externalId: session.id, cdpUrl: session.connectUrl, liveViewUrl }
     },
     async closeSession(id) {
-      await requestJson(f, "browserbase", `${api}/sessions/${encodeURIComponent(id)}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ projectId: secrets.projectId, status: "REQUEST_RELEASE" }),
-      })
+      await requestJson(
+        f,
+        "browserbase",
+        `${api}/sessions/${encodeURIComponent(id)}`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            projectId: secrets.projectId,
+            status: "REQUEST_RELEASE",
+          }),
+        }
+      )
+    },
+    async createPersistence() {
+      const context = await requestJson<{ id?: string }>(
+        f,
+        "browserbase",
+        `${api}/contexts`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ projectId: secrets.projectId }),
+        }
+      )
+      if (!context?.id)
+        throw new ProviderError(
+          "bad_response",
+          "browserbase: missing context id"
+        )
+      return context.id
+    },
+    async deletePersistence(ref) {
+      await requestJson(
+        f,
+        "browserbase",
+        `${api}/contexts/${encodeURIComponent(ref)}`,
+        { method: "DELETE", headers }
+      )
     },
   }
 }
@@ -218,15 +332,25 @@ export function hyperbrowserAdapter(
 ): BrowserProviderAdapter {
   const f = deps.fetch ?? defaultFetch
   const api = deps.endpoints?.hyperbrowser ?? "https://app.hyperbrowser.ai/api"
-  const headers = { "x-api-key": secrets.apiKey, "content-type": "application/json" }
+  const headers = {
+    "x-api-key": secrets.apiKey,
+    "content-type": "application/json",
+  }
   return {
     type: "hyperbrowser",
     async createSession(options) {
-      const session = await requestJson<HyperSession>(f, "hyperbrowser", `${api}/session`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ timeoutMinutes: Math.max(1, Math.ceil(options.timeoutSeconds / 60)) }),
-      })
+      const session = await requestJson<HyperSession>(
+        f,
+        "hyperbrowser",
+        `${api}/session`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            timeoutMinutes: Math.max(1, Math.ceil(options.timeoutSeconds / 60)),
+          }),
+        }
+      )
       if (!session?.id || !session.wsEndpoint)
         throw new ProviderError("bad_response", "hyperbrowser: missing session")
       return {
@@ -236,10 +360,15 @@ export function hyperbrowserAdapter(
       }
     },
     async closeSession(id) {
-      await requestJson(f, "hyperbrowser", `${api}/session/${encodeURIComponent(id)}/stop`, {
-        method: "PUT",
-        headers,
-      })
+      await requestJson(
+        f,
+        "hyperbrowser",
+        `${api}/session/${encodeURIComponent(id)}/stop`,
+        {
+          method: "PUT",
+          headers,
+        }
+      )
     },
   }
 }
@@ -270,7 +399,9 @@ export function secretsFromEnv(
 ): ProviderSecrets | null {
   const apiKey = env[config.secretEnvVar]?.trim()
   if (!apiKey) return null
-  const projectId = config.projectEnvVar ? env[config.projectEnvVar]?.trim() || null : null
+  const projectId = config.projectEnvVar
+    ? env[config.projectEnvVar]?.trim() || null
+    : null
   if (config.projectEnvVar && !projectId) return null
   return { apiKey, projectId }
 }

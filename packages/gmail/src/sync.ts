@@ -17,6 +17,7 @@ import {
   decideEmailOutcome,
   nextActionForEmailClass,
   shouldWriteNextAction,
+  suggestedNextStep,
   type EmailDecision,
 } from "@vagapilot/core/email-outcome"
 
@@ -327,6 +328,8 @@ async function processMessage(
           company: linked?.company ?? "",
           from: decision.from,
           to: decision.to,
+          detail: classification.class,
+          next_step: suggestedNextStep(classification.class) ?? "",
         },
         applicationId: decision.applicationId,
         emailThreadId: threadId,
@@ -382,7 +385,8 @@ async function processMessage(
   ) {
     const action = nextActionForEmailClass(classification.class)
     const dueAt =
-      classification.class === "teste_etapa"
+      classification.class === "teste_etapa" ||
+      classification.class === "documentos"
         ? classification.deadline
         : classification.class === "convite_entrevista"
           ? classification.interviewAt

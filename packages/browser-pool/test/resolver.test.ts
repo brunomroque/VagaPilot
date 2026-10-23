@@ -49,3 +49,40 @@ describe("hashPreview", async () => {
     )
   })
 })
+
+describe("consent checkboxes are never ticked by the automation", () => {
+  const terms = field({ label: "Li e aceito os Termos de Uso e a Política de Privacidade", kind: "checkbox", linkHref: "https://ats.example/termos" })
+  const marketing = field({ label: "Aceito receber comunicações de marketing", kind: "checkbox", required: false })
+
+  it("ignores profile and standard answers for consent boxes", () => {
+    const payload = samplePayload()
+    const withStandard = {
+      ...ctx,
+      payload: { ...payload, standardAnswers: [...payload.standardAnswers, { key: "termos", questionExamples: [terms.label], answer: "sim", proposedFrom: null }] },
+    }
+    expect(resolveField(terms, withStandard as typeof ctx)).toBeNull()
+    expect(resolveField(terms, { ...ctx, runAnswers: { [normalizeLabel(terms.label)]: "sim" } })).toBeNull()
+  })
+
+  it("turns a required consent box into an Aceito/Cancelar question with the terms link", () => {
+    const { answers, unknown } = partitionFields([terms, marketing], ctx)
+    expect(answers).toHaveLength(0)
+    expect(unknown).toEqual([
+      expect.objectContaining({ label: terms.label, options: ["Aceito", "Cancelar"], consent: { termsUrl: "https://ats.example/termos" } }),
+    ])
+  })
+
+  it("asks even when the site pre-checked a required consent box, and unchecks optional marketing", () => {
+    const pre = { ...terms, currentValue: "sim" }
+    expect(partitionFields([pre], ctx).unknown).toHaveLength(1)
+    const res = partitionFields([{ ...marketing, currentValue: "sim" }], ctx)
+    expect(res.answers[0]?.answer.value).toBe("nao")
+  })
+
+  it("ticks only after the user's own Aceito; Cancelar never ticks", () => {
+    const accepted = { ...ctx, runAnswers: { [normalizeLabel(terms.label)]: "Aceito" } }
+    expect(partitionFields([terms], accepted).answers[0]?.answer).toMatchObject({ value: "sim", source: "run_answer" })
+    const cancelled = { ...ctx, runAnswers: { [normalizeLabel(terms.label)]: "Cancelar" } }
+    expect(resolveField(terms, cancelled)).toBeNull()
+  })
+})

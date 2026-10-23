@@ -1,5 +1,7 @@
-import { LegalDraft } from "@/components/legal-draft"
+import { PublicLegalPage } from "@/components/risk/public-legal-page"
+
+export const dynamic = "force-dynamic"
 
 export default function TermsPage() {
-  return <LegalDraft title="termsTitle" />
+  return <PublicLegalPage slug="termos-de-uso" fallback="termsTitle" />
 }

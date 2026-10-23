@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Vaga Dev</title></head>
+<body>
+<main id="app"></main>
+<script>
+  window.submitted = 0
+  const variant = new URLSearchParams(location.search).get("v") || "a"
+  const app = document.getElementById("app")
+  const steps = {
+    start: () => `<h1>Desenvolvedor(a) Backend</h1><p>Venha trabalhar conosco.</p><button id="apply">Candidatar-se</button>`,
+    code: () => `<h1>Confirme seu e-mail</h1><p>Digite o código enviado para o seu e-mail.</p>
+      <label for="otp">Código de verificação</label><input id="otp" name="otp" required>
+      <button id="confirm">Confirmar código</button>`,
+    form: () => variant === "c"
+      ? `<h1>Dados pessoais</h1><p>Preencha seus dados.</p>
+        <label for="cpf">CPF</label><input id="cpf" name="cpf" required>
+        <label for="mother">Nome da mãe</label><input id="mother" name="mother" required>
+        <button id="next">Avançar etapa</button>`
+      : `<h1>Dados pessoais</h1><p>Preencha seus dados.</p>
+        <label for="name">Nome completo</label><input id="name" name="name" required>
+        <label for="email">E-mail</label><input id="email" name="email" type="email" required>
+        <button id="next">${variant === "b" ? "Prosseguir" : "Continuar"}</button>`,
+    review: () => `<h1>Revisão</h1><p>Confira seus dados antes de enviar.</p><button id="submit">Enviar candidatura</button>`,
+    done: () => `<h1>Pronto</h1><p>Candidatura enviada! Protocolo GEN-2026-7</p>`,
+  }
+  let step = "start"
+  const render = () => {
+    document.title = { start: "Vaga Dev", code: "Verificação", form: "Seus dados", review: "Revisão", done: "Enviado" }[step]
+    app.innerHTML = steps[step]()
+    const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn }
+    on("apply", () => { step = "code"; render() })
+    on("confirm", () => { if (document.getElementById("otp").value === "482913") { step = "form"; render() } })
+    on("next", () => { step = "review"; render() })
+    on("submit", () => { window.submitted += 1; step = "done"; render() })
+  }
+  render()
+</script>
+</body>
+</html>

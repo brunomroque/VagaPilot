@@ -17,6 +17,9 @@ import { Badge } from "@workspace/ui/components/badge"
 import { buttonVariants } from "@workspace/ui/components/button"
 import { JobCard, type JobCardNotice } from "@workspace/ui/components/job-card"
 
+import { SiteRiskBadge } from "@/components/risk/risk-alerts"
+import { useSiteRisk } from "@/components/risk/use-site-risk"
+
 import { CloudApplyPanel } from "./cloud-apply-panel"
 import { Separator } from "@workspace/ui/components/separator"
 import {
@@ -46,6 +49,7 @@ export function JobCardView({
   const tCommon = useTranslations("Common")
   const f = useJobFormat()
   const [card, setCard] = useState(initial)
+  const siteRisk = useSiteRisk(card.applyUrl ?? card.canonicalUrl)
   const [busy, startTransition] = useTransition()
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [statusChange, setStatusChange] = useState<{
@@ -207,6 +211,11 @@ export function JobCardView({
           )
         }
       />
+      {siteRisk === "alto" || siteRisk === "medio" ? (
+        <div>
+          <SiteRiskBadge level={siteRisk} />
+        </div>
+      ) : null}
       {!card.blocked && CLOUD_APPLY_HOSTS.test(card.applyUrl ?? card.canonicalUrl) ? (
         <CloudApplyPanel matchId={card.matchId} initialRunId={null} available unavailableReason={null} />
       ) : null}
@@ -225,6 +234,7 @@ export function JobCardView({
             <div className="flex flex-wrap items-center gap-2">
               {card.fit ? <Badge>{f.fitLabel(card)}</Badge> : null}
               <Badge variant="outline">{f.sourceLabel(card.source)}</Badge>
+              <SiteRiskBadge level={siteRisk} />
               <a
                 href={card.applyUrl ?? card.canonicalUrl}
                 target="_blank"
