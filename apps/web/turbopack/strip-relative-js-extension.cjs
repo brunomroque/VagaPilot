@@ -1,5 +1,6 @@
 /**
- * Turbopack loader for the NodeNext workspace packages (@vagapilot/core, db, ai, jobs).
+ * Turbopack loader for the NodeNext workspace packages
+ * (@vagapilot/core, db, ai, jobs, gmail, ats-adapters, browser-pool).
  * Their relative imports end in `.js` (required by `moduleResolution: NodeNext`) but the files
  * are `.ts`; Turbopack has no `extensionAlias`, so the suffix is dropped before resolution.
  */

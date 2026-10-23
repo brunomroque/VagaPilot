@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
     "@vagapilot/jobs",
     "@vagapilot/gmail",
     "@vagapilot/ats-adapters",
+    "@vagapilot/browser-pool",
   ],
   experimental: {
     // CV uploads are up to 10 MB (spec 10.4) plus multipart overhead; proxy.ts buffers the body.
@@ -33,7 +34,7 @@ const nextConfig: NextConfig = {
     rules: {
       "*.ts": {
         condition: {
-          path: /(packages|@vagapilot)\/(core|db|ai|jobs|gmail|ats-adapters)\/src\//,
+          path: /(packages|@vagapilot)\/(core|db|ai|jobs|gmail|ats-adapters|browser-pool)\/src\//,
         },
         loaders: [resolve("turbopack/strip-relative-js-extension.cjs")],
         as: "*.ts",
