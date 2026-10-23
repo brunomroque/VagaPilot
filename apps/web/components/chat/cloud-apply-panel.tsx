@@ -18,6 +18,28 @@ import { Input } from "@workspace/ui/components/input"
 
 const POLL_MS = 4000
 const FINAL = ["submitted", "failed", "cancelled"]
+const PHASES = [
+  "queued",
+  "running",
+  "login_required",
+  "captcha",
+  "waiting_answers",
+  "review_ready",
+  "submit_approved",
+  "submitting",
+  "submitted",
+  "failed",
+  "cancelled",
+] as const
+const REASONS = ["pool_disabled", "no_url", "unsupported_ats"] as const
+type Phase = (typeof PHASES)[number]
+type Reason = (typeof REASONS)[number]
+const asPhase = (v: string): Phase =>
+  (PHASES as readonly string[]).includes(v) ? (v as Phase) : "running"
+const asReason = (v: string | null): Reason =>
+  (REASONS as readonly string[]).includes(v ?? "")
+    ? (v as Reason)
+    : "unsupported_ats"
 
 /**
  * "Candidatar na nuvem": starts a cloud-browser run, shows the live view (login, captcha, 2FA),
@@ -58,7 +80,11 @@ export function CloudApplyPanel({
   }, [runId, refresh, run])
 
   if (!available) {
-    return <p className="text-muted-foreground text-xs">{t(`unavailable.${unavailableReason ?? "unsupported_ats"}`)}</p>
+    return (
+      <p className="text-xs text-muted-foreground">
+        {t(`unavailable.${asReason(unavailableReason)}`)}
+      </p>
+    )
   }
 
   function start() {
@@ -76,7 +102,11 @@ export function CloudApplyPanel({
     const value = answers[questionId]?.trim()
     if (!value) return
     startTransition(async () => {
-      const result = await answerPendingQuestionAction({ questionId, answer: value, remember: remember[questionId] ?? false })
+      const result = await answerPendingQuestionAction({
+        questionId,
+        answer: value,
+        remember: remember[questionId] ?? false,
+      })
       if (!result.ok) toast.error(t("errors.generic"))
       await refresh()
     })
@@ -85,8 +115,12 @@ export function CloudApplyPanel({
   function decide(approve: boolean) {
     if (!run?.approvalId) return
     startTransition(async () => {
-      const result = await decideFactAction({ approvalId: run.approvalId, approve })
-      if (!result.ok) toast.error(t("errors.approval", { reason: result.error.message }))
+      const result = await decideFactAction({
+        approvalId: run.approvalId,
+        approve,
+      })
+      if (!result.ok)
+        toast.error(t("errors.approval", { reason: result.error.message }))
       await refresh()
     })
   }
@@ -115,25 +149,42 @@ export function CloudApplyPanel({
 
   const phase = run?.phase ?? "queued"
   return (
-    <div className="flex flex-col gap-3 rounded-md border p-3 text-sm" aria-live="polite">
+    <div
+      className="flex flex-col gap-3 rounded-md border p-3 text-sm"
+      aria-live="polite"
+    >
       <div className="flex items-center justify-between gap-2">
-        <strong>{t(`phase.${phase}`)}</strong>
+        <strong>{t(`phase.${asPhase(phase)}`)}</strong>
         {!FINAL.includes(phase) ? (
-          <Button size="sm" variant="ghost" onClick={() => simple("cancel")} disabled={busy}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => simple("cancel")}
+            disabled={busy}
+          >
             {t("cancel")}
           </Button>
         ) : null}
       </div>
-      {run?.lastError ? <p className="text-destructive text-xs">{run.lastError}</p> : null}
+      {run?.lastError ? (
+        <p className="text-xs text-destructive">{run.lastError}</p>
+      ) : null}
 
       {run?.liveViewUrl ? (
         <div className="flex flex-col gap-2">
-          <a href={run.liveViewUrl} target="_blank" rel="noopener noreferrer" className="underline">
+          <a
+            href={run.liveViewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
             {t("openLiveView")}
           </a>
           {phase === "login_required" || phase === "captcha" ? (
             <>
-              <p className="text-muted-foreground text-xs">{t(phase === "login_required" ? "loginHelp" : "captchaHelp")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t(phase === "login_required" ? "loginHelp" : "captchaHelp")}
+              </p>
               <iframe
                 src={run.liveViewUrl}
                 title={t("liveViewTitle")}
@@ -144,18 +195,26 @@ export function CloudApplyPanel({
           ) : null}
         </div>
       ) : null}
-      {(phase === "login_required" || phase === "captcha") && !run?.liveViewUrl ? (
-        <Button size="sm" variant="outline" onClick={() => simple("resume")} disabled={busy}>
+      {(phase === "login_required" || phase === "captcha") &&
+      !run?.liveViewUrl ? (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => simple("resume")}
+          disabled={busy}
+        >
           {t("resume")}
         </Button>
       ) : null}
 
       {phase === "waiting_answers" && run?.questions.length ? (
         <div className="flex flex-col gap-3">
-          <p className="text-muted-foreground text-xs">{t("questionsHelp")}</p>
+          <p className="text-xs text-muted-foreground">{t("questionsHelp")}</p>
           {run.questions.map((q) => (
             <div key={q.id} className="flex flex-col gap-1">
-              <label className="font-medium" htmlFor={`q-${q.id}`}>{q.question}</label>
+              <label className="font-medium" htmlFor={`q-${q.id}`}>
+                {q.question}
+              </label>
               {q.options.length ? (
                 <div className="flex flex-wrap gap-1">
                   {q.options.map((option) => (
@@ -163,7 +222,9 @@ export function CloudApplyPanel({
                       key={option}
                       size="sm"
                       variant={answers[q.id] === option ? "default" : "outline"}
-                      onClick={() => setAnswers((a) => ({ ...a, [q.id]: option }))}
+                      onClick={() =>
+                        setAnswers((a) => ({ ...a, [q.id]: option }))
+                      }
                     >
                       {option}
                     </Button>
@@ -173,19 +234,27 @@ export function CloudApplyPanel({
                 <Input
                   id={`q-${q.id}`}
                   value={answers[q.id] ?? ""}
-                  onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
+                  onChange={(e) =>
+                    setAnswers((a) => ({ ...a, [q.id]: e.target.value }))
+                  }
                 />
               )}
               <label className="flex items-center gap-2 text-xs">
                 <input
                   type="checkbox"
                   checked={remember[q.id] ?? false}
-                  onChange={(e) => setRemember((r) => ({ ...r, [q.id]: e.target.checked }))}
+                  onChange={(e) =>
+                    setRemember((r) => ({ ...r, [q.id]: e.target.checked }))
+                  }
                 />
                 {t("remember")}
               </label>
               <div>
-                <Button size="sm" onClick={() => answer(q.id)} disabled={busy || !answers[q.id]?.trim()}>
+                <Button
+                  size="sm"
+                  onClick={() => answer(q.id)}
+                  disabled={busy || !answers[q.id]?.trim()}
+                >
                   {t("answer")}
                 </Button>
               </div>
@@ -196,7 +265,7 @@ export function CloudApplyPanel({
 
       {phase === "review_ready" && run ? (
         <div className="flex flex-col gap-2">
-          <p className="text-muted-foreground text-xs">{t("reviewHelp")}</p>
+          <p className="text-xs text-muted-foreground">{t("reviewHelp")}</p>
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
             {run.reviewFields.map((field, i) => (
               <div key={`${field.label}-${i}`} className="contents">
@@ -214,10 +283,19 @@ export function CloudApplyPanel({
             />
           ) : null}
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => decide(true)} disabled={busy || !run.approvalId}>
+            <Button
+              size="sm"
+              onClick={() => decide(true)}
+              disabled={busy || !run.approvalId}
+            >
               {t("approve")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => decide(false)} disabled={busy || !run.approvalId}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => decide(false)}
+              disabled={busy || !run.approvalId}
+            >
               {t("reject")}
             </Button>
           </div>

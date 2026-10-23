@@ -1,6 +1,12 @@
 import type { Page } from "playwright-core"
 
-import { clickFirstVisible, fillScope, hasCaptcha, summarizeScope, unknownInScope } from "./dom.js"
+import {
+  clickFirstVisible,
+  fillScope,
+  hasCaptcha,
+  summarizeScope,
+  unknownInScope,
+} from "./dom.js"
 import type { AtsDriver, NextResult, PageState } from "./types.js"
 
 type DriverSpec = {
@@ -27,7 +33,13 @@ async function anyVisible(page: Page, selectors: string[]): Promise<boolean> {
     const locator = page.locator(selector)
     const count = await locator.count()
     for (let i = 0; i < count; i++) {
-      if (await locator.nth(i).isVisible().catch(() => false)) return true
+      if (
+        await locator
+          .nth(i)
+          .isVisible()
+          .catch(() => false)
+      )
+        return true
     }
   }
   return false
@@ -46,25 +58,45 @@ export function textDriver(spec: DriverSpec): AtsDriver {
     async open(page, url) {
       await page.goto(url, { waitUntil: "domcontentloaded" })
       await settle(page)
-      if (await anyVisible(page, [spec.scope])) {
-        const fields = await page.locator(`${spec.scope} input, ${spec.scope} select, ${spec.scope} textarea`).count()
-        if (fields > 0) return
-      }
+      // Only skip the "apply" button when a form field is actually visible (hidden steps do not count).
+      if (
+        await anyVisible(page, [
+          `${spec.scope} input`,
+          `${spec.scope} select`,
+          `${spec.scope} textarea`,
+        ])
+      )
+        return
       if (await clickFirstVisible(page, spec.openButtons)) await settle(page)
     },
     async state(page): Promise<PageState> {
-      const body = (await page.locator("body").innerText().catch(() => "")).slice(0, 20_000)
+      const body = (
+        await page
+          .locator("body")
+          .innerText()
+          .catch(() => "")
+      ).slice(0, 20_000)
       if (spec.doneText.test(body)) return "done"
       if (await hasCaptcha(page)) return "captcha"
       if (await spec.isLogin(page)) return "login"
       if (await anyVisible(page, spec.submitButtons)) return "review"
-      if (await anyVisible(page, [`${spec.scope} input`, `${spec.scope} select`, `${spec.scope} textarea`])) return "form"
+      if (
+        await anyVisible(page, [
+          `${spec.scope} input`,
+          `${spec.scope} select`,
+          `${spec.scope} textarea`,
+        ])
+      )
+        return "form"
       return "unknown"
     },
     unknownQuestions: (page, ctx) => unknownInScope(page, spec.scope, ctx),
     fillStep: (page, ctx) => fillScope(page, spec.scope, ctx),
     async next(page): Promise<NextResult> {
-      const body = await page.locator("body").innerText().catch(() => "")
+      const body = await page
+        .locator("body")
+        .innerText()
+        .catch(() => "")
       if (spec.doneText.test(body)) return "done"
       if (await anyVisible(page, spec.submitButtons)) return "review"
       if (!(await clickFirstVisible(page, spec.nextButtons))) return "stuck"
@@ -74,19 +106,25 @@ export function textDriver(spec: DriverSpec): AtsDriver {
     },
     reviewSummary: (page) => summarizeScope(page, spec.scope),
     async submit(page) {
-      if (!(await clickFirstVisible(page, spec.submitButtons))) return { ok: false, confirmation: null }
+      if (!(await clickFirstVisible(page, spec.submitButtons)))
+        return { ok: false, confirmation: null }
       await settle(page)
       await page.waitForTimeout(1500)
-      const body = await page.locator("body").innerText().catch(() => "")
+      const body = await page
+        .locator("body")
+        .innerText()
+        .catch(() => "")
       const match = body.match(spec.doneText)
       if (!match) return { ok: false, confirmation: null }
-      const protocol = body.match(/(protocolo|c[oó]digo|n[uú]mero)[^\n]{0,80}/i)?.[0] ?? null
+      const protocol =
+        body.match(/(protocolo|c[oó]digo|n[uú]mero)[^\n]{0,80}/i)?.[0] ?? null
       return { ok: true, confirmation: (protocol ?? match[0]).slice(0, 300) }
     },
   }
 }
 
-const btn = (...texts: string[]) => texts.map((t) => `button:has-text("${t}"), a[role=button]:has-text("${t}")`)
+const btn = (...texts: string[]) =>
+  texts.map((t) => `button:has-text("${t}"), a[role=button]:has-text("${t}")`)
 
 export const gupyDriver = textDriver({
   ats: "gupy",
@@ -98,15 +136,29 @@ export const gupyDriver = textDriver({
   ],
   nextButtons: [
     '[data-testid="next-step-button"]',
-    ...btn("Salvar e continuar", "Continuar", "Próximo", "Próxima etapa", "Avançar"),
+    ...btn(
+      "Salvar e continuar",
+      "Continuar",
+      "Próximo",
+      "Próxima etapa",
+      "Avançar"
+    ),
   ],
   submitButtons: [
     '[data-testid="submit-application"]',
-    ...btn("Enviar candidatura", "Finalizar candidatura", "Concluir candidatura"),
+    ...btn(
+      "Enviar candidatura",
+      "Finalizar candidatura",
+      "Concluir candidatura"
+    ),
   ],
-  doneText: /candidatura (enviada|realizada|conclu[ií]da)( com sucesso)?|parab[eé]ns,? sua candidatura/i,
+  doneText:
+    /candidatura (enviada|realizada|conclu[ií]da)( com sucesso)?|parab[eé]ns,? sua candidatura/i,
   async isLogin(page) {
-    if (/\/(login|signin|sign-in|cadastro)\b/i.test(new URL(page.url()).pathname)) return true
+    if (
+      /\/(login|signin|sign-in|cadastro)\b/i.test(new URL(page.url()).pathname)
+    )
+      return true
     return (await page.locator('input[type="password"]').count()) > 0
   },
 })
@@ -114,7 +166,8 @@ export const gupyDriver = textDriver({
 export const linkedinEasyApplyDriver = textDriver({
   ats: "linkedin",
   hosts: /(^|\.)linkedin\.com$/i,
-  scope: '.jobs-easy-apply-modal, [data-test-modal][role="dialog"], [role="dialog"]',
+  scope:
+    '.jobs-easy-apply-modal, [data-test-modal][role="dialog"], [role="dialog"]',
   openButtons: [
     "button.jobs-apply-button",
     'button[aria-label*="Easy Apply"]',
@@ -133,9 +186,12 @@ export const linkedinEasyApplyDriver = textDriver({
     'button[aria-label="Enviar candidatura"]',
     ...btn("Submit application", "Enviar candidatura"),
   ],
-  doneText: /your application was sent|candidatura (foi )?enviada|application submitted/i,
+  doneText:
+    /your application was sent|candidatura (foi )?enviada|application submitted/i,
   async isLogin(page) {
-    return /\/(login|checkpoint|authwall|uas\/login)/i.test(new URL(page.url()).pathname)
+    return /\/(login|checkpoint|authwall|uas\/login)/i.test(
+      new URL(page.url()).pathname
+    )
   },
 })
 
@@ -145,10 +201,15 @@ export const ATS_DRIVERS: AtsDriver[] = [gupyDriver, linkedinEasyApplyDriver]
  * LinkedIn automation is against its User Agreement and can get the account restricted, so the
  * Easy Apply driver is off unless APPLY_LINKEDIN_ENABLED=true.
  */
-export function enabledDrivers(env: Record<string, string | undefined> = process.env): AtsDriver[] {
+export function enabledDrivers(
+  env: Record<string, string | undefined> = process.env
+): AtsDriver[] {
   return env.APPLY_LINKEDIN_ENABLED === "true" ? ATS_DRIVERS : [gupyDriver]
 }
 
-export function driverForUrl(url: string, drivers: AtsDriver[] = enabledDrivers()): AtsDriver | null {
+export function driverForUrl(
+  url: string,
+  drivers: AtsDriver[] = enabledDrivers()
+): AtsDriver | null {
   return drivers.find((driver) => driver.detect(url)) ?? null
 }
