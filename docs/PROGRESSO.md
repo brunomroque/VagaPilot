@@ -372,9 +372,11 @@ Não são requisitos novos; fecham questões da seção 20 para não travar o in
 
 Implementadas as fases 1–7: home `/app` com chat, painel em `/app/visao-geral`, sheet lateral, ferramentas ATS/CV/candidatura/perfil/Gmail, widgets de aprovação, migration `20261023160000_chat_first_persistence.sql`, onboarding “Fazer pelo chat”.
 
-Pendências: aplicar a nova migration no Supabase de produção (us-east-1); selo “Preenchido via chat” nas demais telas (CV, fatos, perfil, memória, buscas); fluxo completo de `register_gap` no cartão; eval `form_only` ampliado; e2e completos em CI com Supabase local.
+Feito (2026-10-23): selo **Preenchido via chat** em CV, fatos, perfil (contato), memória e buscas; `register_gap` end-to-end (`data-action` + `memory_events.intent = gap`); eval `form-only` em `packages/ai/src/evals`; e2e `chat.spec.ts` (aprovar/recusar `cv_diff`, lacuna); job `e2e` na CI com Supabase local (como `rls`).
 
-Commits em `main` (push `origin/main`, 2026-10-23): 5× `feat(chat-first)`, `49d941b` (QA pareamento/billing/CV + core `app-url`/`audit`), docs smoke/Stripe, `fe5b83e` (P2). Checklist de deploy: [DEPLOY-CHAT-FIRST.md](./DEPLOY-CHAT-FIRST.md). Não versionar `docs/supabase-vagapilot.env.txt` (`.gitignore`: `docs/*.env.txt`).
+Pendência: aplicar a migration `20261023160000` no Supabase de produção (us-east-1), se ainda não aplicada.
+
+Commits em `main` (push `origin/main`, 2026-10-23): 5× `feat(chat-first)`, `49d941b` (QA), docs smoke/Stripe, `fe5b83e` (P2), `32f60b7` (checklist deploy). Guia: [DEPLOY-CHAT-FIRST.md](./DEPLOY-CHAT-FIRST.md). Não versionar `docs/supabase-vagapilot.env.txt` (`.gitignore`: `docs/*.env.txt`).
 
 ## QA 23/10/2026 — P0 e P1
 

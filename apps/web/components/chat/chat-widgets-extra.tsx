@@ -147,9 +147,17 @@ export function ApplicationCardView({
 export function FactClassificationView({
   output,
   onSelect,
+  onDataAction,
 }: {
   output: Extract<ChatToolOutput, { kind: "fact_classification" }>
   onSelect: (text: string) => void
+  onDataAction?: (data: {
+    action: "fact_destination"
+    choice: string
+    pendingQuestionId: string
+    statement: string
+    suggestedUsage: "cv_relevant" | "form_only"
+  }) => void
 }) {
   const t = useTranslations("Chat.widgets.factClass")
   const labels: Record<string, string> = {
@@ -159,7 +167,7 @@ export function FactClassificationView({
     register_gap: t("registerGap"),
   }
   return (
-    <Card>
+    <Card data-testid="fact-classification-card">
       <CardHeader>
         <CardTitle>{t("title")}</CardTitle>
         <CardDescription>{output.statement}</CardDescription>
@@ -170,7 +178,20 @@ export function FactClassificationView({
             key={dest}
             size="sm"
             variant="outline"
-            onClick={() => onSelect(labels[dest] ?? dest)}
+            data-testid={`fact-dest-${dest}`}
+            onClick={() => {
+              if (output.pendingQuestionId && onDataAction) {
+                onDataAction({
+                  action: "fact_destination",
+                  choice: dest,
+                  pendingQuestionId: output.pendingQuestionId,
+                  statement: output.statement,
+                  suggestedUsage: output.suggestedUsage,
+                })
+                return
+              }
+              onSelect(labels[dest] ?? dest)
+            }}
           >
             {labels[dest] ?? dest}
           </Button>

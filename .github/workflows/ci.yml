@@ -64,6 +64,7 @@ jobs:
       HUSKY: "0"
       CI: "1"
       E2E_PORT: "3100"
+      VAGAPILOT_REQUIRE_SUPABASE: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,8 +78,26 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      - name: Start Supabase and reset DB
+        run: |
+          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,mailpit
+          pnpm db:reset
+
+      - name: Export Supabase env for Playwright
+        run: |
+          STATUS=$(supabase status -o json)
+          echo "SUPABASE_URL=$(echo "$STATUS" | jq -r '.API_URL')" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(echo "$STATUS" | jq -r '.API_URL')" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(echo "$STATUS" | jq -r '.SERVICE_ROLE_KEY // .SECRET_KEY')" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(echo "$STATUS" | jq -r '.ANON_KEY // .PUBLISHABLE_KEY')" >> "$GITHUB_ENV"
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps

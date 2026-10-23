@@ -264,19 +264,19 @@ Em todas as fases: rodar os evals existentes (`packages/ai/src/evals/*`: guardra
 
 ## Progresso (implementação)
 
-| Fase | Status    | Notas                                                                                                                                                    |
-| ---- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | concluída | `/app` chat-first, `/app/visao-geral` painel, sheet + FAB, `next_steps`, `open_screen` / `deep_link`, atalho no command menu                             |
-| 2    | concluída | Migration `20261023160000_chat_first_persistence.sql`, lista/arquivo de conversas, selo em candidaturas, export LGPD ampliado                            |
-| 3    | concluída | `data-action` no POST `/api/chat`, widgets (`options`, `cv_diff`, `fact_classification`, `application_card`, …), `decideApprovalAction`                  |
-| 4    | concluída | ATS determinístico, propose/apply CV, Híbrido, candidatura via chat; validador `cv-structure` com testes negativos                                       |
-| 5    | concluída | `answer_missing_info`, `classify_fact`, `platform_profiles` + tracking; lacuna via destino `register_gap` (memória) pendente de fluxo completo no cartão |
-| 6    | concluída | `read_gmail`, PostHog `chat-events`, Langfuse `sessionId` = `conversationId`                                                                             |
-| 7    | concluída | Opção “Fazer pelo chat” no onboarding (`/app/onboarding`)                                                                                                |
+| Fase | Status    | Notas                                                                                                                                                |
+| ---- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | concluída | `/app` chat-first, `/app/visao-geral` painel, sheet + FAB, `next_steps`, `open_screen` / `deep_link`, atalho no command menu                         |
+| 2    | concluída | Migration `20261023160000_chat_first_persistence.sql`, lista/arquivo de conversas, selo em candidaturas, export LGPD ampliado                        |
+| 3    | concluída | `data-action` no POST `/api/chat`, widgets (`options`, `cv_diff`, `fact_classification`, `application_card`, …), `decideApprovalAction`              |
+| 4    | concluída | ATS determinístico, propose/apply CV, Híbrido, candidatura via chat; validador `cv-structure` com testes negativos                                   |
+| 5    | concluída | `answer_missing_info`, `classify_fact`, `platform_profiles` + tracking; `register_gap` via cartão + `data-action` → `memory_events` (`intent = gap`) |
+| 6    | concluída | `read_gmail`, PostHog `chat-events`, Langfuse `sessionId` = `conversationId`                                                                         |
+| 7    | concluída | Opção “Fazer pelo chat” no onboarding (`/app/onboarding`)                                                                                            |
 
-**Decisões:** namespace i18n `AppHome` (evita colisão com landing `Home`); selo de proveniência só em `application-sheet` na v1 (demais telas podem reutilizar `FilledViaChatBadgeClient`); migration enum `approval_kind` sem `IF NOT EXISTS` (aplicar uma vez).
+**Decisões:** namespace i18n `AppHome` (evita colisão com landing `Home`); selo **Preenchido via chat** em candidaturas, CV, fatos, perfil (contato), memória e buscas (`FilledViaChatBadgeClient` + `chat_record_links`); migration enum `approval_kind` sem `IF NOT EXISTS` (aplicar uma vez).
 
-**Pendente produção:** aplicar migration no Supabase us-east-1; badges em CV/fatos/perfil/memória/buscas.
+**Pendente produção:** aplicar migration no Supabase us-east-1.
 
 ---
 

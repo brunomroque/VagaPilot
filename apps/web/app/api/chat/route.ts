@@ -36,6 +36,7 @@ import {
 } from "@/lib/chat/conversations"
 import { startIngestion } from "@/lib/chat/jobs-server"
 import { outputFilterTransform } from "@/lib/chat/output-filter"
+import { handleChatDataAction } from "@/lib/chat/data-actions"
 import { buildChatTools, type ChatTurnState } from "@/lib/chat/tools"
 import type { ChatToolOutput } from "@/lib/chat/types"
 import { apiError } from "@/lib/http"
@@ -74,6 +75,9 @@ const bodySchema = z.object({
               action: z.string().max(80),
               approvalId: z.uuid().optional(),
               choice: z.string().max(200).optional(),
+              pendingQuestionId: z.uuid().optional(),
+              statement: z.string().max(4000).optional(),
+              suggestedUsage: z.enum(["cv_relevant", "form_only"]).optional(),
             }),
           }),
         ])
@@ -178,8 +182,13 @@ export async function POST(request: Request) {
   }
   const parsed = bodySchema.safeParse(raw)
   if (!parsed.success) return apiError("invalid_request", t("invalid"), 400)
+  const dataActionPart = parsed.data.message.parts.find(
+    (part) => part.type === "data-action"
+  )
   const text = textOf(parsed.data.message)
-  if (!text) return apiError("invalid_request", t("invalid"), 400)
+  if (!text && !dataActionPart) {
+    return apiError("invalid_request", t("invalid"), 400)
+  }
   if (text.length > MAX_CHAT_INPUT_CHARS) {
     return apiError(
       "input_too_long",
@@ -245,16 +254,74 @@ export async function POST(request: Request) {
     return apiError("not_found", t("invalid"), 404)
   }
   const history = await loadUIMessages(ctx, conversation.id)
-  const userMessage: UIMessage = {
-    id: parsed.data.message.id,
-    role: "user",
-    parts: [{ type: "text", text }],
-  }
+  const userMessage: UIMessage = dataActionPart
+    ? {
+        id: parsed.data.message.id,
+        role: "user",
+        parts: parsed.data.message.parts as UIMessage["parts"],
+      }
+    : {
+        id: parsed.data.message.id,
+        role: "user",
+        parts: [{ type: "text", text }],
+      }
   await saveMessage(ctx, conversation.id, {
     role: userMessage.role,
     parts: userMessage.parts as UIMessage["parts"],
   })
   const originalMessages = [...history, userMessage]
+
+  if (dataActionPart && dataActionPart.type === "data-action") {
+    const output = await handleChatDataAction(
+      ctx,
+      conversation.id,
+      dataActionPart.data
+    )
+    return directResponse(
+      ctx,
+      conversation.id,
+      originalMessages,
+      async (writer) => {
+        const toolCallId = `action-${crypto.randomUUID()}`
+        if (output.kind === "deep_link") {
+          writer.write({
+            type: "tool-input-available",
+            toolCallId,
+            toolName: "open_screen",
+            input: { screen: "memoria" },
+          })
+          writer.write({ type: "tool-output-available", toolCallId, output })
+        } else if (output.kind === "cv_diff") {
+          writer.write({
+            type: "tool-input-available",
+            toolCallId,
+            toolName: "propose_cv_adjustment",
+            input: {},
+          })
+          writer.write({ type: "tool-output-available", toolCallId, output })
+        } else if (output.kind === "error") {
+          writer.write({ type: "text-start", id: "action-error" })
+          writer.write({
+            type: "text-delta",
+            id: "action-error",
+            delta: output.summary,
+          })
+          writer.write({ type: "text-end", id: "action-error" })
+        } else {
+          writer.write({ type: "tool-output-available", toolCallId, output })
+        }
+        if (output.summary && output.kind !== "error") {
+          writer.write({ type: "text-start", id: "action-ok" })
+          writer.write({
+            type: "text-delta",
+            id: "action-ok",
+            delta: output.summary,
+          })
+          writer.write({ type: "text-end", id: "action-ok" })
+        }
+      }
+    )
+  }
 
   const topic = await classifyTopic(text)
   const jobPaste = urls.length === 0 && looksLikeJobPosting(text)

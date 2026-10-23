@@ -424,6 +424,7 @@ export function buildChatTools(
           kind,
           experienceId: experienceId ?? null,
           summary: tr("factProposed"),
+          conversationId: state.conversationId,
         })
       },
     }),
@@ -510,6 +511,7 @@ async function proposeFact(
     kind: string
     experienceId: string | null
     summary: string
+    conversationId?: string
   }
 ): Promise<ChatToolOutput> {
   let experienceId = input.experienceId
@@ -544,7 +546,12 @@ async function proposeFact(
     .insert({
       user_id: ctx.user.id,
       kind: "criar_fato",
-      subject_ref: { fact_id: factId },
+      subject_ref: {
+        fact_id: factId,
+        ...(input.conversationId
+          ? { conversation_id: input.conversationId }
+          : {}),
+      },
       preview,
       preview_sha256: createHash("sha256")
         .update(JSON.stringify(preview))

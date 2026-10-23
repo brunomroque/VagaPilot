@@ -886,6 +886,20 @@ export async function applySettingChange(
 
     const targetId = await write(ctx, input.intent, current)
     const applied = { ...current, targetId: current.targetId ?? targetId }
+    if (
+      input.origin === "chat" &&
+      input.conversationId &&
+      applied.targetId &&
+      applied.targetType === "saved_search"
+    ) {
+      const { linkChatRecord } = await import("@/lib/chat/record-links")
+      await linkChatRecord(ctx, {
+        conversationId: input.conversationId,
+        tableName: "saved_searches",
+        recordId: applied.targetId,
+        action: "created",
+      })
+    }
     const memoryEventId = await recordEvent(ctx, input, applied, "aplicada")
     await audit({
       userId: ctx.user.id,

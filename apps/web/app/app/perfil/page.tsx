@@ -62,6 +62,7 @@ export default async function ProfilePage({
           contato: (
             <>
               <ContactForm
+                profileUserId={context.ctx.user.id}
                 defaults={{
                   displayName: profile.displayName,
                   firstName: profile.firstName,

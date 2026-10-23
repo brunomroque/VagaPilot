@@ -338,6 +338,7 @@ export function buildExtendedChatTools(
         }
         return {
           kind: "fact_classification",
+          pendingQuestionId,
           statement: answerText,
           suggestedUsage: "form_only",
           destinations: [

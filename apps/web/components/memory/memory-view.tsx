@@ -12,6 +12,7 @@ import {
   confirmChangeAction,
   undoChangeAction,
 } from "@/app/app/chat/actions"
+import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import {
   addExcludedCompanyAction,
   removeExcludedCompanyAction,
@@ -306,13 +307,19 @@ export function MemoryView({
                       >
                         {t(`status.${event.status}`)}
                       </Badge>
-                      <CardDescription className="col-span-2">
-                        {format.dateTime(new Date(event.created_at), {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}{" "}
-                        · {t(`origin.${event.origin}`)}
-                        {event.utterance ? ` · “${event.utterance}”` : ""}
+                      <CardDescription className="col-span-2 flex flex-wrap items-center gap-2">
+                        <span>
+                          {format.dateTime(new Date(event.created_at), {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}{" "}
+                          · {t(`origin.${event.origin}`)}
+                          {event.utterance ? ` · “${event.utterance}”` : ""}
+                        </span>
+                        <FilledViaChatBadgeClient
+                          tableName="memory_events"
+                          recordId={event.id}
+                        />
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-3">
@@ -448,6 +455,7 @@ const INTENTS = [
   "set_salary_rules",
   "set_preference",
   "set_approval_mode",
+  "gap",
 ] as const
 
 function intentKey(intent: string): (typeof INTENTS)[number] | "unknown" {

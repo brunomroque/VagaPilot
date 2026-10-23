@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import {
   SelectField,
   TextField,
@@ -233,6 +234,10 @@ export function FactReview({
                       </p>
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline">{tKind(fact.kind)}</Badge>
+                        <FilledViaChatBadgeClient
+                          tableName="confirmed_facts"
+                          recordId={fact.id}
+                        />
                         {fact.edited ? (
                           <Badge variant="secondary">{t("edited")}</Badge>
                         ) : null}

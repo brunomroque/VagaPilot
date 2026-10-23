@@ -252,6 +252,7 @@ export type ChatToolOutput =
       kind: "fact_classification"
       approvalId?: string
       factId?: string
+      pendingQuestionId?: string
       statement: string
       suggestedUsage: "cv_relevant" | "form_only"
       destinations: (

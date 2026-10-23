@@ -1,0 +1,68 @@
+{
+  "cases": [
+    {
+      "id": "salary-form-only",
+      "facts": [
+        {
+          "id": "f1",
+          "statement": "Pretensão salarial de R$ 18.000 CLT",
+          "usage": "form_only"
+        },
+        {
+          "id": "f2",
+          "statement": "Liderou migração para Kubernetes em produção",
+          "usage": "cv_relevant"
+        }
+      ],
+      "forbidden": ["Pretensão salarial", "R$ 18.000"]
+    },
+    {
+      "id": "cnh-form-only",
+      "facts": [
+        {
+          "id": "f3",
+          "statement": "CNH categoria B válida",
+          "usage": "form_only"
+        },
+        {
+          "id": "f4",
+          "statement": "Certificação AWS Solutions Architect",
+          "usage": "cv_relevant"
+        }
+      ],
+      "forbidden": ["CNH", "categoria B"]
+    },
+    {
+      "id": "address-form-only",
+      "facts": [
+        {
+          "id": "f5",
+          "statement": "Moradia em Campinas-SP",
+          "usage": "form_only"
+        },
+        {
+          "id": "f6",
+          "statement": "Experiência com observabilidade OpenTelemetry",
+          "usage": "cv_relevant"
+        }
+      ],
+      "forbidden": ["Campinas", "Moradia"]
+    },
+    {
+      "id": "all-cv-relevant",
+      "facts": [
+        {
+          "id": "f7",
+          "statement": "Gestão de squads multidisciplinares",
+          "usage": "cv_relevant"
+        },
+        {
+          "id": "f8",
+          "statement": "Domínio avançado de TypeScript",
+          "usage": "cv_relevant"
+        }
+      ],
+      "forbidden": []
+    }
+  ]
+}

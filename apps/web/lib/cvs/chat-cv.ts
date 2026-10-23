@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto"
 
 import { assertCvAppendOnly } from "@vagapilot/core/cv-structure"
 import { computeAtsScore } from "@vagapilot/core/ats-score"
+import { cvFactsOnly } from "@vagapilot/core/facts"
 
 import { linkChatRecord } from "@/lib/chat/record-links"
 import type { ChatToolOutput } from "@/lib/chat/types"
@@ -107,7 +108,13 @@ export async function toolProposeCvAdjustment(
     .eq("status", "confirmado")
     .eq("usage", "cv_relevant")
     .limit(8)
-  const factRows = (facts ?? []) as { id: string; statement: string }[]
+  const factRows = cvFactsOnly(
+    (facts ?? []) as {
+      id: string
+      statement: string
+      usage?: "cv_relevant" | "form_only" | null
+    }[]
+  )
   if (factRows.length === 0) {
     return {
       kind: "error",

@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto"
+import { createHash, randomUUID } from "node:crypto"
 import { join } from "node:path"
 
 import type { SupabaseClient } from "@supabase/supabase-js"
@@ -83,6 +83,149 @@ async function cleanupJobs(db: SupabaseClient, links: string[]) {
     .delete()
     .eq("user_id", MARINA_ID)
     .in("job_posting_id", ids)
+}
+
+async function seedCvDiffMessage(
+  db: SupabaseClient,
+  conversationId: string
+): Promise<{ approvalId: string }> {
+  const { data: cv } = await db
+    .from("cv_versions")
+    .select("id, track_id, label, extracted_text")
+    .eq("user_id", MARINA_ID)
+    .eq("is_default", true)
+    .single()
+  const cvRow = cv as {
+    id: string
+    track_id: string | null
+    label: string
+    extracted_text: string | null
+  }
+  const parentText =
+    cvRow.extracted_text ??
+    "# Marina Alves\n\n## Experiência\n- Liderança de plataforma"
+  if (!cvRow.extracted_text) {
+    await db
+      .from("cv_versions")
+      .update({ extracted_text: parentText })
+      .eq("id", cvRow.id)
+      .eq("user_id", MARINA_ID)
+  }
+  const { data: app } = await db
+    .from("applications")
+    .select("job_posting_id")
+    .eq("user_id", MARINA_ID)
+    .limit(1)
+    .single()
+  const jobPostingId = (app as { job_posting_id: string }).job_posting_id
+  const additions = ["- Certificação AWS Solutions Architect (fictícia)"]
+  const nextText = `${parentText}\n\n## Destaques para a vaga\n${additions.join("\n")}`
+  const preview = {
+    parentVersionId: cvRow.id,
+    trackId: cvRow.track_id,
+    additions,
+    factIds: [],
+    nextText,
+    beforeScore: 40,
+    afterScore: 55,
+  }
+  const previewSha = createHash("sha256")
+    .update(JSON.stringify(preview))
+    .digest("hex")
+  const { data: approval } = await db
+    .from("approvals")
+    .insert({
+      user_id: MARINA_ID,
+      kind: "cv_change",
+      subject_ref: {
+        cv_version_id: cvRow.id,
+        job_posting_id: jobPostingId,
+        conversation_id: conversationId,
+      },
+      preview,
+      preview_sha256: previewSha,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    })
+    .select("id")
+    .single()
+  const approvalId = (approval as { id: string }).id
+  const toolCallId = randomUUID()
+  const output = {
+    kind: "cv_diff",
+    approvalId,
+    trackLabel: cvRow.label,
+    additions,
+    beforeScore: 40,
+    afterScore: 55,
+    summary: "Ajuste proposto para revisão.",
+  }
+  await db.from("messages").insert({
+    user_id: MARINA_ID,
+    conversation_id: conversationId,
+    role: "assistant",
+    parts: [
+      {
+        type: "tool-propose_cv_adjustment",
+        toolCallId,
+        state: "output-available",
+        input: {},
+        output,
+      },
+    ],
+  })
+  return { approvalId }
+}
+
+async function seedFactClassificationMessage(
+  db: SupabaseClient,
+  conversationId: string
+): Promise<{ pendingQuestionId: string }> {
+  const { data: application } = await db
+    .from("applications")
+    .select("id")
+    .eq("user_id", MARINA_ID)
+    .limit(1)
+    .single()
+  const { data: question } = await db
+    .from("pending_questions")
+    .insert({
+      user_id: MARINA_ID,
+      application_id: (application as { id: string }).id,
+      question_text: "Você já liderou squad de dados em escala?",
+      field_type: "text",
+      status: "aberta",
+    })
+    .select("id")
+    .single()
+  const pendingQuestionId = (question as { id: string }).id
+  const toolCallId = randomUUID()
+  await db.from("messages").insert({
+    user_id: MARINA_ID,
+    conversation_id: conversationId,
+    role: "assistant",
+    parts: [
+      {
+        type: "tool-answer_missing_info",
+        toolCallId,
+        state: "output-available",
+        input: {},
+        output: {
+          kind: "fact_classification",
+          pendingQuestionId,
+          statement: "Nunca liderei squad de dados em escala.",
+          suggestedUsage: "form_only",
+          destinations: [
+            "application_only",
+            "save_fact",
+            "update_cvs",
+            "register_gap",
+          ],
+          summary: "Escolha onde salvar esta resposta.",
+        },
+      },
+    ],
+  })
+  return { pendingQuestionId }
 }
 
 async function cleanupConversation(db: SupabaseClient, page: Page) {
@@ -392,6 +535,109 @@ test.describe("chat that configures the app (P2.5, F14)", () => {
       .eq("user_id", MARINA_ID)
       .eq("query", query)
     await page.goto(conversationUrl)
+    await cleanupConversation(db, page)
+  })
+})
+
+test.describe("chat approvals and missing info (CHAT-FIRST)", () => {
+  test.describe.configure({ mode: "serial" })
+
+  test("cv_diff card: approve creates a new CV version", async ({ page }) => {
+    const db = await requireAdmin()
+    await openNewConversation(page)
+    const conversationId = new URL(page.url()).searchParams.get("c") ?? ""
+    const { approvalId } = await seedCvDiffMessage(db, conversationId)
+    const versionsBefore = (
+      await db.from("cv_versions").select("id").eq("user_id", MARINA_ID)
+    ).data?.length
+
+    await page.reload()
+    const card = page.getByTestId("approval-card")
+    await expect(card).toBeVisible()
+    await card.getByRole("button", { name: "Aprovar" }).click()
+    await expect(card).toContainText("Aprovado")
+
+    const approval = await db
+      .from("approvals")
+      .select("status")
+      .eq("id", approvalId)
+      .single()
+    expect((approval.data as { status: string }).status).toBe("aprovada")
+    const versionsAfter = (
+      await db.from("cv_versions").select("id").eq("user_id", MARINA_ID)
+    ).data?.length
+    expect(versionsAfter).toBeGreaterThan(versionsBefore ?? 0)
+
+    await cleanupConversation(db, page)
+  })
+
+  test("cv_diff card: reject leaves CV versions unchanged", async ({
+    page,
+  }) => {
+    const db = await requireAdmin()
+    await openNewConversation(page)
+    const conversationId = new URL(page.url()).searchParams.get("c") ?? ""
+    await seedCvDiffMessage(db, conversationId)
+    const versionsBefore = (
+      await db.from("cv_versions").select("id").eq("user_id", MARINA_ID)
+    ).data?.length
+
+    await page.reload()
+    const card = page.getByTestId("approval-card")
+    await expect(card).toBeVisible()
+    await card.getByRole("button", { name: "Recusar" }).click()
+    await expect(card).toContainText("Recusado")
+
+    const versionsAfter = (
+      await db.from("cv_versions").select("id").eq("user_id", MARINA_ID)
+    ).data?.length
+    expect(versionsAfter).toBe(versionsBefore)
+
+    await cleanupConversation(db, page)
+  })
+
+  test("fact_classification register_gap writes memory_events gap", async ({
+    page,
+  }) => {
+    const db = await requireAdmin()
+    await openNewConversation(page)
+    const conversationId = new URL(page.url()).searchParams.get("c") ?? ""
+    const startedAt = new Date().toISOString()
+    const { pendingQuestionId } = await seedFactClassificationMessage(
+      db,
+      conversationId
+    )
+
+    await page.reload()
+    await page.getByTestId("fact-dest-register_gap").click()
+    await expect(
+      page.getByTestId("chat-message-assistant").last()
+    ).toContainText("Lacuna registrada")
+
+    const { data: gaps } = await db
+      .from("memory_events")
+      .select("id, intent, target_id")
+      .eq("user_id", MARINA_ID)
+      .eq("intent", "gap")
+      .gte("created_at", startedAt)
+    expect((gaps ?? []).length).toBeGreaterThan(0)
+    expect(
+      (gaps ?? []).some(
+        (row) => (row as { target_id: string }).target_id === pendingQuestionId
+      )
+    ).toBe(true)
+
+    await db
+      .from("memory_events")
+      .delete()
+      .eq("user_id", MARINA_ID)
+      .eq("intent", "gap")
+      .gte("created_at", startedAt)
+    await db
+      .from("pending_questions")
+      .delete()
+      .eq("id", pendingQuestionId)
+      .eq("user_id", MARINA_ID)
     await cleanupConversation(db, page)
   })
 })

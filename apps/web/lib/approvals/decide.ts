@@ -91,6 +91,16 @@ export async function decideApproval(
         })
         .eq("id", factRow.id)
         .eq("user_id", ctx.user.id)
+      const conversationId = String(row.subject_ref.conversation_id ?? "")
+      if (conversationId) {
+        const { linkChatRecord } = await import("@/lib/chat/record-links")
+        await linkChatRecord(ctx, {
+          conversationId,
+          tableName: "confirmed_facts",
+          recordId: factRow.id,
+          action: "created",
+        })
+      }
       await audit({
         userId: ctx.user.id,
         actor: "usuario",

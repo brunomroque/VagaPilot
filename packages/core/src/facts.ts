@@ -20,6 +20,22 @@ export type FactStatus = (typeof FACT_STATUSES)[number]
 export const FACT_SOURCES = ["cv_upload", "chat", "manual", "import"] as const
 export type FactSource = (typeof FACT_SOURCES)[number]
 
+export const FACT_USAGES = ["cv_relevant", "form_only"] as const
+export type FactUsage = (typeof FACT_USAGES)[number]
+
+/** Facts that may appear in CV generation (CHAT-FIRST §5.4). */
+export function cvFactsOnly<T extends { usage?: FactUsage | null }>(
+  facts: T[]
+): T[] {
+  return facts.filter((fact) => (fact.usage ?? "cv_relevant") === "cv_relevant")
+}
+
+export function buildCvHighlightLines(
+  facts: { statement: string; usage?: FactUsage | null }[]
+): string[] {
+  return cvFactsOnly(facts).map((fact) => `- ${fact.statement.trim()}`)
+}
+
 export function isFactKind(value: string): value is FactKind {
   return (FACT_KINDS as readonly string[]).includes(value)
 }

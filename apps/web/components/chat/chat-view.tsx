@@ -129,6 +129,21 @@ export function ChatView({
     setInput("")
   }
 
+  function sendDataAction(data: {
+    action: "fact_destination"
+    choice: string
+    pendingQuestionId: string
+    statement: string
+    suggestedUsage: "cv_relevant" | "form_only"
+  }) {
+    if (busy) return
+    setNotice(null)
+    captureChatMessageSent()
+    void sendMessage({
+      parts: [{ type: "data-action", data }],
+    } as Parameters<typeof sendMessage>[0])
+  }
+
   const showNextSteps =
     nextSteps && !dismissedNextSteps && messages.length === 0 && !initialPrompt
 
@@ -201,6 +216,7 @@ export function ChatView({
             message={message}
             cvOptions={cvOptions}
             onAnswer={send}
+            onDataAction={sendDataAction}
           />
         ))}
         {status === "submitted" ? (
@@ -277,10 +293,18 @@ function ChatMessage({
   message,
   cvOptions,
   onAnswer,
+  onDataAction,
 }: {
   message: UIMessage
   cvOptions: CvOption[]
   onAnswer: (text: string) => void
+  onDataAction: (data: {
+    action: "fact_destination"
+    choice: string
+    pendingQuestionId: string
+    statement: string
+    suggestedUsage: "cv_relevant" | "form_only"
+  }) => void
 }) {
   const t = useTranslations("Chat")
   if (message.role === "user") {
@@ -325,6 +349,7 @@ function ChatMessage({
                     output={part.output as ChatToolOutput}
                     cvOptions={cvOptions}
                     onAnswer={onAnswer}
+                    onDataAction={onDataAction}
                   />
                 )
               case "output-error":

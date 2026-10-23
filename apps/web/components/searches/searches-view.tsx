@@ -21,6 +21,7 @@ import {
   saveSearchAction,
   toggleSearchAction,
 } from "@/app/app/buscas/actions"
+import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import { IngestBatch } from "@/components/chat/ingest-batch"
 import type { CvOption } from "@/components/chat/job-card-view"
 import { useDiffFormat } from "@/components/chat/use-diff-format"
@@ -191,6 +192,10 @@ export function SearchesView({
                   </CardAction>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
+                  <FilledViaChatBadgeClient
+                    tableName="saved_searches"
+                    recordId={search.id}
+                  />
                   <div className="flex flex-wrap gap-1.5">
                     {chips(search).map((chip) => (
                       <Badge key={chip} variant="secondary">

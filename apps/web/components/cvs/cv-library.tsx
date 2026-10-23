@@ -17,6 +17,7 @@ import { useFormatter, useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import {
   SelectField,
   TextField,
@@ -258,6 +259,10 @@ export function CvLibrary({
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge version={version} />
+                    <FilledViaChatBadgeClient
+                      tableName="cv_versions"
+                      recordId={version.id}
+                    />
                     {version.proposedFacts > 0 ? (
                       <Link
                         href="/app/fatos"

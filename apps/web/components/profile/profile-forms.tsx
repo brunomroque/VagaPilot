@@ -5,6 +5,7 @@ import { LockIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm, useWatch } from "react-hook-form"
 
+import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import {
   CheckboxGroupField,
   SelectField,
@@ -38,6 +39,16 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { useProfileOptions } from "./options"
 import { SectionCard } from "./section"
 
+function ChatProvenanceBadge({ profileUserId }: { profileUserId?: string }) {
+  if (!profileUserId) return null
+  return (
+    <FilledViaChatBadgeClient
+      tableName="candidate_profiles"
+      recordId={profileUserId}
+    />
+  )
+}
+
 function SubmitButton({
   pending,
   label,
@@ -66,7 +77,13 @@ export function EncryptedBadge() {
   )
 }
 
-export function ContactForm({ defaults }: { defaults: ContactInput }) {
+export function ContactForm({
+  defaults,
+  profileUserId,
+}: {
+  defaults: ContactInput
+  profileUserId?: string
+}) {
   const t = useTranslations("ProfilePage.contact")
   const { pending, run } = useActionRunner()
   const form = useForm<ContactInput>({
@@ -74,7 +91,17 @@ export function ContactForm({ defaults }: { defaults: ContactInput }) {
     defaultValues: defaults,
   })
   return (
-    <SectionCard title={t("title")} description={t("description")}>
+    <SectionCard
+      title={t("title")}
+      description={
+        <>
+          {t("description")}
+          <span className="mt-2 block">
+            <ChatProvenanceBadge profileUserId={profileUserId} />
+          </span>
+        </>
+      }
+    >
       <form
         noValidate
         onSubmit={form.handleSubmit((data) => run(() => saveContact(data)))}

@@ -30,10 +30,18 @@ export function ToolOutputView({
   output,
   cvOptions,
   onAnswer,
+  onDataAction,
 }: {
   output: ChatToolOutput
   cvOptions: CvOption[]
   onAnswer: (text: string) => void
+  onDataAction?: (data: {
+    action: "fact_destination"
+    choice: string
+    pendingQuestionId: string
+    statement: string
+    suggestedUsage: "cv_relevant" | "form_only"
+  }) => void
 }) {
   const f = useJobFormat()
   const t = useTranslations("Chat.widgets")
@@ -105,7 +113,13 @@ export function ToolOutputView({
     case "application_card":
       return <ApplicationCardView output={output} />
     case "fact_classification":
-      return <FactClassificationView output={output} onSelect={onAnswer} />
+      return (
+        <FactClassificationView
+          output={output}
+          onSelect={onAnswer}
+          onDataAction={onDataAction}
+        />
+      )
     case "profile_tracking":
       return <ProfileTrackingView output={output} />
     case "next_steps":
