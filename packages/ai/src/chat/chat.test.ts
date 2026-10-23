@@ -10,10 +10,29 @@ import {
 } from "./intents.js"
 import { chatToolInputSchemas } from "./tool-schemas.js"
 import { classifyTopic } from "./topic.js"
+import {
+  classifyAttachmentIntent,
+  detectStoredAttachmentKind,
+} from "@vagapilot/core/chat-attachments"
 
 function user(text: string): LanguageModelV4Prompt[number] {
   return { role: "user", content: [{ type: "text", text }] }
 }
+
+describe("chat attachments intent", () => {
+  it("marks pdf as ambiguous until role is chosen", () => {
+    expect(detectStoredAttachmentKind("arquivo.pdf", "auto")).toBe(
+      "ambiguous_document"
+    )
+  })
+
+  it("routes job image to analyze_job", () => {
+    expect(classifyAttachmentIntent("", ["job_image"])).toMatchObject({
+      mode: "auto",
+      intent: "analyze_job",
+    })
+  })
+})
 
 describe("parseSearchRequest / parseSettingsIntent (F14)", () => {
   it("parses the spec example into a saved search", () => {

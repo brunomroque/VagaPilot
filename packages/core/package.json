@@ -40,6 +40,7 @@
     "./postgres": "./src/postgres.ts",
     "./application-email": "./src/application-email.ts",
     "./ats-score": "./src/ats-score.ts",
+    "./chat-attachments": "./src/chat-attachments.ts",
     "./cv-structure": "./src/cv-structure.ts",
     "./permissions": "./src/permissions.ts",
     "./sensitive-report": "./src/sensitive-report.ts"

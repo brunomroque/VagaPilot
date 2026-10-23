@@ -17,6 +17,7 @@ export {
 } from "./models.js"
 export * from "./chat/tool-schemas.js"
 export * from "./chat/intents.js"
+export * from "./chat/job-image-extract.js"
 export * from "./chat/topic.js"
 export {
   createFakeOrchestratorModel,

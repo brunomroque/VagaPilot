@@ -39,6 +39,7 @@ import {
 } from "@/lib/chat/conversations"
 import { startIngestion } from "@/lib/chat/jobs-server"
 import { outputFilterTransform } from "@/lib/chat/output-filter"
+import { planAttachmentTurn } from "@/lib/chat/attachment-turn"
 import { handleChatDataAction } from "@/lib/chat/data-actions"
 import { buildChatTools, type ChatTurnState } from "@/lib/chat/tools"
 import type { ChatToolOutput } from "@/lib/chat/types"
@@ -81,12 +82,22 @@ const bodySchema = z.object({
               pendingQuestionId: z.uuid().optional(),
               statement: z.string().max(4000).optional(),
               suggestedUsage: z.enum(["cv_relevant", "form_only"]).optional(),
+              attachmentIds: z.array(z.uuid()).max(8).optional(),
+            }),
+          }),
+          z.object({
+            type: z.literal("data-attachment"),
+            data: z.object({
+              attachmentId: z.uuid(),
+              fileName: z.string().max(200),
+              kind: z.enum(["cv", "job_image", "job_document"]),
+              cvVersionId: z.uuid().optional(),
             }),
           }),
         ])
       )
       .min(1)
-      .max(4),
+      .max(10),
   }),
   context: screenContextSchema,
 })
@@ -103,6 +114,14 @@ function textOf(message: Pick<UIMessage, "parts">): string {
     })
     .join("\n")
     .trim()
+}
+
+function attachmentIdsOf(
+  parts: z.infer<typeof bodySchema>["message"]["parts"]
+): string[] {
+  return parts
+    .filter((part) => part.type === "data-attachment")
+    .map((part) => part.data.attachmentId)
 }
 
 function persistOnEnd(ctx: UserContext, conversationId: string) {
@@ -188,8 +207,9 @@ export async function POST(request: Request) {
   const dataActionPart = parsed.data.message.parts.find(
     (part) => part.type === "data-action"
   )
+  const attachmentIds = attachmentIdsOf(parsed.data.message.parts)
   const text = textOf(parsed.data.message)
-  if (!text && !dataActionPart) {
+  if (!text && !dataActionPart && attachmentIds.length === 0) {
     return apiError("invalid_request", t("invalid"), 400)
   }
   if (text.length > MAX_CHAT_INPUT_CHARS) {
@@ -257,70 +277,115 @@ export async function POST(request: Request) {
     return apiError("not_found", t("invalid"), 404)
   }
   const history = await loadUIMessages(ctx, conversation.id)
-  const userMessage: UIMessage = dataActionPart
-    ? {
-        id: parsed.data.message.id,
-        role: "user",
-        parts: parsed.data.message.parts as UIMessage["parts"],
-      }
-    : {
-        id: parsed.data.message.id,
-        role: "user",
-        parts: [{ type: "text", text }],
-      }
+  const userMessage: UIMessage =
+    dataActionPart || attachmentIds.length > 0
+      ? {
+          id: parsed.data.message.id,
+          role: "user",
+          parts: parsed.data.message.parts as UIMessage["parts"],
+        }
+      : {
+          id: parsed.data.message.id,
+          role: "user",
+          parts: [{ type: "text", text }],
+        }
   await saveMessage(ctx, conversation.id, {
     role: userMessage.role,
     parts: userMessage.parts as UIMessage["parts"],
   })
   const originalMessages = [...history, userMessage]
 
+  if (attachmentIds.length > 0 && !dataActionPart) {
+    await ctx.supabase
+      .from("chat_attachments")
+      .update({ message_id: parsed.data.message.id })
+      .eq("user_id", ctx.user.id)
+      .in("id", attachmentIds)
+    const turn = await planAttachmentTurn(ctx, {
+      conversationId: conversation.id,
+      messageText: text,
+      attachmentIds,
+    })
+    if (turn.handled) {
+      return directResponse(
+        ctx,
+        conversation.id,
+        originalMessages,
+        async (writer) => {
+          for (const output of turn.outputs) {
+            const toolCallId = `attach-${crypto.randomUUID()}`
+            writer.write({
+              type: "tool-input-available",
+              toolCallId,
+              toolName: "ingest_job_postings",
+              input: {},
+            })
+            writer.write({ type: "tool-output-available", toolCallId, output })
+            if (output.summary) {
+              writer.write({ type: "text-start", id: toolCallId })
+              writer.write({
+                type: "text-delta",
+                id: toolCallId,
+                delta: `${output.summary}\n`,
+              })
+              writer.write({ type: "text-end", id: toolCallId })
+            }
+          }
+        }
+      )
+    }
+  }
+
   if (dataActionPart && dataActionPart.type === "data-action") {
-    const output = await handleChatDataAction(
+    const actionResult = await handleChatDataAction(
       ctx,
       conversation.id,
       dataActionPart.data
     )
+    const outputs = Array.isArray(actionResult) ? actionResult : [actionResult]
     return directResponse(
       ctx,
       conversation.id,
       originalMessages,
       async (writer) => {
-        const toolCallId = `action-${crypto.randomUUID()}`
-        if (output.kind === "deep_link") {
-          writer.write({
-            type: "tool-input-available",
-            toolCallId,
-            toolName: "open_screen",
-            input: { screen: "memoria" },
-          })
-          writer.write({ type: "tool-output-available", toolCallId, output })
-        } else if (output.kind === "cv_diff") {
-          writer.write({
-            type: "tool-input-available",
-            toolCallId,
-            toolName: "propose_cv_adjustment",
-            input: {},
-          })
-          writer.write({ type: "tool-output-available", toolCallId, output })
-        } else if (output.kind === "error") {
-          writer.write({ type: "text-start", id: "action-error" })
-          writer.write({
-            type: "text-delta",
-            id: "action-error",
-            delta: output.summary,
-          })
-          writer.write({ type: "text-end", id: "action-error" })
-        } else {
-          writer.write({ type: "tool-output-available", toolCallId, output })
-        }
-        if (output.summary && output.kind !== "error") {
-          writer.write({ type: "text-start", id: "action-ok" })
-          writer.write({
-            type: "text-delta",
-            id: "action-ok",
-            delta: output.summary,
-          })
-          writer.write({ type: "text-end", id: "action-ok" })
+        for (const output of outputs) {
+          const toolCallId = `action-${crypto.randomUUID()}`
+          if (output.kind === "deep_link") {
+            writer.write({
+              type: "tool-input-available",
+              toolCallId,
+              toolName: "open_screen",
+              input: { screen: "memoria" },
+            })
+            writer.write({ type: "tool-output-available", toolCallId, output })
+          } else if (output.kind === "cv_diff") {
+            writer.write({
+              type: "tool-input-available",
+              toolCallId,
+              toolName: "propose_cv_adjustment",
+              input: {},
+            })
+            writer.write({ type: "tool-output-available", toolCallId, output })
+          } else if (output.kind === "error") {
+            writer.write({ type: "text-start", id: "action-error" })
+            writer.write({
+              type: "text-delta",
+              id: "action-error",
+              delta: output.summary,
+            })
+            writer.write({ type: "text-end", id: "action-error" })
+          } else {
+            writer.write({ type: "tool-output-available", toolCallId, output })
+          }
+          if (output.summary && output.kind !== "error") {
+            writer.write({ type: "text-start", id: toolCallId })
+            writer.write({
+              type: "text-delta",
+              id: toolCallId,
+              delta: output.summary,
+            })
+            writer.write({ type: "text-end", id: toolCallId })
+          }
         }
       }
     )

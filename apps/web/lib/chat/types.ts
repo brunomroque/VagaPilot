@@ -289,4 +289,33 @@ export type ChatToolOutput =
       unavailableReason: string | null
       summary: string
     }
+  | {
+      kind: "file_upload"
+      attachmentId: string
+      fileName: string
+      mimeType: string
+      cvVersionId?: string
+      summary: string
+    }
+  | {
+      kind: "attachment_progress"
+      cvVersionId: string
+      status: "processando" | "pronto" | "falhou"
+      proposedFacts?: number
+      summary: string
+    }
+  | {
+      kind: "cv_review"
+      cvVersionId: string
+      lines: string[]
+      proposedFacts: number
+      summary: string
+    }
+  | {
+      kind: "attachment_intent"
+      attachmentIds: string[]
+      question: string
+      options: { id: string; label: string }[]
+      summary: string
+    }
   | SettingsChangeOutput

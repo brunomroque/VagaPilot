@@ -129,6 +129,7 @@ export type UploadCvInput = {
   trackId: string | null
   language: CvLanguage
   label: string | null
+  sourceMessageId?: string | null
 }
 
 export type UploadCvResult = {
@@ -218,6 +219,9 @@ export async function uploadCv(
     file_sha256: sha,
     origin: "upload",
     parent_version_id: input.trackId ? (siblingRows[0]?.id ?? null) : null,
+    ...(input.sourceMessageId
+      ? { source_message_id: input.sourceMessageId }
+      : {}),
   })
   if (insert.error) {
     await ctx.supabase.storage.from("cvs").remove([path])

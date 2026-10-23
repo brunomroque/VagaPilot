@@ -15,9 +15,12 @@ import { JobCardsById } from "./job-cards-by-id"
 import type { CvOption } from "./job-card-view"
 import {
   ApplicationCardView,
+  AttachmentIntentView,
   AtsScoreView,
   CvDiffApprovalView,
+  CvReviewView,
   FactClassificationView,
+  FileUploadView,
   OptionsView,
   ProfileTrackingView,
 } from "./chat-widgets-extra"
@@ -37,11 +40,12 @@ export function ToolOutputView({
   cvOptions: CvOption[]
   onAnswer: (text: string) => void
   onDataAction?: (data: {
-    action: "fact_destination"
+    action: "fact_destination" | "attachment_intent"
     choice: string
-    pendingQuestionId: string
-    statement: string
-    suggestedUsage: "cv_relevant" | "form_only"
+    pendingQuestionId?: string
+    statement?: string
+    suggestedUsage?: "cv_relevant" | "form_only"
+    attachmentIds?: string[]
   }) => void
 }) {
   const f = useJobFormat()
@@ -150,6 +154,26 @@ export function ToolOutputView({
     case "settings":
     case "error":
       return null
+    case "file_upload":
+      return <FileUploadView output={output} />
+    case "attachment_progress":
+      return (
+        <p
+          className="text-sm text-muted-foreground"
+          data-testid="attachment-progress"
+        >
+          {output.summary}
+        </p>
+      )
+    case "cv_review":
+      return <CvReviewView output={output} />
+    case "attachment_intent":
+      return (
+        <AttachmentIntentView
+          output={output}
+          onSelect={(data) => onDataAction?.(data)}
+        />
+      )
     default: {
       const unreachable: never = output
       throw new Error(`Unknown tool output: ${JSON.stringify(unreachable)}`)

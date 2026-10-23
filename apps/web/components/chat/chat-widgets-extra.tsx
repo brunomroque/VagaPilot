@@ -35,6 +35,85 @@ export function OptionsView({
   )
 }
 
+export function AttachmentIntentView({
+  output,
+  onSelect,
+}: {
+  output: Extract<ChatToolOutput, { kind: "attachment_intent" }>
+  onSelect: (data: {
+    action: "attachment_intent"
+    choice: string
+    attachmentIds: string[]
+  }) => void
+}) {
+  return (
+    <Card data-testid="attachment-intent">
+      <CardHeader>
+        <CardTitle className="text-base">{output.question}</CardTitle>
+        <CardDescription>{output.summary}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        {output.options.map((option) => (
+          <Button
+            key={option.id}
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              onSelect({
+                action: "attachment_intent",
+                choice: option.id,
+                attachmentIds: output.attachmentIds,
+              })
+            }
+          >
+            {option.label}
+          </Button>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
+export function FileUploadView({
+  output,
+}: {
+  output: Extract<ChatToolOutput, { kind: "file_upload" }>
+}) {
+  const t = useTranslations("Chat.attach")
+  return (
+    <Card data-testid="file-upload">
+      <CardHeader>
+        <CardTitle className="text-base">{t("fileReceivedTitle")}</CardTitle>
+        <CardDescription>{output.summary}</CardDescription>
+      </CardHeader>
+      <CardContent className="text-sm">
+        <p>{output.fileName}</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+export function CvReviewView({
+  output,
+}: {
+  output: Extract<ChatToolOutput, { kind: "cv_review" }>
+}) {
+  return (
+    <Card data-testid="cv-review">
+      <CardHeader>
+        <CardTitle className="text-base">{output.summary}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2 text-sm">
+        {output.lines.map((line, index) => (
+          <p key={index} className="text-muted-foreground">
+            {line}
+          </p>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
 export function AtsScoreView({
   output,
   onAction,
