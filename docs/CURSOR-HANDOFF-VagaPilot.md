@@ -395,3 +395,13 @@ evals/                        + form-questions/, cv-routing/, journey/
 4. OCR de CV escaneado entra agora (`tesseract.js`) ou fica para depois?
 5. Skills da Gupy: só no desenvolvimento ou embutidas no prompt do produto (licença)?
 6. Rótulo "bom" substitui "médio" também no banco/CSV ou só na UI?
+
+---
+
+## Implementação para paridade com o Bot de Vagas (22/10/2026)
+
+O plano executável para o Cursor está em **`cursor-implementacao/`**. Comece por `cursor-implementacao/00-LEIA-PRIMEIRO.md` e siga: `PARIDADE-BOT-DE-VAGAS.md` → `MEMORIA-DE-FATOS.md` → `FASE-A` … `FASE-F` → `TESTES-DE-PARIDADE.md`. A definição de pronto é a paridade (TP-01..TP-41 verdes). Regra de envio: a extensão só clica em Enviar com OK explícito daquela vaga e confirma com tela de sucesso + screenshot.
+
+## Atualização 22/10/2026: Fase G
+
+Leia também `cursor-implementacao/CVS-MULTIPLOS-E-PERFIL-UNICO.md` e `cursor-implementacao/FASE-G-cvs-multiplos-e-perfil-unico.md` (depois de MEMORIA-DE-FATOS e antes das fases). Pronto = TP-01..TP-41 verdes.

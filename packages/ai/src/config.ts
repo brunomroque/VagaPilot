@@ -13,9 +13,9 @@ export type AiConfig = {
   embeddingModel: string
 }
 
-export const DEFAULT_EXTRACTION_MODEL = "openai/gpt-5-mini"
-export const DEFAULT_LARGE_MODEL = "openai/gpt-5"
-export const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small"
+export const DEFAULT_EXTRACTION_MODEL = "google/gemini-2.5-flash"
+export const DEFAULT_LARGE_MODEL = "google/gemini-2.5-pro"
+export const DEFAULT_EMBEDDING_MODEL = "google/gemini-embedding-001"
 export const EMBEDDING_DIMENSIONS = 1536
 
 type Env = Readonly<Record<string, string | undefined>>

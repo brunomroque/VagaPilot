@@ -23,6 +23,8 @@ Referências no código:
 | Modo                   | **Test** (`livemode=false`) |
 | `stripe_context` (MCP) | `acct_1UTUOMEMPqsIYuI6`     |
 
+Headers padrão no `.cursor/mcp.json` (conta test VagaPilot): `Stripe-Context` + `Stripe-Livemode: false`. Recarregue o Cursor após alterar o JSON.
+
 Não há outros produtos ativos nesta conta além dos listados abaixo — evita misturar com TatameHub/chefvapt.
 
 ### Produtos criados (test)
@@ -79,6 +81,29 @@ stripe listen --forward-to localhost:3100/api/stripe/webhook
 ```
 
 O CLI imprime um **Signing secret** (`whsec_…`) → `STRIPE_WEBHOOK_SECRET`.
+
+**Eventos de teste com `stripe trigger`**
+
+- **Webhook do VagaPilot** (`/api/stripe/webhook`): use assinatura, não PaymentIntent:
+
+  ```bash
+  stripe trigger customer.subscription.created
+  stripe trigger customer.subscription.updated
+  stripe trigger customer.subscription.deleted
+  ```
+
+  O handler só persiste `subscriptions` quando `metadata.user_id` existe no objeto da assinatura; fixtures padrão do CLI não incluem esse campo — útil para smoke de assinatura/entrega, não para simular um usuário real.
+
+- **`payment_intent.succeeded`**: o fixture embutido do CLI (v1.55.x) ainda envia `payment_method_types`, rejeitado na API atual. Remova o parâmetro legado e use métodos automáticos sem redirect:
+
+  ```bash
+  stripe trigger payment_intent.succeeded ^
+    --remove payment_intent:payment_method_types ^
+    --override "payment_intent:automatic_payment_methods[enabled]=true" ^
+    --override "payment_intent:automatic_payment_methods[allow_redirects]=never"
+  ```
+
+  (No PowerShell/bash, quebre a linha com `` ` `` ou `\` em vez de `^` se preferir.)
 
 #### Dashboard (deploy)
 

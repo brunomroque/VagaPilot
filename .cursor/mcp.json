@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "stripe": {
+      "type": "http",
+      "url": "https://mcp.stripe.com",
+      "headers": {
+        "Stripe-Context": "acct_1UTUOMEMPqsIYuI6",
+        "Stripe-Livemode": "false"
+      }
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=synbycvebzzqarojicfu"
+    }
+  }
+}

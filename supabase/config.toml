@@ -155,11 +155,15 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://127.0.0.1:3100"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
 additional_redirect_urls = [
+  "http://127.0.0.1:3100/auth/callback",
+  "http://localhost:3100/auth/callback",
+  "http://127.0.0.1:3100/auth/confirm",
+  "http://localhost:3100/auth/confirm",
   "http://127.0.0.1:3000/auth/callback",
   "http://localhost:3000/auth/callback",
   "http://127.0.0.1:3000/auth/confirm",
@@ -341,7 +345,7 @@ email_optional = false
 # Google login uses only openid email profile (requested by the app). Gmail scopes are a separate,
 # incremental OAuth flow in a later phase. Enable locally by exporting the two env vars below.
 [auth.external.google]
-enabled = false
+enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 redirect_uri = ""

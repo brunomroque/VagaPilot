@@ -31,6 +31,23 @@ export const FIXTURE_JOB_URLS = {
   missing: "https://vagas.exemplo.test/nao-existe-404",
 } as const
 
+/**
+ * Dev and e2e only. `dir` and `file` are chosen at runtime, so without the
+ * ignore comment Turbopack traces the whole repository into the server bundle.
+ */
+function readFixtureText(dir: string, file: string): string {
+  return readFileSync(
+    /*turbopackIgnore: true*/ join(/*turbopackIgnore: true*/ dir, file),
+    "utf8"
+  )
+}
+
+function fixtureFileExists(dir: string, file: string): boolean {
+  return existsSync(
+    /*turbopackIgnore: true*/ join(/*turbopackIgnore: true*/ dir, file)
+  )
+}
+
 function candidateDirs(): string[] {
   const dirs: string[] = []
   try {
@@ -53,14 +70,14 @@ function candidateDirs(): string[] {
 
 export function fixturesDir(): string {
   const found = candidateDirs().find((dir) =>
-    existsSync(join(dir, "routes.json"))
+    fixtureFileExists(dir, "routes.json")
   )
   if (!found) throw new Error("ATS fixtures directory not found")
   return found
 }
 
 function loadRoutes(dir: string): Record<string, Route> {
-  const raw = JSON.parse(readFileSync(join(dir, "routes.json"), "utf8")) as {
+  const raw = JSON.parse(readFixtureText(dir, "routes.json")) as {
     routes: Record<string, Route>
   }
   return raw.routes
@@ -101,7 +118,7 @@ export function createFixtureFetch(
     const route = routes[url]
     if (!route) return new Response("not found", { status: 404 })
     if (!route.file) return new Response("", { status: route.status ?? 500 })
-    return new Response(readFileSync(join(dir, route.file), "utf8"), {
+    return new Response(readFixtureText(dir, route.file), {
       status: route.status ?? 200,
       headers: { "content-type": route.contentType ?? "text/html" },
     })
@@ -121,7 +138,7 @@ export function loadExpectedFixtures(
   dir: string = fixturesDir()
 ): ExpectedFixture[] {
   return (
-    JSON.parse(readFileSync(join(dir, "expected.json"), "utf8")) as {
+    JSON.parse(readFixtureText(dir, "expected.json")) as {
       postings: ExpectedFixture[]
     }
   ).postings

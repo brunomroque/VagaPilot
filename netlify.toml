@@ -1,0 +1,15 @@
+# VagaPilot web. Paths are relative to the repository root.
+# Netlify installs @netlify/plugin-nextjs on the build. Do not add an SPA
+# catch-all: it would serve index.html for SSR pages and API routes.
+
+[build]
+  base = "apps/web"
+  command = "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter web build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Not credentials. AI_PROVIDER=fake is a dev flag and matches the word "fake"
+  # all over the repo. The Supabase URL, project ref and publishable/anon keys
+  # are public and Next inlines them into the edge bundle.
+  SECRETS_SCAN_OMIT_KEYS = "AI_PROVIDER,SUPABASE_PROJECT_REF,SUPABASE_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,NEXT_PUBLIC_SUPABASE_ANON_KEY"
