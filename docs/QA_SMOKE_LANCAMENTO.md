@@ -119,19 +119,65 @@ Referências: [ESPEC.md §11.3, §11.5, §14](./ESPEC.md), [CONFIG_STRIPE_RESEND
 
 ## Config manual (dashboard)
 
+> **Automação:** o MCP do projeto (`synbycvebzzqarojicfu`) **não** expõe alteração de Site URL / Redirect URLs / templates / SMTP — só migrações, SQL, logs e docs. Use o dashboard (ou CLI `supabase config push` **somente** após revisar o diff; ver nota abaixo).
+
+### URLs que o app usa (origem = `NEXT_PUBLIC_APP_URL` → produção `https://vagapilot.netlify.app`)
+
+| Fluxo                                    | Onde no código                          | URL / rota                                                                                           |
+| ---------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Cadastro e-mail                          | `apps/web/app/(auth)/actions.ts`        | `{origin}/auth/callback?next=/aceite` (`emailRedirectTo`)                                            |
+| Login Google                             | idem                                    | `{origin}/auth/callback?next={next}` (`redirectTo`; `next` padrão `/app`, vindo de `/entrar?next=…`) |
+| Retorno PKCE                             | `apps/web/app/auth/callback/route.ts`   | `GET /auth/callback?code=…&next=…` (default `next=/app`)                                             |
+| Confirmação token hash (template custom) | `apps/web/app/auth/confirm/route.ts`    | `GET /auth/confirm?token_hash=…&type=…&next=…` (default `next=/aceite`)                              |
+| Guardas                                  | `app/app/layout.tsx`, `aceite/page.tsx` | redirecionam para `/entrar?next=/app` ou `/entrar?next=/aceite`                                      |
+
+O template versionado usa `{{ .ConfirmationURL }}` (link gerado pelo Supabase com o `emailRedirectTo` acima). **Não** trocar para `{{ .SiteURL }}` sozinho sem incluir `/auth/confirm` ou callback.
+
+**Login Google (OAuth):** no Google Cloud, URI autorizada do client = `https://synbycvebzzqarojicfu.supabase.co/auth/v1/callback` (callback do Supabase, não do Netlify).
+
 ### Supabase (`synbycvebzzqarojicfu`)
+
+Painéis diretos:
+
+- [URL Configuration](https://supabase.com/dashboard/project/synbycvebzzqarojicfu/auth/url-configuration)
+- [E-mail templates → Confirm signup](https://supabase.com/dashboard/project/synbycvebzzqarojicfu/auth/templates)
+- [SMTP settings](https://supabase.com/dashboard/project/synbycvebzzqarojicfu/auth/smtp)
 
 1. **Authentication → URL Configuration**
    - **Site URL:** `https://vagapilot.netlify.app`
-   - **Redirect URLs** (adicionar todas):
+   - **Redirect URLs** (adicionar todas; lista exata):
      - `https://vagapilot.netlify.app/auth/callback`
      - `https://vagapilot.netlify.app/auth/callback?next=/aceite`
      - `https://vagapilot.netlify.app/auth/callback?next=/app`
      - `https://vagapilot.netlify.app/auth/confirm`
+   - **Opcional (Google com `next` variável):** `https://vagapilot.netlify.app/auth/callback**` (wildcard Supabase; cobre `/entrar?next=/app/chat` etc.). Se preferir lista fechada, inclua cada `next` usado nos testes.
 2. **Authentication → Emails → Confirm signup**
-   - Assunto e corpo em **pt-BR** (espelhar `supabase/templates/confirmation.html` do repo).
-   - SMTP: configurar Resend (ou provedor) no dashboard; **não** commitar API key.
-3. **Database → Migrations:** confirmar versões `chat_first_persistence` e `qa_pairing_grants_cv` aplicadas.
+   - **Assunto:** `Confirme seu e-mail no VagaPilot`
+   - **Corpo (HTML):** copiar de `supabase/templates/confirmation.html`:
+
+```html
+<h2>Confirme seu e-mail no VagaPilot</h2>
+<p>Olá,</p>
+<p>
+  Use o botão abaixo para confirmar <strong>{{ .Email }}</strong> e entrar na
+  sua conta.
+</p>
+<p><a href="{{ .ConfirmationURL }}">Confirmar e-mail</a></p>
+<p>Se você não criou uma conta no VagaPilot, ignore esta mensagem.</p>
+```
+
+- Ativar **Confirm email** (cadastro exige confirmação), alinhado a `enable_confirmations` no `config.toml` local.
+
+3. **Authentication → Emails → SMTP (Resend)**
+   - Host: `smtp.resend.com`
+   - Port: `465` (SSL)
+   - User: `resend`
+   - Password: API key Resend (`re_…`) — colar **só** no dashboard; mesma chave segmentada VagaPilot descrita em [CONFIG_STRIPE_RESEND.md §2](./CONFIG_STRIPE_RESEND.md), **não** commitar.
+   - Sender e-mail: domínio **verified** no Resend (ex. `contato@…` ou `lembretes@tatamehub.app` em staging).
+   - Sender name: `VagaPilot`
+   - Detalhes e `EMAIL_FROM` dos lembretes Inngest: §2 do mesmo doc (Auth SMTP ≠ `RESEND_API_KEY` no Netlify, mas pode ser a mesma chave no painel Supabase).
+4. **CLI `config push` (opcional, cuidado):** o repo **não** está `supabase link` no ambiente do agente. O `supabase/config.toml` local mantém `site_url = http://127.0.0.1:3100` para dev — um push cego **sobrescreveria** a Site URL de produção. Só use após `supabase link --project-ref synbycvebzzqarojicfu`, `supabase config diff` e confirmação manual; para go-live, o dashboard acima é o caminho mais seguro.
+5. **Database → Migrations:** confirmar versões `chat_first_persistence` e `qa_pairing_grants_cv` aplicadas.
 
 ### Stripe (conta VagaPilot, test ou live conforme ambiente)
 
@@ -150,6 +196,34 @@ Referências: [ESPEC.md §11.3, §11.5, §14](./ESPEC.md), [CONFIG_STRIPE_RESEND
 
 ## Registro do teste
 
-| Data | Testador | Build/deploy (Netlify ID) | Resultado       | Notas |
-| ---- | -------- | ------------------------- | --------------- | ----- |
-|      |          |                           | ☐ Pass / ☐ Fail |       |
+| Data       | Testador                    | Build/deploy (Netlify ID) | Resultado               | Notas                                                                 |
+| ---------- | --------------------------- | ------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| 23/10/2026 | Agente (smoke automatizado) | não capturado             | ☐ Pass parcial / ☐ Fail | Ver [Resultados 23/10/2026 (produção)](#resultados-23102026-produção) |
+|            |                             |                           | ☐ Pass / ☐ Fail         |                                                                       |
+
+---
+
+## Resultados 23/10/2026 (produção)
+
+Ambiente: `https://vagapilot.netlify.app`. Métodos: `curl.exe -sI` (status/redirect) + MCP browser (UI). **Sem login**, sem cadastro real, sem Stripe.
+
+| Caso                                                      | Resultado            | Evidência                                                                                                                      |
+| --------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Landing `/` carrega (HTTP + UI)                           | **Pass**             | HTTP **200**; título “VagaPilot”, headline “Seu copiloto de candidaturas.”, CTAs visíveis                                      |
+| `/dev/entrar` → 404                                       | **Pass**             | HTTP **404**                                                                                                                   |
+| `/dev/ats-form` → 404                                     | **Pass**             | HTTP **404**                                                                                                                   |
+| `/app/planos` → redirect login                            | **Pass**             | HTTP **307** → `https://vagapilot.netlify.app/entrar?next=%2Fapp%2Fplanos`; seguindo redirect → **200** na página de login     |
+| `/app` (área autenticada) → redirect login                | **Pass**             | HTTP **307** → `/entrar?next=%2Fapp`                                                                                           |
+| `/precos` (rota pública dedicada)                         | **N/A (404)**        | HTTP **404**; UI Next.js “This page could not be found.” — **não há** `/precos` em prod                                        |
+| Preços públicos via landing                               | **Pass (com login)** | Link footer “Planos e preços” aponta para **`/app/planos`** (mesmo gate de auth); preços só após login                         |
+| `/cadastro` — UI signup pública                           | **Pass**             | HTTP **200**; campos E-mail/Senha, botão “Criar conta”, OAuth Google; texto “Você confirma o e-mail antes do primeiro acesso.” |
+| `/entrar` — UI login pública                              | **Pass**             | HTTP **200**; campos E-mail/Senha, “Continuar com Google”, link “Criar conta”                                                  |
+| Login com conta dev/seed em prod                          | **Skip**             | Sem credenciais reais; não usar senha de seed em produção                                                                      |
+| Cadastro + confirmação e-mail (§2)                        | **Not tested**       | Requer e-mail real                                                                                                             |
+| Onboarding, chat, limites, Stripe, extensão (§§3–9)       | **Not tested**       | Requer sessão autenticada                                                                                                      |
+| Pré-requisitos infra (Netlify/Supabase/Stripe dashboards) | **Not tested**       | Fora do escopo deste smoke HTTP/UI                                                                                             |
+
+**Observações**
+
+- Redirect de rotas `/app/*` usa **307** (não 302); comportamento esperado para gate de auth.
+- Página de preços “pública” no produto atual = link na home para `/app/planos`, não rota `/precos`.
