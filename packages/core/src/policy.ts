@@ -43,6 +43,7 @@ export const CHAT_TOOL_NAMES = [
   "classify_fact",
   "get_profile_tracking",
   "mark_profile_updated",
+  "start_application",
 ] as const
 export type ChatToolName = (typeof CHAT_TOOL_NAMES)[number]
 
@@ -106,6 +107,9 @@ export function toolRisk(tool: ChatToolName): ToolRisk {
     case "create_application":
     case "update_application_status":
       return "baixo"
+    // Only shows the cloud-apply card; the user's click starts it and submit needs an approval.
+    case "start_application":
+      return "leitura"
     default: {
       const unreachable: never = tool
       throw new Error(`Unknown tool: ${String(unreachable)}`)

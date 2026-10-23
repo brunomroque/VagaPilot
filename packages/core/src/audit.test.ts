@@ -99,9 +99,10 @@ describe("logAudit", () => {
 describe("AUDIT_ACTIONS", () => {
   it("covers spec 10.7 without duplicates", () => {
     expect(new Set(AUDIT_ACTIONS).size).toBe(AUDIT_ACTIONS.length)
-    expect(AUDIT_ACTIONS).toHaveLength(38)
+    expect(AUDIT_ACTIONS).toHaveLength(42)
     expect(isAuditAction("account.deletion_cancelled")).toBe(true)
     expect(isAuditAction("risk.reconsent_required")).toBe(true)
+    expect(isAuditAction("browser_pool.provider_tested")).toBe(true)
     expect(isAuditAction("risk.unknown")).toBe(false)
   })
 })

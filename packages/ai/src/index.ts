@@ -1,4 +1,5 @@
 export * from "./config.js"
+export { realEmbeddingModel, realLanguageModel } from "./providers.js"
 export * from "./embeddings.js"
 export * from "./extract-facts.js"
 export * from "./schemas.js"

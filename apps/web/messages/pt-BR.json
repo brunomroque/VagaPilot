@@ -183,7 +183,8 @@
     "settings": "Configurações",
     "signOut": "Sair",
     "accountMenu": "Menu da conta",
-    "memory": "Memória"
+    "memory": "Memória",
+    "admin": "Administração"
   },
   "Pairing": {
     "invalidPayload": "Envie o código e o nome do dispositivo.",
@@ -1565,6 +1566,7 @@
       "rateLimited": "Você enviou muitas mensagens em pouco tempo (limite de {limit} por minuto). Aguarde um minuto e tente de novo.",
       "tooManyLinks": "Envie até {max} links por vez. Divida a lista em partes.",
       "failed": "Não consegui concluir a resposta. Tente de novo.",
+      "aiUnavailable": "IA indisponível: o modelo não está configurado neste ambiente (falta GOOGLE_GENERATIVE_AI_API_KEY). Avise o administrador.",
       "planLimit": "Você atingiu o limite do seu plano ou o teto diário de uso de IA. Veja Planos em Configurações."
     },
     "refusals": {
@@ -1651,6 +1653,46 @@
         "title": "Perfis em plataformas",
         "outdated": "Desatualizado",
         "ok": "Atualizado"
+      }
+    },
+    "cloudApply": {
+      "intro": "Posso preencher a candidatura num navegador na nuvem. Você acompanha ao vivo, responde o que eu não souber e aprova antes do envio.",
+      "start": "Candidatar na nuvem",
+      "cancel": "Cancelar",
+      "resume": "Já resolvi, continuar",
+      "openLiveView": "Abrir navegador ao vivo",
+      "liveViewTitle": "Navegador na nuvem",
+      "loginHelp": "Faça login no navegador abaixo. Depois eu continuo sozinho.",
+      "captchaHelp": "Resolva a verificação no navegador abaixo. Depois eu continuo.",
+      "questionsHelp": "O formulário pediu informações que não estão no seu perfil. Não vou inventar nada.",
+      "remember": "Salvar como fato do meu perfil",
+      "answer": "Responder",
+      "reviewHelp": "Revise o que será enviado. Nada é enviado sem a sua aprovação.",
+      "screenshotAlt": "Captura do formulário preenchido",
+      "approve": "Aprovar e enviar",
+      "reject": "Não enviar",
+      "phase": {
+        "queued": "Na fila",
+        "running": "Preenchendo o formulário…",
+        "login_required": "Login necessário",
+        "captcha": "Verificação necessária",
+        "waiting_answers": "Aguardando suas respostas",
+        "review_ready": "Pronto para revisão",
+        "submit_approved": "Aprovado, enviando…",
+        "submitting": "Enviando…",
+        "submitted": "Candidatura enviada",
+        "failed": "Falhou",
+        "cancelled": "Cancelada"
+      },
+      "unavailable": {
+        "pool_disabled": "A candidatura na nuvem está desativada.",
+        "no_url": "Esta vaga não tem link de candidatura.",
+        "unsupported_ats": "Ainda não sei preencher este site automaticamente."
+      },
+      "errors": {
+        "start": "Não consegui iniciar: {reason}",
+        "approval": "Não consegui registrar a decisão: {reason}",
+        "generic": "Algo deu errado. Tente de novo."
       }
     }
   },
@@ -1754,7 +1796,9 @@
         "write_failed": "Não consegui salvar agora. Tente de novo.",
         "denied": "Essa mudança não pode ser feita a partir daqui."
       }
-    }
+    },
+    "cloudApplyOffer": "A vaga está pronta para candidatura na nuvem. Clique em “Candidatar na nuvem” para começar.",
+    "cloudApplyUnavailable": "Não dá para candidatar na nuvem a esta vaga agora."
   },
   "Jobs": {
     "unknownCompany": "Empresa não informada",
@@ -1879,6 +1923,7 @@
         "not_found": "A página não foi encontrada ou saiu do ar. Se ainda tiver a descrição, cole abaixo.",
         "timeout": "O site demorou demais para responder. Cole o texto da vaga abaixo.",
         "generic": "Não consegui extrair a vaga. Cole o texto da vaga abaixo.",
+        "ai_unavailable": "Fit indisponível: a IA não está configurada neste ambiente. Avise o administrador.",
         "pasteTooShort": "Cole pelo menos algumas linhas da descrição."
       },
       "pasteLabel": "Texto da vaga",

@@ -129,6 +129,11 @@ export async function decideApproval(
     .eq("id", row.id)
     .eq("user_id", ctx.user.id)
 
+  if (row.kind === "submeter_formulario") {
+    const { onSubmitApprovalDecided } = await import("@/lib/apply/server")
+    await onSubmitApprovalDecided(ctx.user.id, row.id, input.approve)
+  }
+
   if (input.approve && row.kind === "cv_change") {
     const conversationId = String(row.subject_ref.conversation_id ?? "")
     if (conversationId) {
@@ -217,6 +222,18 @@ async function verifyApprovalHash(
           ok: false,
           code: "conflict",
           message: "Draft changed after the request.",
+        }
+      }
+      return { ok: true }
+    }
+    case "submeter_formulario": {
+      // The worker re-checks this hash and the live form summary before clicking submit.
+      const { hashPreview } = await import("@vagapilot/browser-pool/apply")
+      if (hashPreview(row.preview) !== row.preview_sha256) {
+        return {
+          ok: false,
+          code: "conflict",
+          message: "Form summary changed after the request.",
         }
       }
       return { ok: true }

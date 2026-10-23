@@ -1,4 +1,4 @@
-import { getAiConfig, type AiConfig } from "@vagapilot/ai"
+import { getAiConfig, realLanguageModel, type AiConfig } from "@vagapilot/ai"
 import { parseUserDate } from "@vagapilot/core/dates"
 import { type ClassifierClass } from "@vagapilot/core/email"
 import {
@@ -6,7 +6,7 @@ import {
   parseInterviewTime,
   parseIsoWithOffset,
 } from "@vagapilot/core/email-dates"
-import { createGateway, generateText, Output, type LanguageModel } from "ai"
+import { generateText, Output, type LanguageModel } from "ai"
 
 import {
   createFakeClassifierModel,
@@ -53,16 +53,12 @@ function resolveModel(input: ClassifierInput, options: ClassifyEmailOptions) {
         model: createFakeClassifierModel(input),
         id: FAKE_CLASSIFIER_MODEL_ID,
       }
-    case "gateway": {
-      const gateway = createGateway({
-        apiKey: config.apiKey,
-        baseURL: config.baseURL,
-      })
+    case "gateway":
+    case "google":
       return {
-        model: gateway(config.extractionModel),
+        model: realLanguageModel(config, config.extractionModel),
         id: config.extractionModel,
       }
-    }
     default: {
       const unreachable: never = config.mode
       throw new Error(`Unhandled AI provider mode: ${String(unreachable)}`)

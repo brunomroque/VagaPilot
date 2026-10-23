@@ -13,3 +13,10 @@
   # all over the repo. The Supabase URL, project ref and publishable/anon keys
   # are public and Next inlines them into the edge bundle.
   SECRETS_SCAN_OMIT_KEYS = "AI_PROVIDER,SUPABASE_PROJECT_REF,SUPABASE_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,NEXT_PUBLIC_SUPABASE_ANON_KEY"
+
+# Cloud apply worker (background function, 15 min). playwright-core only speaks CDP to the
+# remote browser providers; no local Chromium is bundled.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["playwright-core"]

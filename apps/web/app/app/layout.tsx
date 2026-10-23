@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { loadChatBootstrap } from "@/lib/chat/bootstrap"
 import { getPlanSnapshot } from "@/lib/entitlements/server"
 import { getUserContext } from "@/lib/server/context"
+import { isAppAdmin } from "@/lib/admin/server"
 import { loadTrackerData } from "@/lib/tracker/load"
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -49,8 +50,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         nextSteps: { kind: "next_steps" as const, items: [], summary: "" },
       }
 
+  const isAdmin = await isAppAdmin()
+
   return (
     <AppShell
+      isAdmin={isAdmin}
       displayName={user.displayName}
       firstName={firstName}
       today={today}

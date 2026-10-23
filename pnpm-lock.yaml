@@ -129,6 +129,9 @@ importers:
       '@vagapilot/ats-adapters':
         specifier: workspace:*
         version: link:../../packages/ats-adapters
+      '@vagapilot/browser-pool':
+        specifier: workspace:*
+        version: link:../../packages/browser-pool
       '@vagapilot/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -226,6 +229,9 @@ importers:
 
   packages/ai:
     dependencies:
+      '@ai-sdk/google':
+        specifier: 4.0.102
+        version: 4.0.102(zod@4.6.6)
       '@ai-sdk/provider':
         specifier: 4.0.31
         version: 4.0.31
@@ -276,6 +282,43 @@ importers:
       happy-dom:
         specifier: ^20.0.10
         version: 20.14.6
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@24.19.2)(happy-dom@20.14.6)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
+  packages/browser-pool:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.118.0
+        version: 2.118.0(@opentelemetry/api@1.10.0)
+      '@upstash/redis':
+        specifier: ^1.39.0
+        version: 1.39.0
+      '@vagapilot/ats-adapters':
+        specifier: workspace:*
+        version: link:../ats-adapters
+      '@vagapilot/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vagapilot/db':
+        specifier: workspace:*
+        version: link:../db
+      playwright-core:
+        specifier: 1.64.1
+        version: 1.64.1
+    devDependencies:
+      '@types/node':
+        specifier: ^24
+        version: 24.19.2
+      '@vagapilot/config':
+        specifier: workspace:*
+        version: link:../config
+      eslint:
+        specifier: ^10
+        version: 10.12.0(jiti@2.7.0)
       typescript:
         specifier: ^5
         version: 5.9.3
@@ -536,6 +579,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/google@4.0.102':
+    resolution: {integrity: sha512-xbiBNOPcHDnxIGPhPAdHAhf1EAw7KuwMAP4/urT7mYBEwoIfEfFr7hVm2c0HQwrtL0hokw6WtpkolBec92vt1A==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/mcp@2.0.80':
     resolution: {integrity: sha512-sgOTk2gWIvzRwmWbA+F7kmGYnZ6s69sM0ipRxmMh7zrs7YkwKDukHTOeSSDJRrCun3V4Go434v0v/zZEHv5spw==}
     engines: {node: '>=22'}
@@ -544,6 +593,12 @@ packages:
 
   '@ai-sdk/provider-utils@5.0.64':
     resolution: {integrity: sha512-BDU8rDR6mBR+na5U/Dj4B33LX980x200lqhBGRIOxxx1NFunoixuvvweqIB+sCsCoFC8cGCsa82Ce2fKoAPOqw==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider-utils@5.0.65':
+    resolution: {integrity: sha512-LCugcsP8oWmdeI3BASf4Fuo1wiC6Qx0YrefFssl7n12s+LV4DNi5RdwWQrtrB4oek3GGNQRN/h/NSwVZM2eHKw==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -6668,6 +6723,12 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 4.6.6
 
+  '@ai-sdk/google@4.0.102(zod@4.6.6)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.31
+      '@ai-sdk/provider-utils': 5.0.65(zod@4.6.6)
+      zod: 4.6.6
+
   '@ai-sdk/mcp@2.0.80(zod@4.6.6)':
     dependencies:
       '@ai-sdk/provider': 4.0.31
@@ -6677,6 +6738,15 @@ snapshots:
       zod: 4.6.6
 
   '@ai-sdk/provider-utils@5.0.64(zod@4.6.6)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.31
+      '@standard-schema/spec': 1.1.0
+      '@workflow/serde': 4.1.0
+      eventsource-parser: 3.1.1
+      undici: 7.30.1
+      zod: 4.6.6
+
+  '@ai-sdk/provider-utils@5.0.65(zod@4.6.6)':
     dependencies:
       '@ai-sdk/provider': 4.0.31
       '@standard-schema/spec': 1.1.0

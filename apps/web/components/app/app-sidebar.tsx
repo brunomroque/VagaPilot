@@ -12,6 +12,7 @@ import {
   MessageSquareTextIcon,
   MoreHorizontalIcon,
   SettingsIcon,
+  ShieldIcon,
   TargetIcon,
   UserRoundIcon,
   ZapIcon,
@@ -64,6 +65,7 @@ type NavKey =
   | "chat"
   | "searches"
   | "memory"
+  | "admin"
 
 type NavItem = { key: NavKey; href: string; icon: LucideIcon }
 
@@ -86,6 +88,10 @@ const assistantItems: NavItem[] = [
 ]
 
 export const navItems = [...workspaceItems, ...assistantItems]
+
+const adminItems: NavItem[] = [
+  { key: "admin", href: "/app/admin", icon: ShieldIcon },
+]
 
 function initialsOf(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -136,7 +142,9 @@ function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
 export function AppSidebar({
   displayName,
   plan,
+  isAdmin = false,
 }: {
+  isAdmin?: boolean
   displayName: string
   plan: {
     name: string
@@ -169,6 +177,7 @@ export function AppSidebar({
       <SidebarContent>
         <NavGroup label={t("Nav.workspace")} items={workspaceItems} />
         <NavGroup label={t("Nav.assistant")} items={assistantItems} />
+        {isAdmin ? <NavGroup label={t("Nav.admin")} items={adminItems} /> : null}
       </SidebarContent>
       <SidebarFooter className="gap-3 p-3">
         <Card size="sm">

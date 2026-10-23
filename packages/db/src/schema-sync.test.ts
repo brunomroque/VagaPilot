@@ -7,6 +7,7 @@ import { getTableConfig, PgTable } from "drizzle-orm/pg-core"
 import { describe, expect, it } from "vitest"
 
 import {
+  adminTables,
   appendOnlyTables,
   globalReadTables,
   ownerCrudTables,
@@ -110,6 +111,7 @@ describe("Drizzle schema mirrors supabase/migrations (spec 9)", () => {
       ...appendOnlyTables,
       ...globalReadTables,
       ...serverOnlyTables,
+      ...adminTables,
     ]
     expect(new Set(assigned).size).toBe(assigned.length)
     expect([...assigned].sort()).toEqual([...tables.keys()].sort())

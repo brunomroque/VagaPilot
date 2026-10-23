@@ -7,6 +7,7 @@ import {
   ownerCrudTables,
   ownerReadOnlyTables,
   privateBuckets,
+  adminTables,
   serverOnlyTables,
   userKeyedTables,
 } from "../src/access.js"
@@ -261,6 +262,18 @@ describe.skipIf(!local.ok)(
       it("authenticated users have no access", async () => {
         const { error } = await asA.from(table).select("*")
         expect(error?.code).toBe(PERMISSION_DENIED)
+      })
+    })
+
+    describe.each(adminTables)("%s (admins only)", (table) => {
+      it("non-admin users see nothing and cannot write", async () => {
+        const { data } = await asA.from(table).select("*")
+        expect(data ?? []).toEqual([])
+        const { error } = await asA.from(table).delete().eq("id", "00000000-0000-0000-0000-000000000000")
+        expect(
+          error?.code === PERMISSION_DENIED || error === null,
+          table
+        ).toBe(true)
       })
     })
 

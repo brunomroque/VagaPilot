@@ -41,6 +41,7 @@
     "@upstash/redis": "^1.39.0",
     "@vagapilot/ai": "workspace:*",
     "@vagapilot/ats-adapters": "workspace:*",
+    "@vagapilot/browser-pool": "workspace:*",
     "@vagapilot/core": "workspace:*",
     "@vagapilot/db": "workspace:*",
     "@vagapilot/gmail": "workspace:*",

@@ -19,6 +19,7 @@ import type { PendingQuestionView } from "@/components/chat/pending-questions-pa
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 
 export function AppShell({
+  isAdmin = false,
   displayName,
   firstName,
   today,
@@ -28,6 +29,7 @@ export function AppShell({
   plan,
   children,
 }: {
+  isAdmin?: boolean
   displayName: string
   firstName: string
   today: string
@@ -54,7 +56,7 @@ export function AppShell({
         <SidebarProvider
           style={{ "--sidebar-width": "14.25rem" } as CSSProperties}
         >
-          <AppSidebar displayName={displayName} plan={plan} />
+          <AppSidebar displayName={displayName} plan={plan} isAdmin={isAdmin} />
           <SidebarInset className="min-w-0">
             <AppTopbar firstName={firstName} today={today} />
             <div className="flex flex-1 flex-col p-4 md:p-8">{children}</div>

@@ -775,3 +775,117 @@ export const memoryEvents = pgTable(
   },
   (t) => [index("memory_events_user_created_idx").on(t.userId, t.createdAt)]
 )
+
+// Cloud browser pool (migration 20261023190000). Secrets are never stored: only env var names.
+export const appAdmins = pgTable("app_admins", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  note: text("note"),
+  createdAt: createdAt(),
+})
+
+export const browserProviders = pgTable("browser_providers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  provider: text("provider").notNull(),
+  label: text("label").notNull(),
+  accountEmail: text("account_email"),
+  secretEnvVar: text("secret_env_var").notNull(),
+  projectEnvVar: text("project_env_var"),
+  enabled: boolean("enabled").notNull().default(true),
+  priority: integer("priority").notNull().default(100),
+  concurrencyLimit: integer("concurrency_limit").notNull().default(1),
+  maxSessionSeconds: integer("max_session_seconds"),
+  quotaKind: text("quota_kind").notNull(),
+  quotaUnit: text("quota_unit").notNull().default("units"),
+  quotaLimit: numeric("quota_limit").notNull(),
+  costPerMinute: numeric("cost_per_minute").notNull().default("0"),
+  quotaResetDay: integer("quota_reset_day"),
+  quotaStartedAt: timestamp("quota_started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  keyExpiresAt: timestamp("key_expires_at", { withTimezone: true }),
+  alertThreshold: numeric("alert_threshold").notNull().default("0.8"),
+  notes: text("notes"),
+  lastTestAt: timestamp("last_test_at", { withTimezone: true }),
+  lastTestOk: boolean("last_test_ok"),
+  lastTestMessage: text("last_test_message"),
+  createdAt: createdAt(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const applyRuns = pgTable("apply_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: ownerId(),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  jobMatchId: uuid("job_match_id").references(() => jobMatches.id, {
+    onDelete: "set null",
+  }),
+  packageId: uuid("package_id").references(() => applicationPackages.id, {
+    onDelete: "set null",
+  }),
+  ats: text("ats").notNull(),
+  targetUrl: text("target_url").notNull(),
+  phase: text("phase").notNull().default("queued"),
+  stepIndex: integer("step_index").notNull().default(0),
+  segments: integer("segments").notNull().default(0),
+  stateEnc: bytea("state_enc"),
+  reviewSummary: jsonb("review_summary"),
+  reviewScreenshotEnc: bytea("review_screenshot_enc"),
+  approvalId: uuid("approval_id").references(() => approvals.id, {
+    onDelete: "set null",
+  }),
+  providerId: uuid("provider_id").references(() => browserProviders.id, {
+    onDelete: "set null",
+  }),
+  liveViewUrl: text("live_view_url"),
+  lastError: text("last_error"),
+  leaseUntil: timestamp("lease_until", { withTimezone: true }),
+  createdAt: createdAt(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+})
+
+export const browserSessions = pgTable("browser_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  providerId: uuid("provider_id").references(() => browserProviders.id, {
+    onDelete: "set null",
+  }),
+  provider: text("provider").notNull(),
+  userId: uuid("user_id").references(() => authUsers.id, {
+    onDelete: "cascade",
+  }),
+  applyRunId: uuid("apply_run_id").references(() => applyRuns.id, {
+    onDelete: "set null",
+  }),
+  externalId: text("external_id"),
+  status: text("status").notNull().default("ativa"),
+  purpose: text("purpose").notNull().default("apply"),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  durationSeconds: integer("duration_seconds"),
+  unitsUsed: numeric("units_used").notNull().default("0"),
+  errorCode: text("error_code"),
+  errorMessage: text("error_message"),
+})
+
+export const browserAuthStates = pgTable(
+  "browser_auth_states",
+  {
+    userId: ownerId(),
+    site: text("site").notNull(),
+    storageEnc: bytea("storage_enc").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.site] })]
+)

@@ -52,6 +52,10 @@ export const AUDIT_ACTIONS = [
   "risk.accepted",
   "risk.revoked",
   "risk.reconsent_required",
+  "apply.run_started",
+  "apply.run_paused",
+  "browser_pool.provider_changed",
+  "browser_pool.provider_tested",
 ] as const
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]

@@ -317,7 +317,84 @@ export async function answerPendingQuestionAction(
       application_id: (data as { application_id: string }).application_id,
     },
   })
+  const applicationId = (data as { application_id: string | null })
+    .application_id
+  if (applicationId) {
+    // Cloud apply: resume the paused run once every question of this application is answered.
+    const open = await auth.ctx.supabase
+      .from("pending_questions")
+      .select("id", { count: "exact", head: true })
+      .eq("application_id", applicationId)
+      .eq("user_id", auth.ctx.user.id)
+      .eq("status", "aberta")
+    if ((open.count ?? 0) === 0) {
+      const { resumeApplyRun } = await import("@/lib/apply/server")
+      await resumeApplyRun(auth.ctx.user.id, { applicationId }).catch(
+        () => null
+      )
+    }
+  }
   return ok({ id: parsed.data.questionId })
+}
+
+export async function startCloudApplyAction(
+  input: unknown
+): Promise<ActionResult<{ runId: string; applicationId: string }>> {
+  const parsed = z.object({ matchId: uuid }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Invalid job.")
+  const auth = await session()
+  if ("error" in auth) return auth.error
+  try {
+    const { startCloudApplication } = await import("@/lib/apply/server")
+    const result = await startCloudApplication(auth.ctx, parsed.data.matchId)
+    if ("error" in result) return fail("conflict", result.error)
+    return ok(result)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : ""
+    if (message === "not_found") return fail("not_found", "Job not found.")
+    if (message.startsWith("invalid_transition"))
+      return fail("conflict", message)
+    console.error("cloud apply failed", { reason: message })
+    return fail("internal_error", "Could not start the application.")
+  }
+}
+
+export async function loadApplyRunAction(
+  input: unknown
+): Promise<ActionResult<import("@/lib/apply/server").ApplyRunView | null>> {
+  const parsed = z.object({ runId: uuid }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Invalid run.")
+  const auth = await session()
+  if ("error" in auth) return auth.error
+  const { loadApplyRun } = await import("@/lib/apply/server")
+  return ok(await loadApplyRun(auth.ctx, parsed.data.runId))
+}
+
+/** "Já fiz login / resolvi o captcha": puts the run back in the queue. */
+export async function resumeApplyRunAction(
+  input: unknown
+): Promise<ActionResult<{ runId: string | null }>> {
+  const parsed = z.object({ runId: uuid }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Invalid run.")
+  const auth = await session()
+  if ("error" in auth) return auth.error
+  const { resumeApplyRun } = await import("@/lib/apply/server")
+  return ok({
+    runId: await resumeApplyRun(auth.ctx.user.id, { runId: parsed.data.runId }),
+  })
+}
+
+export async function cancelApplyRunAction(
+  input: unknown
+): Promise<ActionResult<{ cancelled: boolean }>> {
+  const parsed = z.object({ runId: uuid }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Invalid run.")
+  const auth = await session()
+  if ("error" in auth) return auth.error
+  const { cancelApplyRun } = await import("@/lib/apply/server")
+  return ok({
+    cancelled: await cancelApplyRun(auth.ctx.user.id, parsed.data.runId),
+  })
 }
 
 /** Form action, so "Nova conversa" also works before the page hydrates. */
