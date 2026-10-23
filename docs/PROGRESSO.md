@@ -401,6 +401,7 @@ Feito no código. Spec: §8.4 (análise no chat), §10.3–10.4 (confirmação a
 - Aplicar `20261023170000_qa_pairing_grants_cv.sql` no projeto hospedado.
 - **2026-10-23 (lançamento):** checklist passo a passo em [QA_SMOKE_LANCAMENTO.md](./QA_SMOKE_LANCAMENTO.md) (pré-requisitos Netlify/Supabase/Stripe, fluxos cadastro, chat, planos, passe de busca, pareamento, `/dev/*` 404). Migrações `chat_first_persistence` e `qa_pairing_grants_cv` aplicadas no hospedado via MCP (`synbycvebzzqarojicfu`). Pendente manual: Auth URLs + template de e-mail no Supabase; evento `checkout.session.completed` no webhook Stripe de produção.
 - **2026-10-23 (Auth go-live):** mapeadas URLs de `emailRedirectTo` / OAuth / `/auth/callback` / `/auth/confirm` (código OK para `https://vagapilot.netlify.app`). MCP Supabase não altera URL Configuration/SMTP; logs `auth_logs` (24 h) sem erro de redirect, só `referer: http://localhost:3000` em chamadas `/user` (cliente dev). QA + CONFIG_STRIPE_RESEND atualizados com blocos copy-paste (dashboard, template pt-BR, Resend SMTP 465). `supabase config push` **não** executado (repo sem link; `site_url` local apontaria para 127.0.0.1).
+- **2026-10-23 (auditoria MCP go-live):** snapshot em [GO_LIVE_AUDIT.md](./GO_LIVE_AUDIT.md) — deploy Netlify `ready` (`fe5b83e`), env núcleo OK, `/precos` 200, webhook HTTP 400 sem sig; migrações cloud pool pendentes no hospedado; Stripe Live e Auth Site URL só dashboard; webhook Test sem `checkout.session.completed`.
 
 ### P2 — QA código (2026-10-23)
 
