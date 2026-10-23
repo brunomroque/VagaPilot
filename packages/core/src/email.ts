@@ -31,7 +31,27 @@ export type EmailClass = (typeof EMAIL_CLASSES)[number]
 export const CLASSIFIER_CLASSES = [
   ...EMAIL_CLASSES,
   "codigo_verificacao",
+  // Finer replies, stored as their closest EMAIL_CLASS (see `storedEmailClass`).
+  "em_analise",
+  "proposta",
+  "documentos",
 ] as const
+
+/** Classifier-only replies kept in the DB enum as their closest stored class. */
+export function storedEmailClass(value: ClassifierClass): EmailClass | null {
+  switch (value) {
+    case "codigo_verificacao":
+      return null
+    case "em_analise":
+      return "confirmacao"
+    case "proposta":
+      return "recrutador_contato"
+    case "documentos":
+      return "teste_etapa"
+    default:
+      return value
+  }
+}
 
 export type ClassifierClass = (typeof CLASSIFIER_CLASSES)[number]
 

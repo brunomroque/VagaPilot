@@ -922,3 +922,69 @@ export const browserLoginSessions = pgTable("browser_login_sessions", {
     .notNull()
     .defaultNow(),
 })
+
+export const atsCredentials = pgTable(
+  "ats_credentials",
+  {
+    userId: ownerId(),
+    site: text("site").notNull(),
+    email: text("email").notNull(),
+    passwordEnc: bytea("password_enc").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.site] })]
+)
+
+export const applyRunOutcomes = pgTable("apply_run_outcomes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  runId: uuid("run_id").references(() => applyRuns.id, {
+    onDelete: "set null",
+  }),
+  userId: uuid("user_id").references(() => authUsers.id, {
+    onDelete: "cascade",
+  }),
+  ats: text("ats").notNull(),
+  driver: text("driver").notNull(),
+  site: text("site").notNull(),
+  outcome: text("outcome").notNull(),
+  code: text("code"),
+  durationMs: integer("duration_ms").notNull().default(0),
+  llmCalls: integer("llm_calls").notNull().default(0),
+  llmTokens: integer("llm_tokens").notNull().default(0),
+  replayedSteps: integer("replayed_steps").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const atsRecipes = pgTable(
+  "ats_recipes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    domain: text("domain").notNull(),
+    platform: text("platform").notNull(),
+    version: integer("version").notNull(),
+    parentVersion: integer("parent_version"),
+    status: text("status").notNull().default("learning"),
+    steps: jsonb("steps").notNull().default([]),
+    successes: integer("successes").notNull().default(0),
+    failures: integer("failures").notNull().default(0),
+    lastValidatedAt: timestamp("last_validated_at", { withTimezone: true }),
+    driftHistory: jsonb("drift_history").notNull().default([]),
+    disabledBy: uuid("disabled_by").references(() => authUsers.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique().on(t.domain, t.version)]
+)

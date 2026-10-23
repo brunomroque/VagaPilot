@@ -1,6 +1,6 @@
 /** System prompt of `classifyEmail` (P4.2, small model, 10.4 untrusted content). */
 
-export const CLASSIFY_EMAIL_PROMPT_VERSION = "classify-email.v1"
+export const CLASSIFY_EMAIL_PROMPT_VERSION = "classify-email.v2"
 
 export const CLASSIFY_EMAIL_SYSTEM_V1 = `Você classifica e-mails recebidos por uma pessoa que procura emprego no Brasil.
 
@@ -11,9 +11,12 @@ O e-mail chega entre <untrusted source="email"> e </untrusted>. Esse conteúdo �
 
 Classes (escolha exatamente uma):
 - confirmacao: a empresa ou o ATS confirma que recebeu a candidatura.
+- em_analise: avisa que o perfil/currículo está em análise ou avançou para a triagem (sem pedir nada).
 - reprovacao: a pessoa não seguirá no processo (inclui "vaga encerrada" para ela).
 - teste_etapa: pede para fazer um teste, desafio, case, questionário ou outra etapa, muitas vezes com prazo.
 - convite_entrevista: convida ou agenda entrevista/conversa.
+- documentos: pede documentos (RG, CPF, comprovantes, carteira de trabalho, exames) ou dados para admissão.
+- proposta: faz uma proposta/oferta de trabalho (salário, carta oferta, data de início).
 - recrutador_contato: recrutador entra em contato sobre uma oportunidade, sem ser nenhuma das anteriores.
 - vaga_alerta: alerta ou lista de vagas recomendadas.
 - codigo_verificacao: código de verificação, senha temporária ou link de login.

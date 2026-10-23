@@ -41,7 +41,17 @@ import {
   type AuthStateRow,
   type StorageState,
 } from "../auth/state.js"
+import { getCredential, saveNewCredential } from "../auth/credentials.js"
 import { driverForUrl, enabledDrivers } from "./drivers.js"
+import { aiDriver, type ApplyPagePlanner } from "./ai-driver.js"
+import { recordApplyOutcome } from "./metrics.js"
+import {
+  loadRecipe,
+  recipeSession,
+  saveRecipeRun,
+  type RecipeRunResult,
+  type RecipeSession,
+} from "./recipes.js"
 import { normalizeLabel } from "./resolver.js"
 import {
   hashPreview,
@@ -49,6 +59,8 @@ import {
   runSegment,
   type ReviewField,
   type SegmentOutcome,
+  type SegmentVerification,
+  type VerificationEvent,
 } from "./runner.js"
 import type { AtsDriver } from "./types.js"
 
@@ -87,6 +99,16 @@ export type ApplyJobOptions = {
   requeue?: (runId: string) => Promise<void>
   /** Seals/opens saved logins (defaults to AUTH_STATE_ENCRYPTION_KEY). */
   authSealer?: AuthSealer
+  /**
+   * Fallback for sites without a specific driver (the generic AI driver). Used only when
+   * APPLY_GENERIC_AI_ENABLED=true.
+   */
+  genericPlanner?: ApplyPagePlanner | null
+  /** Gmail-backed OTP/link reader for this user and ATS domains (null: Gmail not connected). */
+  verificationFor?: (
+    userId: string,
+    domains: string[]
+  ) => Promise<SegmentVerification | null>
 }
 
 type RunRow = {
@@ -297,7 +319,12 @@ async function audit(
     | "apply.run_paused"
     | "approval.requested"
     | "application.submitted"
-    | "question.asked",
+    | "question.asked"
+    | "apply.verification_code_used"
+    | "apply.verification_link_opened"
+    | "apply.verification_escalated"
+    | "apply.site_account_created"
+    | "apply.site_login",
   runId: string,
   details: Record<string, unknown>
 ) {
@@ -543,10 +570,32 @@ export async function runApplyJob(
     })
     return { runId, phase: "failed", segments: 0 }
   }
-  const driver = driverForUrl(
+  const specific = driverForUrl(
     run.target_url,
     options.drivers ?? enabledDrivers(env)
   )
+  const siteKey = siteOf(run.target_url)
+  let recipe: Awaited<ReturnType<typeof loadRecipe>> = null
+  let session: RecipeSession | null = null
+  let generic: AtsDriver | null = null
+  if (
+    !specific &&
+    env.APPLY_GENERIC_AI_ENABLED === "true" &&
+    options.genericPlanner
+  ) {
+    recipe = await loadRecipe(admin, siteKey).catch(() => null)
+    // Disabled by an admin: AI only, nothing replayed nor saved.
+    session = recipeSession(
+      recipe?.status === "disabled" ? null : recipe,
+      options.genericPlanner
+    )
+    const candidate = aiDriver({ planner: session.planner })
+    generic = candidate.detect(run.target_url) ? candidate : null
+  }
+  const driver = specific ?? generic
+  let recipeResult: RecipeRunResult = "neutral"
+  let recorded = { calls: 0, tokens: 0, replayed: 0 }
+  const driverKind = specific ? "specific" : "generic_ai"
   const payload = await loadPayload(ctx, run)
   if (!driver || !payload) {
     await ctx.update(run.id, {
@@ -573,6 +622,52 @@ export async function runApplyJob(
     const savedLogin = pickAuthState(
       await listAuthStates(admin, run.user_id, site).catch(() => [])
     )
+    // Only the run's own ATS domain (and the posting host) may send codes/links we act on.
+    const verifyDomains = [...new Set([site, new URL(run.target_url).hostname])]
+    const verification = options.verificationFor
+      ? await options
+          .verificationFor(run.user_id, verifyDomains)
+          .catch(() => null)
+      : null
+    const accountEmail = payload.profile.email
+    const account =
+      hasAuthKey && accountEmail
+        ? {
+            async get() {
+              const found = await getCredential(admin, run.user_id, site, env)
+              return found
+                ? {
+                    email: found.email,
+                    password: found.password,
+                    created: false,
+                  }
+                : null
+            },
+            async create() {
+              const saved = await saveNewCredential(
+                admin,
+                run.user_id,
+                site,
+                accountEmail,
+                env
+              )
+              await audit(
+                ctx,
+                run.user_id,
+                "apply.site_account_created",
+                run.id,
+                {
+                  site,
+                }
+              )
+              return {
+                email: saved.email,
+                password: saved.password,
+                created: true,
+              }
+            },
+          }
+        : null
     while (Date.now() - startedAt < budgetMs) {
       const remaining = budgetMs - (Date.now() - startedAt)
       const sessionMs = Math.min(segmentMs, remaining)
@@ -626,6 +721,7 @@ export async function runApplyJob(
       })
       let outcome: SegmentOutcome
       let browser: Browser | null = null
+      const segmentStarted = Date.now()
       try {
         browser = await (options.connect ?? defaultConnect)(
           tracked.session.cdpUrl
@@ -654,7 +750,40 @@ export async function runApplyJob(
           onWaitingUser: async (reason) => {
             await ctx.update(run.id, {
               phase: reason === "login" ? "login_required" : "captcha",
+              ...(reason === "verification"
+                ? {
+                    last_error:
+                      "O site pediu um código ou confirmação que não chegou no Gmail (pode ser SMS). Conclua no navegador ao vivo.",
+                  }
+                : {}),
             })
+          },
+          verification,
+          account,
+          onVerification: async (event: VerificationEvent) => {
+            const action =
+              event.kind === "code_used"
+                ? "apply.verification_code_used"
+                : event.kind === "link_opened"
+                  ? "apply.verification_link_opened"
+                  : event.kind === "escalated"
+                    ? "apply.verification_escalated"
+                    : "apply.site_login"
+            // Metadata only: message id, code length, link host. Never the code/link/password.
+            await audit(ctx, run.user_id, action, run.id, { ...event, site })
+          },
+          onAuthenticated: async () => {
+            await persistAuth(
+              ctx,
+              sealer,
+              hasAuthKey,
+              run,
+              context,
+              tracked.config.provider,
+              savedLogin?.provider === tracked.config.provider
+                ? (savedLogin?.native_ref ?? null)
+                : null
+            ).catch(() => undefined)
           },
           onProgress: async (step) => {
             await ctx.update(run.id, {
@@ -686,6 +815,32 @@ export async function runApplyJob(
       } finally {
         await browser?.close().catch(() => undefined)
       }
+      await recordApplyOutcome(admin, {
+        run_id: run.id,
+        user_id: run.user_id,
+        ats: driver.ats,
+        driver: driverKind,
+        site,
+        outcome:
+          outcome.kind === "waiting_user"
+            ? `waiting_${outcome.reason}`
+            : outcome.kind,
+        code: outcome.kind === "failed" ? outcome.code : null,
+        duration_ms: Date.now() - segmentStarted,
+        llm_calls: (session?.stats.llmCalls ?? 0) - recorded.calls,
+        llm_tokens: (session?.stats.llmTokens ?? 0) - recorded.tokens,
+        replayed_steps: (session?.stats.replayedSteps ?? 0) - recorded.replayed,
+      })
+      if (session)
+        recorded = {
+          calls: session.stats.llmCalls,
+          tokens: session.stats.llmTokens,
+          replayed: session.stats.replayedSteps,
+        }
+      if (outcome.kind === "review" || outcome.kind === "submitted")
+        recipeResult = "success"
+      else if (outcome.kind === "failed" && outcome.code !== "connect_failed")
+        recipeResult = "failure"
       await tracked.finish(
         outcome.kind === "failed"
           ? { code: outcome.code, message: outcome.message }
@@ -751,6 +906,14 @@ export async function runApplyJob(
     await options.requeue?.(run.id)
     return { runId, phase, segments }
   } finally {
+    if (session && generic && recipe?.status !== "disabled")
+      await saveRecipeRun(admin, {
+        domain: siteKey,
+        platform: generic.ats,
+        recipe,
+        session,
+        result: recipeResult,
+      })
     await rm(dir, { recursive: true, force: true }).catch(() => undefined)
   }
 }

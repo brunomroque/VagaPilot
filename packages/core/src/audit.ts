@@ -54,7 +54,15 @@ export const AUDIT_ACTIONS = [
   "risk.reconsent_required",
   "apply.run_started",
   "apply.run_paused",
+  "apply.verification_code_used",
+  "apply.verification_link_opened",
+  "apply.verification_escalated",
+  "apply.site_account_created",
+  "apply.site_login",
+  "apply.site_password_viewed",
+  "apply.site_password_reset",
   "browser_pool.provider_changed",
+  "browser_pool.recipe_changed",
   "browser_pool.provider_tested",
 ] as const
 

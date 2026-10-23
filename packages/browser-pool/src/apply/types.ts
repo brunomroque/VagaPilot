@@ -39,9 +39,27 @@ export type UnknownQuestion = {
   required: boolean
 }
 
-export type PageState = "login" | "captcha" | "form" | "review" | "done" | "unknown"
+export type PageState =
+  | "login"
+  | "captcha"
+  | "form"
+  | "review"
+  | "done"
+  | "unknown"
+  /** The site asks for a code sent by e-mail (or SMS). */
+  | "verify_code"
+  /** The site asks to click a link sent by e-mail. */
+  | "verify_email"
+  /** The site requires creating an account before applying. */
+  | "signup"
 
-export type StepResult = { filled: ResolvedAnswer[]; unknown: UnknownQuestion[] }
+/** Site account used for signup/login (password only in memory, stored sealed). */
+export type SiteAccount = { email: string; password: string; created: boolean }
+
+export type StepResult = {
+  filled: ResolvedAnswer[]
+  unknown: UnknownQuestion[]
+}
 
 export type NextResult = "advanced" | "review" | "done" | "stuck"
 
@@ -66,4 +84,10 @@ export interface AtsDriver {
   next(page: Page): Promise<NextResult>
   reviewSummary(page: Page): Promise<{ label: string; value: string }[]>
   submit(page: Page): Promise<{ ok: boolean; confirmation: string | null }>
+  /** Types a verification code into the current step and confirms it. */
+  enterCode?(page: Page, code: string): Promise<boolean>
+  /** Creates the account on the signup form (never the application submit). */
+  signup?(page: Page, account: SiteAccount, ctx: FillContext): Promise<boolean>
+  /** Logs in with a stored site account. */
+  login?(page: Page, account: SiteAccount): Promise<boolean>
 }

@@ -19,6 +19,7 @@ import {
 } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 
+import { SiteAccounts } from "./site-accounts"
 import { SiteLoginCard } from "./site-login-card"
 
 const fmt = (iso: string | null) =>
@@ -72,8 +73,8 @@ export function ConnectedSites({
         </CardTitle>
         <CardDescription>
           Logins salvos para o navegador na nuvem se candidatar por você (Gupy,
-          InHire, SuccessFactors, Cornerstone, SmartRecruiters…). A senha nunca
-          passa pelo VagaPilot.
+          InHire, SuccessFactors, Cornerstone, SmartRecruiters…). Nos logins que
+          você faz, a senha nunca passa pelo VagaPilot.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -120,6 +121,7 @@ export function ConnectedSites({
             Nenhum site conectado ainda.
           </p>
         )}
+        <SiteAccounts />
         {!poolEnabled ? (
           <p className="text-xs text-muted-foreground">
             O navegador na nuvem está desligado neste ambiente.

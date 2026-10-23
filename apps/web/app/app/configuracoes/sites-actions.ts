@@ -106,3 +106,105 @@ export async function deleteConnectedSiteAction(
   revalidatePath("/app/configuracoes")
   return ok({ deleted })
 }
+
+export type SiteAccountView = {
+  site: string
+  email: string
+  updatedAt: string
+}
+
+async function credentialsDeps() {
+  const [{ adminFromEnv }, creds, { logAudit }, { SupabaseAuditSink }] =
+    await Promise.all([
+      import("@vagapilot/browser-pool/job"),
+      import("@vagapilot/browser-pool"),
+      import("@vagapilot/core/audit"),
+      import("@vagapilot/db/server"),
+    ])
+  const admin = adminFromEnv()
+  const audit = (
+    userId: string,
+    action: "apply.site_password_viewed" | "apply.site_password_reset",
+    site: string
+  ) =>
+    logAudit(new SupabaseAuditSink(admin), {
+      userId,
+      actor: "usuario",
+      action,
+      targetType: "ats_credential",
+      details: { site },
+    }).catch(() => undefined)
+  return { admin, creds, audit }
+}
+
+/** Site accounts the bot created with the user's e-mail (never returns passwords). */
+export async function listSiteAccountsAction(): Promise<
+  ActionResult<SiteAccountView[]>
+> {
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  try {
+    const { admin, creds } = await credentialsDeps()
+    const rows = await creds.listCredentials(admin, uid)
+    return ok(
+      rows.map((r) => ({
+        site: r.site,
+        email: r.email,
+        updatedAt: r.updated_at,
+      }))
+    )
+  } catch {
+    return ok([])
+  }
+}
+
+/** Reveals one site password to its owner (audited, never logged). */
+export async function revealSitePasswordAction(
+  input: unknown
+): Promise<ActionResult<{ password: string }>> {
+  const parsed = z.object({ site: z.string().min(1).max(253) }).safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Pedido inválido.")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { admin, creds, audit } = await credentialsDeps()
+  const found = await creds
+    .getCredential(admin, uid, parsed.data.site)
+    .catch(() => null)
+  if (!found) return fail("not_found", "Conta não encontrada.")
+  await audit(uid, "apply.site_password_viewed", parsed.data.site)
+  return ok({ password: found.password })
+}
+
+/**
+ * Replaces the stored password with a new one (generated, or typed by the user). The site keeps
+ * the old one until the user changes it there (e.g. "Esqueci minha senha").
+ */
+export async function resetSitePasswordAction(
+  input: unknown
+): Promise<ActionResult<{ password: string }>> {
+  const parsed = z
+    .object({
+      site: z.string().min(1).max(253),
+      password: z.string().min(8).max(128).nullish(),
+    })
+    .safeParse(input)
+  if (!parsed.success)
+    return fail("invalid_request", "Senha inválida (mínimo 8 caracteres).")
+  const uid = await userId()
+  if (typeof uid !== "string") return uid.error
+  const { admin, creds, audit } = await credentialsDeps()
+  const found = await creds
+    .getCredential(admin, uid, parsed.data.site)
+    .catch(() => null)
+  if (!found) return fail("not_found", "Conta não encontrada.")
+  const saved = await creds.saveNewCredential(
+    admin,
+    uid,
+    parsed.data.site,
+    found.email,
+    process.env,
+    parsed.data.password ?? creds.generatePassword()
+  )
+  await audit(uid, "apply.site_password_reset", parsed.data.site)
+  return ok({ password: saved.password })
+}

@@ -1,5 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
-import type { ClassifierClass, EmailClass } from "@vagapilot/core/email"
+import {
+  storedEmailClass,
+  type ClassifierClass,
+  type EmailClass,
+} from "@vagapilot/core/email"
 import type { LinkableApplication } from "@vagapilot/core/email-linking"
 import type { ReviewReason } from "@vagapilot/core/email-outcome"
 import {
@@ -101,7 +105,7 @@ function fail(code: string, error: { message: string } | null): never {
 
 /** Classes stored in `email_threads.classification` (the PDF enum has no OTP class). */
 export function persistableClass(value: ClassifierClass): EmailClass | null {
-  return value === "codigo_verificacao" ? null : value
+  return storedEmailClass(value)
 }
 
 export class GmailStore {

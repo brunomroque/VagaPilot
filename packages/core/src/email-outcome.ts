@@ -27,6 +27,12 @@ export function statusForEmailClass(
       return "etapa_pendente"
     case "convite_entrevista":
       return "entrevista"
+    case "em_analise":
+      return "em_analise"
+    case "proposta":
+      return "proposta"
+    case "documentos":
+      return "etapa_pendente"
     case "recrutador_contato":
     case "vaga_alerta":
     case "irrelevante":
@@ -46,6 +52,11 @@ export function nextActionForEmailClass(value: ClassifierClass): string | null {
       return "Concluir teste ou etapa do processo"
     case "convite_entrevista":
       return "Entrevista agendada"
+    case "documentos":
+      return "Enviar documentos solicitados"
+    case "proposta":
+      return "Responder à proposta"
+    case "em_analise":
     case "confirmacao":
     case "reprovacao":
     case "recrutador_contato":
@@ -127,6 +138,9 @@ export function decideEmailOutcome(input: EmailDecisionInput): EmailDecision {
     case "teste_etapa":
     case "convite_entrevista":
     case "recrutador_contato":
+    case "em_analise":
+    case "proposta":
+    case "documentos":
       break
     default: {
       const unreachable: never = classification
@@ -194,6 +208,33 @@ export function decideEmailOutcome(input: EmailDecisionInput): EmailDecision {
     }
   }
   return { kind: "apply", applicationId, from: current, to: target }
+}
+
+/**
+ * Suggested next step shown with the notification (pt-BR). Only a suggestion: replying to the
+ * company always goes through an approval card, never automatically.
+ */
+export function suggestedNextStep(value: ClassifierClass): string | null {
+  switch (value) {
+    case "confirmacao":
+      return "Nada a fazer agora: acompanhe o processo."
+    case "em_analise":
+      return "Currículo em análise. Revise a vaga para se preparar."
+    case "teste_etapa":
+      return "Faça o teste ou a etapa antes do prazo."
+    case "convite_entrevista":
+      return "Confirme o horário e prepare-se para a entrevista (posso rascunhar a resposta para você aprovar)."
+    case "documentos":
+      return "Separe e envie os documentos pedidos (resposta só com sua aprovação)."
+    case "proposta":
+      return "Analise a proposta; posso rascunhar uma resposta para você aprovar."
+    case "reprovacao":
+      return "Processo encerrado. Que tal pedir feedback ou seguir para outras vagas?"
+    case "recrutador_contato":
+      return "Responda ao recrutador se tiver interesse (rascunho com aprovação)."
+    default:
+      return null
+  }
 }
 
 /** Deadlines and interview times are written only with confident, non-review outcomes. */

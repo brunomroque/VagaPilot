@@ -70,7 +70,7 @@ describe("classifyEmail (P4.2, schema 10.5)", () => {
       company: "Empresa Fictícia Beta",
       deadline: new Date("2026-10-26T02:59:00Z"),
       link: "https://teste.exemplo.test/etapa/7781",
-      promptVersion: "classify-email.v1",
+      promptVersion: "classify-email.v2",
     })
     expect(stage.confidence).toBeGreaterThanOrEqual(0.8)
 
