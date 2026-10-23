@@ -64,11 +64,14 @@ export function AtsScoreView({
             {t("missing")}: {output.missing.slice(0, 8).join(", ")}
           </p>
         ) : null}
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={() => onAction(t("generateCv"))}>
-            {t("generateCv")}
-          </Button>
-        </div>
+        {/* Attachment scores have no saved job: the tweaks come in the chat text. */}
+        {output.jobMatchId ? (
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => onAction(t("generateCv"))}>
+              {t("generateCv")}
+            </Button>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   )

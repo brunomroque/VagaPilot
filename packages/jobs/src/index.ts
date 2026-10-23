@@ -91,3 +91,5 @@ export {
   type CvJobInput,
   type CvProcessingDeps,
 } from "./process-cv.js"
+
+export { extractCvTextOrOcr } from "./cv-ocr.js"

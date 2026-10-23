@@ -56,12 +56,16 @@ export async function POST(request: Request) {
     return apiError("not_found", t("invalid"), 404)
   }
 
+  if (files.some((file) => file.size > MAX_ATTACHMENT_BYTES)) {
+    return apiError("file_too_large", t("tooLarge"), 413)
+  }
+  // Files are parsed/OCR'd in parallel (QA: several files took 10-15 s sequentially).
+  const outcomes = await Promise.all(
+    files.map((file) => uploadChatAttachment(ctx, file, conversationId.data))
+  )
   const results = []
-  for (const file of files) {
-    if (file.size > MAX_ATTACHMENT_BYTES) {
-      return apiError("file_too_large", t("tooLarge"), 413)
-    }
-    const outcome = await uploadChatAttachment(ctx, file, conversationId.data)
+  for (const [index, outcome] of outcomes.entries()) {
+    const file = files[index]!
     if (!outcome.ok) {
       const key =
         outcome.code === "file_too_large"

@@ -151,6 +151,7 @@ export type AttachmentIntent =
   | "job_from_image"
   | "job_description"
   | "apply"
+  | "free_text"
   | "ask"
 
 export type AttachmentSummary = {
@@ -224,10 +225,24 @@ export function detectAttachmentIntent(
     if (cvIntents.length === 1) {
       return { intent: cvIntents[0]!, options: [] }
     }
+    if (hasRequest(text)) return { intent: "free_text", options: [] }
     return {
       intent: "ask",
       options: ["review", "updateProfile", "newVersion", "compareJob"],
     }
   }
+  if (hasRequest(text)) return { intent: "free_text", options: [] }
   return { intent: "ask", options: ["review", "analyzeJob", "skip"] }
+}
+
+const FILLER =
+  /^((segue|anexo|em anexo|aqui|olha|veja|oi|ola|ok)( (o|a|os|as|meu|minha|em))?( (anexo|arquivo|cv|curriculo|print|vaga)s?)?( ?(segue|anexo|em anexo))?)$/
+
+/** Typed text drives the intent (QA): only filler like "Segue anexo." still asks. */
+function hasRequest(folded: string): boolean {
+  const clean = folded
+    .replace(/[.!?,;:]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+  return clean.length >= 2 && !FILLER.test(clean)
 }

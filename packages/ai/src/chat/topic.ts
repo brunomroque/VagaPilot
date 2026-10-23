@@ -5,6 +5,8 @@ import {
 import { generateText, Output } from "ai"
 import { z } from "zod"
 
+import { noThinking } from "../models.js"
+
 import { getAiConfig } from "../config.js"
 import { fakeObjectModel, resolveModel, type ModelOptions } from "../models.js"
 
@@ -48,14 +50,23 @@ export async function classifyTopic(
       config,
     }
   )
-  const { output } = await generateText({
-    model,
-    output: Output.object({ schema: topicSchema }),
-    system: CLASSIFY_TOPIC_SYSTEM_V1,
-    prompt: `<untrusted source="chat_message">\n${text.slice(0, 2000)}\n</untrusted>`,
-    temperature: 0,
-    maxRetries: 1,
-    abortSignal: options.abortSignal,
-  })
-  return { verdict: output.verdict, reason: "model", model: id }
+  try {
+    const { output } = await generateText({
+      model,
+      output: Output.object({ schema: topicSchema }),
+      system: CLASSIFY_TOPIC_SYSTEM_V1,
+      prompt: `<untrusted source="chat_message">\n${text.slice(0, 2000)}\n</untrusted>`,
+      ...noThinking(id),
+      temperature: 0,
+      maxRetries: 0,
+      abortSignal: options.abortSignal ?? AbortSignal.timeout(8000),
+    })
+    return { verdict: output.verdict, reason: "model", model: id }
+  } catch (error) {
+    // The classifier is a soft layer: quota/timeouts must not fail the chat turn.
+    console.warn("classifyTopic model failed", {
+      reason: error instanceof Error ? error.message.slice(0, 200) : "unknown",
+    })
+    return { verdict: "in_scope", reason: "model_error", model: id }
+  }
 }

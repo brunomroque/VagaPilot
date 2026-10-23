@@ -70,3 +70,10 @@ export function resolveModel(
     }
   }
 }
+
+/** Gemini 2.5 "thinking" adds seconds to OCR/classification; those calls don't need it. */
+export function noThinking(modelId: string) {
+  return /gemini-2\.5-flash/.test(modelId)
+    ? { providerOptions: { google: { thinkingConfig: { thinkingBudget: 0 } } } }
+    : {}
+}

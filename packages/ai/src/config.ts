@@ -11,6 +11,8 @@ export type AiConfig = {
   /** Large model for fit and the chat orchestrator (spec 8.2). */
   largeModel: string
   embeddingModel: string
+  /** Used when the primary model is out of quota or retired (Gemini direct only). */
+  fallbackModel?: string
   /** True when the fake provider was chosen only because no key exists (not forced). */
   missingKey?: boolean
   /** True on Netlify or NODE_ENV=production. */
@@ -19,6 +21,7 @@ export type AiConfig = {
 
 export const DEFAULT_EXTRACTION_MODEL = "google/gemini-2.5-flash"
 export const DEFAULT_LARGE_MODEL = "google/gemini-2.5-flash"
+export const DEFAULT_FALLBACK_MODEL = "google/gemini-3.5-flash-lite"
 export const DEFAULT_EMBEDDING_MODEL = "google/gemini-embedding-001"
 export const EMBEDDING_DIMENSIONS = 1536
 
@@ -64,6 +67,7 @@ export function getAiConfig(env: Env = process.env): AiConfig {
     extractionModel: env.LLM_MODEL_SMALL?.trim() || DEFAULT_EXTRACTION_MODEL,
     largeModel: env.LLM_MODEL_LARGE?.trim() || DEFAULT_LARGE_MODEL,
     embeddingModel: env.EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL,
+    fallbackModel: env.LLM_MODEL_FALLBACK?.trim() || DEFAULT_FALLBACK_MODEL,
     missingKey: mode === "fake" && !forcedFake,
     production: isProductionEnv(env),
   }
@@ -71,7 +75,9 @@ export function getAiConfig(env: Env = process.env): AiConfig {
 
 /** Fake mode in production because no key is configured: callers must show "IA indisponível". */
 export function isAiUnavailable(config: AiConfig = getAiConfig()): boolean {
-  return config.mode === "fake" && Boolean(config.missingKey && config.production)
+  return (
+    config.mode === "fake" && Boolean(config.missingKey && config.production)
+  )
 }
 
 export class AiUnavailableError extends Error {

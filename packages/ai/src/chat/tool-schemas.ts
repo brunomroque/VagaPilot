@@ -127,7 +127,11 @@ export const chatToolInputSchemas = {
   }),
   propose_fact: z.object({
     statement: z.string().min(5).max(500),
-    kind: z.enum(FACT_KINDS),
+    kind: z
+      .enum(FACT_KINDS)
+      .describe(
+        "conquista = resultado concreto entregue; competencia = habilidade específica. Headline/título do perfil, cargo ou trajetória numa empresa não são fatos: não proponha."
+      ),
     experienceId: z.uuid().optional(),
   }),
   export_tracker: z.object({

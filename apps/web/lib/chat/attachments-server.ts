@@ -18,7 +18,7 @@ import {
   type AttachmentFileType,
   type AttachmentKind,
 } from "@vagapilot/core/chat-attachments"
-import { CvFileError, extractCvText } from "@vagapilot/jobs"
+import { CvFileError, extractCvTextOrOcr } from "@vagapilot/jobs"
 import { z } from "zod"
 
 import { audit } from "@/lib/server/audit"
@@ -56,6 +56,7 @@ const metaSchema = attachmentRefSchema.extend({
   image: z
     .object({
       isJobPosting: z.boolean(),
+      documentType: z.enum(["job_posting", "cv", "other"]).optional(),
       company: z.string().nullable(),
       title: z.string().nullable(),
       location: z.string().nullable(),
@@ -83,7 +84,7 @@ async function extractText(
     return { text: new TextDecoder().decode(bytes), error: null }
   if (type === "pdf" || type === "docx") {
     try {
-      return { text: (await extractCvText(bytes, type)).text, error: null }
+      return { text: (await extractCvTextOrOcr(bytes, type)).text, error: null }
     } catch (error) {
       return {
         text: "",
@@ -92,6 +93,21 @@ async function extractText(
     }
   }
   return { text: "", error: null }
+}
+
+/** A screenshot of a CV is a CV, not a "print de vaga" (QA: pasted CV image was mislabeled). */
+export function imageKind(
+  reading: JobImageReading,
+  text: string,
+  name: string
+): AttachmentKind {
+  if (reading.documentType === "cv") return "cv"
+  if (reading.documentType === "job_posting" || reading.isJobPosting) {
+    return "job_image"
+  }
+  const byText = classifyDocumentText(text, name)
+  if (byText === "cv") return "cv"
+  return byText === "document" ? "document" : "job_image"
 }
 
 /** Validates, stores privately under {uid}/chat/{conversation}/ and parses server-side. */
@@ -126,6 +142,7 @@ export async function uploadChatAttachment(
           await readJobImage({ bytes, mediaType: ATTACHMENT_MIME[type] })
         ).reading
         text = image.text
+        kind = imageKind(image, text, name)
       } catch (error) {
         extractionError = "ocr_failed"
         console.error("chat attachment OCR failed", {

@@ -1568,7 +1568,8 @@
       "failed": "Não consegui concluir a resposta. Tente de novo.",
       "aiUnavailable": "IA indisponível: o modelo não está configurado neste ambiente (falta GOOGLE_GENERATIVE_AI_API_KEY). Avise o administrador.",
       "planLimit": "Você atingiu o limite do seu plano ou o teto diário de uso de IA. Veja Planos em Configurações.",
-      "attachmentsMissing": "Não encontrei os anexos desta mensagem. Anexe de novo."
+      "attachmentsMissing": "Não encontrei os anexos desta mensagem. Anexe de novo.",
+      "aiBusy": "A IA está no limite de uso por minuto agora. Aguarde uns 30 segundos e envie de novo."
     },
     "refusals": {
       "off_topic": "Posso ajudar com suas vagas, CVs e candidaturas. Quer analisar uma vaga? Cole o link aqui.",
@@ -1702,11 +1703,11 @@
       "uploading": "Enviando anexos…",
       "remove": "Remover {name}",
       "defaultMessage": "Segue anexo.",
-      "askWhat": "Recebi o arquivo. O que você quer que eu faça com ele?",
+      "askWhat": "{count, plural, one {Recebi o arquivo. O que você quer que eu faça com ele?} other {Recebi # arquivos. O que você quer que eu faça com eles?}}",
       "kinds": {
         "cv": "CV",
         "job_description": "Vaga",
-        "job_image": "Print de vaga",
+        "job_image": "Imagem",
         "document": "Documento"
       },
       "options": {

@@ -67,6 +67,10 @@ export type TopicVerdict =
 const INJECTION_PATTERNS: readonly RegExp[] = [
   /ignor(e|a|ar|em)\s+(todas\s+)?(as\s+|suas\s+)?(instrucoes|regras|orientacoes)(\s+\w+){0,2}\s+(anteriores|acima|previas|do sistema)/,
   /ignore\s+(all\s+)?(the\s+|your\s+)?(previous|prior|above)\s+(instructions|rules)/,
+  /\bignor(e|a|ar|em)\s+(todas\s+)?(as\s+|suas\s+|tuas\s+|essas\s+)?(instrucoes|regras|orientacoes|restricoes|diretrizes)\b/,
+  /\b(me\s+)?(passe|passa|mande|manda|envie|envia|diga|diz|revele|revela|informe|mostre|mostra)\s+(me\s+)?(a|as|o|os|sua|suas|seu|seus|uma)?\s*(senha|senhas|password|token|tokens|chave de api|api key|credencia\w*|segredo|segredos)\b/,
+  /\bme\s+(de|da)\s+(a\s+|sua\s+|o\s+|seu\s+)?(senha|password|token|chave de api|api key|credencia\w*)\b/,
+  /\b(give|send|tell|show)\s+me\s+(the|your)\s+(password|token|api key|credentials|secrets?)\b/,
   /desconsider(e|a)\s+(as\s+)?(instrucoes|regras)/,
   /disregard\s+(all\s+)?(previous|prior|the)\s+/,
   /\byou are now\b/,

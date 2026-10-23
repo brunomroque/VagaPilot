@@ -35,6 +35,7 @@ import {
   type PendingQuestionView,
 } from "./pending-questions-panel"
 import { NextStepsView } from "./next-steps-view"
+import { RichText } from "./rich-text"
 import { ToolOutputView } from "./tool-output-view"
 
 const MAX_CHARS = 8000
@@ -89,6 +90,8 @@ export function ChatView({
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  // QA: typing while "Nova conversa" was still redirecting sent to the old conversation.
+  const [switching, setSwitching] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
   const sentInitial = useRef(false)
 
@@ -114,12 +117,24 @@ export function ChatView({
     },
   })
 
-  const busy = status === "submitted" || status === "streaming" || uploading
+  const busy =
+    status === "submitted" || status === "streaming" || uploading || switching
 
   function addFiles(list: FileList | null) {
     if (!list) return
     const next = [...files]
     for (const file of Array.from(list)) {
+      // QA: the same file picked twice showed two chips and was uploaded twice.
+      if (
+        next.some(
+          (f) =>
+            f.name === file.name &&
+            f.size === file.size &&
+            f.lastModified === file.lastModified
+        )
+      ) {
+        continue
+      }
       if (next.length >= MAX_FILES) {
         setNotice(t("attachments.errors.tooMany", { max: MAX_FILES }))
         break
@@ -257,9 +272,24 @@ export function ChatView({
           <h2 className="text-lg font-bold">
             {variant === "home" ? t("homeTitle") : t("title")}
           </h2>
-          <form action={startNewConversationAction}>
-            <Button type="submit" variant="outline" size="sm">
-              <PlusIcon data-icon="inline-start" />
+          <form
+            action={startNewConversationAction}
+            onSubmit={() => setSwitching(true)}
+          >
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              disabled={switching || uploading || status === "streaming"}
+            >
+              {switching ? (
+                <LoaderCircleIcon
+                  data-icon="inline-start"
+                  className="animate-spin"
+                />
+              ) : (
+                <PlusIcon data-icon="inline-start" />
+              )}
               {t("newConversation")}
             </Button>
           </form>
@@ -308,10 +338,11 @@ export function ChatView({
             </div>
           </div>
         ) : null}
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <ChatMessage
             key={message.id}
             message={message}
+            isLast={index === messages.length - 1 && !busy}
             cvOptions={cvOptions}
             onAnswer={send}
             onDataAction={sendDataAction}
@@ -454,11 +485,13 @@ export function ChatView({
 
 function ChatMessage({
   message,
+  isLast,
   cvOptions,
   onAnswer,
   onDataAction,
 }: {
   message: UIMessage
+  isLast: boolean
   cvOptions: CvOption[]
   onAnswer: (text: string) => void
   onDataAction: (data: {
@@ -524,27 +557,40 @@ function ChatMessage({
         <span className="sr-only">{t("assistantLabel")}</span>
         {message.parts.map((part, index) => {
           if (part.type === "text") {
-            return part.text ? (
-              <p
-                key={index}
-                className="text-sm break-words whitespace-pre-wrap"
-              >
-                {part.text}
-              </p>
-            ) : null
+            return part.text ? <RichText key={index} text={part.text} /> : null
           }
           if (isToolUIPart(part)) {
             switch (part.state) {
-              case "output-available":
-                return (
+              case "output-available": {
+                const output = part.output as ChatToolOutput
+                // QA: old option buttons stayed clickable after being answered.
+                const stale =
+                  !isLast &&
+                  (output.kind === "options" || output.kind === "clarification")
+                return stale ? (
+                  <div
+                    key={part.toolCallId}
+                    inert
+                    aria-disabled="true"
+                    className="opacity-60"
+                  >
+                    <ToolOutputView
+                      output={output}
+                      cvOptions={cvOptions}
+                      onAnswer={onAnswer}
+                      onDataAction={onDataAction}
+                    />
+                  </div>
+                ) : (
                   <ToolOutputView
                     key={part.toolCallId}
-                    output={part.output as ChatToolOutput}
+                    output={output}
                     cvOptions={cvOptions}
                     onAnswer={onAnswer}
                     onDataAction={onDataAction}
                   />
                 )
+              }
               case "output-error":
                 return (
                   <Alert key={part.toolCallId} variant="destructive">

@@ -12,7 +12,8 @@ import {
 } from "@vagapilot/core/audit"
 import { normalizeCompanyName } from "@vagapilot/core/blocklist"
 
-import { CvFileError, cvFileTypeFromPath, extractCvText } from "./cv-files.js"
+import { CvFileError, cvFileTypeFromPath } from "./cv-files.js"
+import { extractCvTextOrOcr } from "./cv-ocr.js"
 
 export type CvProcessingDeps = {
   /** service_role client: the job runs without a user session, so every query filters user_id. */
@@ -74,7 +75,7 @@ export async function extractAndStoreCvText(
 
   let result: CvTextResult
   try {
-    const { text, pages } = await extractCvText(
+    const { text, pages } = await extractCvTextOrOcr(
       bytes,
       cvFileTypeFromPath(version.storage_path)
     )
