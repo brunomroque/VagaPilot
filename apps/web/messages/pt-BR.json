@@ -25,6 +25,8 @@
   "Auth": {
     "email": "E-mail",
     "emailPlaceholder": "voce@exemplo.com",
+    "firstName": "Nome",
+    "firstNamePlaceholder": "Como podemos te chamar?",
     "password": "Senha",
     "passwordHint": "Mínimo de 8 caracteres.",
     "or": "ou",
@@ -62,6 +64,7 @@
       "unknown": "Algo deu errado. Tente de novo."
     },
     "validation": {
+      "firstName": "Informe seu nome (pelo menos 2 caracteres).",
       "email": "Informe um e-mail válido.",
       "passwordMin": "A senha precisa de pelo menos 8 caracteres."
     }
@@ -97,6 +100,7 @@
     "subtitle": "Limites aplicados no servidor antes de chamadas de IA (ESPEC §14).",
     "legalDraft": "Preços e condições são rascunho até revisão jurídica.",
     "cta": "Assinar ou gerenciar",
+    "publicCta": "Criar conta para assinar",
     "subscribe": "Assinar",
     "manage": "Gerenciar cobrança",
     "freeNote": "Seu plano inicial",
@@ -133,6 +137,7 @@
       "pro": {
         "name": "Pro",
         "price": "R$ 49/mês · trial 7 dias",
+        "priceYear": "R$ 468/ano (R$ 39/mês)",
         "features": [
           "200 análises/mês",
           "Até 6 versões de CV",
@@ -143,6 +148,7 @@
       "executive": {
         "name": "Executivo",
         "price": "R$ 129/mês",
+        "priceYear": "R$ 1.188/ano (R$ 99/mês)",
         "features": [
           "Análises ilimitadas (uso justo)",
           "Gmail e extensão",

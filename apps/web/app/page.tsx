@@ -28,7 +28,7 @@ export default async function HomePage() {
         </Link>
       </div>
       <nav className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-        <Link href="/app/planos" className="underline-offset-4 hover:underline">
+        <Link href="/precos" className="underline-offset-4 hover:underline">
           {t("plans")}
         </Link>
         <Link href="/termos" className="underline-offset-4 hover:underline">

@@ -65,6 +65,7 @@ export function WizardShell({
         return
       }
       router.push(`/app/onboarding?etapa=${target}`)
+      router.refresh()
     })
   }
 

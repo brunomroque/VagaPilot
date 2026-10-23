@@ -7,6 +7,12 @@ export const credentialsSchema = z.object({
 
 export type Credentials = z.infer<typeof credentialsSchema>
 
+export const signUpSchema = credentialsSchema.extend({
+  firstName: z.string().trim().min(2).max(80),
+})
+
+export type SignUpCredentials = z.infer<typeof signUpSchema>
+
 export const consentRequestSchema = z.object({
   purposes: z.array(z.enum(["termos", "privacidade"])).min(1),
   version: z.literal("v1"),

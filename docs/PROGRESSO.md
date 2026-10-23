@@ -415,6 +415,6 @@ Pendente P2 (deferido):
 - Lentidão de `/app/buscas` e `/app/atividade`.
 - Header `x-vagapilot-device-token` vazio (já resulta em não autorizado).
 - Senha do seed no código (só dev).
-- Aplicar migration `increment_usage` no Supabase hospedado (junto ao deploy).
+- Migration `increment_usage` aplicada no Supabase hospedado (`synbycvebzzqarojicfu`, 2026-10-23).
 
 Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram nesta rodada. Testes unitários focados + typecheck web.

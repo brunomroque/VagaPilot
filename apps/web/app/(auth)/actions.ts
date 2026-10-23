@@ -7,9 +7,11 @@ import { getTranslations } from "next-intl/server"
 import { DEV_SESSION_COOKIE } from "@/lib/auth/dev-bypass"
 import {
   credentialsSchema,
+  signUpSchema,
   type AuthActionResult,
   type AuthErrorCode,
 } from "@/lib/auth/schemas"
+import { getAdminClient } from "@/lib/server/admin"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getAppOrigin, safeNextPath } from "@/lib/url"
 
@@ -68,7 +70,7 @@ export async function signInWithPassword(
 export async function signUpWithPassword(
   input: unknown
 ): Promise<AuthActionResult> {
-  const parsed = credentialsSchema.safeParse(input)
+  const parsed = signUpSchema.safeParse(input)
   if (!parsed.success) return failure("invalid_input")
 
   const supabase = await createSupabaseServerClient()
@@ -76,11 +78,39 @@ export async function signUpWithPassword(
 
   const origin = await appOriginOrError()
   if (typeof origin !== "string") return origin
+  const { firstName, email, password } = parsed.data
   const { data, error } = await supabase.auth.signUp({
-    ...parsed.data,
-    options: { emailRedirectTo: `${origin}/auth/callback?next=/aceite` },
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback?next=/aceite`,
+      data: {
+        first_name: firstName,
+        full_name: firstName,
+      },
+    },
   })
   if (error) return failure(codeFromSupabase(error.code, error.status))
+
+  if (data.user) {
+    const admin = getAdminClient()
+    if (admin) {
+      const { error: profileError } = await admin
+        .from("candidate_profiles")
+        .upsert(
+          {
+            user_id: data.user.id,
+            first_name: firstName,
+            display_name: firstName,
+            email_contact: email,
+          },
+          { onConflict: "user_id" }
+        )
+      if (profileError) {
+        console.error("[auth:signup:profile]", profileError.message)
+      }
+    }
+  }
 
   // Without a session the address still needs confirming. The same screen is shown for
   // already-registered addresses so the form does not reveal who has an account.

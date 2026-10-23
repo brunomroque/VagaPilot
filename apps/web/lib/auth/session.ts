@@ -12,6 +12,7 @@ export type CurrentUser = {
   id: string
   email: string
   displayName: string
+  firstName: string
   isDevBypass: boolean
 }
 
@@ -26,6 +27,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
         id: devUser.id,
         email: devUser.email,
         displayName: devUser.displayName,
+        firstName: devUser.displayName.split(/\s+/)[0] ?? devUser.displayName,
         isDevBypass: true,
       }
     }
@@ -38,17 +40,25 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (error || !data.user) return null
 
   const metadata = data.user.user_metadata as Record<string, unknown>
+  const firstName =
+    typeof metadata.first_name === "string" && metadata.first_name.trim()
+      ? metadata.first_name.trim()
+      : null
   const fromMetadata =
     typeof metadata.display_name === "string"
       ? metadata.display_name
       : typeof metadata.full_name === "string"
         ? metadata.full_name
-        : null
+        : firstName
+
+  const displayName = fromMetadata ?? data.user.email?.split("@")[0] ?? ""
+  const greetingName = firstName ?? displayName.split(/\s+/)[0] ?? displayName
 
   return {
     id: data.user.id,
     email: data.user.email ?? "",
-    displayName: fromMetadata ?? data.user.email?.split("@")[0] ?? "",
+    displayName,
+    firstName: greetingName,
     isDevBypass: false,
   }
 }

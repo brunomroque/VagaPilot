@@ -4,6 +4,7 @@ import { getFormatter, getTranslations } from "next-intl/server"
 
 import { AppShell } from "@/components/app/app-shell"
 import { getCurrentUser, hasAcceptedTerms } from "@/lib/auth/session"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { loadChatBootstrap } from "@/lib/chat/bootstrap"
 import { getPlanSnapshot } from "@/lib/entitlements/server"
 import { getUserContext } from "@/lib/server/context"
@@ -21,7 +22,20 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     day: "numeric",
     month: "long",
   })
-  const firstName = user.displayName.split(" ")[0] ?? user.displayName
+  let firstName = user.firstName
+  if (!user.isDevBypass) {
+    const supabase = await createSupabaseServerClient()
+    if (supabase) {
+      const { data: profile } = await supabase
+        .from("candidate_profiles")
+        .select("first_name")
+        .eq("user_id", user.id)
+        .maybeSingle()
+      const stored = (profile as { first_name?: string | null } | null)
+        ?.first_name
+      if (stored?.trim()) firstName = stored.trim()
+    }
+  }
   const tracker = await loadTrackerData(user)
   const snapshot = await getPlanSnapshot(user.id)
   const userContext = await getUserContext()

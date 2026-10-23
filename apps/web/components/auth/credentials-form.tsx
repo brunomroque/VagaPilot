@@ -64,14 +64,33 @@ export function CredentialsForm({
   const [pending, startTransition] = useTransition()
   const [googlePending, startGoogle] = useTransition()
 
-  const schema = z.object({
-    email: z.email(t("validation.email")),
-    password: z.string().min(8, t("validation.passwordMin")).max(72),
-  })
+  type FormValues = {
+    firstName?: string
+    email: string
+    password: string
+  }
 
-  const form = useForm<z.infer<typeof schema>>({
+  const schema = z
+    .object({
+      firstName: z.string().trim().max(80).optional(),
+      email: z.email(t("validation.email")),
+      password: z.string().min(8, t("validation.passwordMin")).max(72),
+    })
+    .superRefine((values, ctx) => {
+      if (mode !== "signup") return
+      const name = values.firstName?.trim() ?? ""
+      if (name.length < 2) {
+        ctx.addIssue({
+          code: "custom",
+          message: t("validation.firstName"),
+          path: ["firstName"],
+        })
+      }
+    })
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { firstName: "", email: "", password: "" },
   })
 
   function handleResult(result: AuthActionResult) {
@@ -107,6 +126,27 @@ export function CredentialsForm({
                 <CircleAlertIcon />
                 <AlertDescription>{serverError}</AlertDescription>
               </Alert>
+            ) : null}
+            {mode === "signup" ? (
+              <Controller
+                control={form.control}
+                name="firstName"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel htmlFor="firstName">
+                      {t("firstName")}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="firstName"
+                      autoComplete="given-name"
+                      placeholder={t("firstNamePlaceholder")}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
+              />
             ) : null}
             <Controller
               control={form.control}

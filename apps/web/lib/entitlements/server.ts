@@ -108,21 +108,26 @@ async function readCounter(
   return Number((data as { value?: number } | null)?.value ?? 0)
 }
 
-async function writeCounter(
+async function atomicIncrementCounter(
   admin: SupabaseClient,
   userId: string,
   metric: UsageMetric,
   at: Date,
-  value: number
-): Promise<void> {
+  delta: number
+): Promise<number> {
   const period = usagePeriod(metric, at)
-  const { error } = await admin
-    .from("usage_counters")
-    .upsert(
-      { user_id: userId, period, metric, value },
-      { onConflict: "user_id,period,metric" }
-    )
-  if (error) throw new Error(`usage_counter_write_failed:${error.message}`)
+  const { data, error } = await admin.rpc("increment_usage", {
+    p_user_id: userId,
+    p_period: period,
+    p_metric: metric,
+    p_delta: delta,
+  })
+  if (error) throw new Error(`usage_counter_increment_failed:${error.message}`)
+  const value = Number(data)
+  if (!Number.isFinite(value)) {
+    throw new Error("usage_counter_increment_failed:invalid_return")
+  }
+  return value
 }
 
 export async function incrementUsage(
@@ -134,9 +139,29 @@ export async function incrementUsage(
   const admin = getAdminClient()
   if (!admin) throw new Error("admin_not_configured")
   const plan = await getUserPlan(admin, userId)
-  const current = await readCounter(admin, userId, metric, at)
-  const checked = checkAndIncrementUsage({ plan, metric, current, increment })
+  const limit = limitsForPlan(plan)
+  if (metric === "emails_sent" && increment > 0 && !limit.emailApplications) {
+    throw new EntitlementError(
+      "feature_denied",
+      "Feature not available on your plan."
+    )
+  }
+
+  const newValue = await atomicIncrementCounter(
+    admin,
+    userId,
+    metric,
+    at,
+    increment
+  )
+  const checked = checkAndIncrementUsage({
+    plan,
+    metric,
+    current: newValue - increment,
+    increment,
+  })
   if (!checked.ok) {
+    await atomicIncrementCounter(admin, userId, metric, at, -increment)
     throw new EntitlementError(
       checked.code,
       checked.code === "limit_exceeded"
@@ -144,8 +169,7 @@ export async function incrementUsage(
         : "Feature not available on your plan."
     )
   }
-  await writeCounter(admin, userId, metric, at, checked.newValue)
-  return checked.newValue
+  return newValue
 }
 
 export async function assertUsageHeadroom(
