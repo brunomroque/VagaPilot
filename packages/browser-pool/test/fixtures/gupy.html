@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Vaga Dev - Gupy (fixture)</title></head>
+<body>
+<main>
+  <h1>Pessoa Desenvolvedora Backend</h1>
+  <button id="apply" data-testid="apply-button" onclick="show(1)">Candidatar-se</button>
+  <form id="step1" style="display:none" onsubmit="return false">
+    <label for="name">Nome completo</label><input id="name" name="name" autocomplete="name" required>
+    <label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required>
+    <label for="phone">Telefone</label><input id="phone" name="phone" type="tel" autocomplete="tel" required>
+    <button type="button" onclick="show(2)">Salvar e continuar</button>
+  </form>
+  <form id="step2" style="display:none" onsubmit="return false">
+    <label for="hybrid">Você tem disponibilidade para trabalho híbrido em São Paulo?</label>
+    <select id="hybrid" name="hybrid" required><option value="">Selecione</option><option>Sim</option><option>Não</option></select>
+    <label for="cv">Currículo</label><input id="cv" name="cv" type="file">
+    <button type="button" onclick="check2()">Salvar e continuar</button>
+  </form>
+  <form id="step3" style="display:none" onsubmit="return false">
+    <p>Revise seus dados antes de enviar.</p>
+    <label for="consent">Li e aceito os termos</label><input id="consent" type="checkbox" checked disabled>
+    <button type="button" onclick="done()">Enviar candidatura</button>
+  </form>
+  <div id="ok" style="display:none">Candidatura enviada com sucesso! Protocolo GPY-2026-0001</div>
+</main>
+<script>
+  window.submitted = 0
+  function show(n) {
+    for (const id of ["step1","step2","step3"]) document.getElementById(id).style.display = "none"
+    document.getElementById("apply").style.display = "none"
+    document.getElementById("step" + n).style.display = "block"
+  }
+  function check2() { if (document.getElementById("hybrid").value) show(3) }
+  function done() {
+    window.submitted++
+    document.getElementById("step3").style.display = "none"
+    document.getElementById("ok").style.display = "block"
+  }
+</script>
+</body>
+</html>
