@@ -21,6 +21,7 @@ import {
   OptionsView,
   ProfileTrackingView,
 } from "./chat-widgets-extra"
+import { CloudApplyPanel } from "./cloud-apply-panel"
 import { DeepLinkView } from "./deep-link-view"
 import { ClarificationView, SettingsChangeView } from "./settings-change-view"
 import { useJobFormat } from "./use-job-format"
@@ -108,6 +109,15 @@ export function ToolOutputView({
       return <FactClassificationView output={output} onSelect={onAnswer} />
     case "profile_tracking":
       return <ProfileTrackingView output={output} />
+    case "apply_run":
+      return (
+        <CloudApplyPanel
+          matchId={output.jobMatchId}
+          initialRunId={output.runId}
+          available={output.available}
+          unavailableReason={output.unavailableReason}
+        />
+      )
     case "next_steps":
       return null
     case "fact_approval":

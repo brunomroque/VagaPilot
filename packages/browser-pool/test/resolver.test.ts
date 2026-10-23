@@ -40,3 +40,12 @@ describe("resolver", () => {
     expect(partitionFields([field({ label: "Opcional", required: false })], ctx).unknown).toHaveLength(0)
   })
 })
+
+describe("hashPreview", async () => {
+  const { hashPreview } = await import("../src/apply/runner.js")
+  it("ignores key order (jsonb round trip)", () => {
+    expect(hashPreview({ b: 1, a: { y: [1, { d: 2, c: 3 }], x: "s" } })).toBe(
+      hashPreview({ a: { x: "s", y: [1, { c: 3, d: 2 }] }, b: 1 })
+    )
+  })
+})

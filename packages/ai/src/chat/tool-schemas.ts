@@ -216,6 +216,7 @@ export const chatToolInputSchemas = {
   mark_profile_updated: z.object({
     platformProfileId: z.uuid(),
   }),
+  start_application: z.object({ jobMatchId: z.uuid() }),
 } as const satisfies Record<ChatToolName, z.ZodType>
 
 export type ChatToolInput<T extends ChatToolName> = z.infer<
@@ -285,4 +286,6 @@ export const CHAT_TOOL_DESCRIPTIONS: Record<ChatToolName, string> = {
     "Lista perfis em plataformas externas e status desatualizado.",
   mark_profile_updated:
     "Marca perfil de plataforma como atualizado manualmente.",
+  start_application:
+    "Mostra o cartão 'Candidatar na nuvem' (Gupy/LinkedIn) para uma vaga analisada. Não envia nada: o usuário inicia pelo botão, responde perguntas no chat e aprova o resumo antes do envio.",
 }

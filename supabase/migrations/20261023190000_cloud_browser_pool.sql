@@ -158,9 +158,9 @@ values
   ('kernel', 'Kernel #1', 'Kernel01@isaleo.solutions', 'KERNEL_API_KEY', null,
    true, 30, 5, 900, 'credits_monthly', 'USD', 5, 0.0027, 1, '2026-11-22T23:59:59-03:00',
    'US$ 5/mês, 5 concorrentes, renova no fim do mês. Chave expira em 22/11/2026. Custo/min estimado (headful): ajuste se necessário.'),
-  ('browserbase', 'Browserbase #1', null, 'BROWSERBASE_API_KEY', 'BROWSERBASE_PROJECT_ID',
-   false, 40, 1, 900, 'units_monthly', 'min', 60, 1, 1, null,
-   'Desativado até criar a conta. Free: ~1 h de navegador/mês, 1 concorrente.'),
+  ('browserbase', 'Browserbase #1', 'Browserbase01@isaleo.solutions', 'BROWSERBASE_API_KEY', 'BROWSERBASE_PROJECT_ID',
+   true, 40, 3, 900, 'units_monthly', 'min', 60, 1, 22, null,
+   'Free: 60 min de navegador/mês, 3 concorrentes, timeout padrão 5 min (o app pede o timeout explícito), renova dia 22.'),
   ('hyperbrowser', 'Hyperbrowser #1', null, 'HYPERBROWSER_API_KEY', null,
    false, 50, 1, 900, 'credits_one_time', 'credits', 1000, 1, null, null,
-   'Desativado até criar a conta. Ajuste créditos e custo/min ao ativar.');
+   'Desativado: o cadastro recusou o domínio. Ajuste créditos e custo/min ao ativar.');

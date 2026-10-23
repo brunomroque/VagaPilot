@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto"
 import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -18,7 +17,7 @@ import { acquireTrackedBrowser, isPoolEnabled, type PoolRuntime, type TrackedBro
 import type { BrowserProviderAdapter, ProviderConfig } from "../pool/types.js"
 import { driverForUrl, enabledDrivers } from "./drivers.js"
 import { normalizeLabel } from "./resolver.js"
-import { hashSummary, runSegment, type ReviewField, type SegmentOutcome } from "./runner.js"
+import { hashPreview, hashSummary, runSegment, type ReviewField, type SegmentOutcome } from "./runner.js"
 import type { AtsDriver } from "./types.js"
 
 type Env = Record<string, string | undefined>
@@ -249,7 +248,7 @@ async function requestApproval(ctx: Ctx, run: RunRow, outcome: Extract<SegmentOu
     fields: outcome.summary,
     summary_hash: outcome.summaryHash,
   }
-  const previewSha = createHash("sha256").update(JSON.stringify(preview)).digest("hex")
+  const previewSha = hashPreview(preview)
   // Expire older pending approvals of this run (the form changed).
   await ctx.admin
     .from("approvals")
@@ -295,7 +294,7 @@ async function approvedHash(ctx: Ctx, run: RunRow): Promise<string | null> {
   const row = data as { status: string; kind: string; preview: Record<string, unknown>; preview_sha256: string; expires_at: string } | null
   if (!row || row.status !== "aprovada" || row.kind !== "submeter_formulario") return null
   if (new Date(row.expires_at).getTime() < Date.now()) return null
-  const sha = createHash("sha256").update(JSON.stringify(row.preview)).digest("hex")
+  const sha = hashPreview(row.preview)
   if (sha !== row.preview_sha256) return null
   const hash = row.preview.summary_hash
   return typeof hash === "string" ? hash : null

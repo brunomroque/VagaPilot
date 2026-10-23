@@ -32,8 +32,24 @@ export type SegmentInput = {
   onProgress?(step: number, filled: ResolvedAnswer[]): Promise<void>
 }
 
+/** JSON with sorted keys, so a hash survives a jsonb round trip (Postgres reorders keys). */
+export function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, v]) => v !== undefined)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`).join(",")}}`
+  }
+  return JSON.stringify(value)
+}
+
+export function hashPreview(preview: unknown): string {
+  return createHash("sha256").update(stableStringify(preview)).digest("hex")
+}
+
 export function hashSummary(summary: ReviewField[]): string {
-  return createHash("sha256").update(JSON.stringify(summary)).digest("hex")
+  return hashPreview(summary)
 }
 
 async function waitForHuman(input: SegmentInput, reason: "login" | "captcha"): Promise<PageState | "timeout"> {

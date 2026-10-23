@@ -16,6 +16,8 @@ import type { JobCardData, JobDecision } from "@/lib/chat/types"
 import { Badge } from "@workspace/ui/components/badge"
 import { buttonVariants } from "@workspace/ui/components/button"
 import { JobCard, type JobCardNotice } from "@workspace/ui/components/job-card"
+
+import { CloudApplyPanel } from "./cloud-apply-panel"
 import { Separator } from "@workspace/ui/components/separator"
 import {
   Sheet,
@@ -29,6 +31,8 @@ import { StatusChangeCard } from "@workspace/ui/components/status-change-card"
 import { useJobFormat } from "./use-job-format"
 
 export type CvOption = { id: string; label: string }
+
+const CLOUD_APPLY_HOSTS = /^https?:\/\/([^/]+\.)?(gupy\.io|linkedin\.com)\//i
 
 /** JobCard bound to the widget server actions (never the LLM, CA7.1) plus the detail sheet. */
 export function JobCardView({
@@ -203,6 +207,9 @@ export function JobCardView({
           )
         }
       />
+      {!card.blocked && CLOUD_APPLY_HOSTS.test(card.applyUrl ?? card.canonicalUrl) ? (
+        <CloudApplyPanel matchId={card.matchId} initialRunId={null} available unavailableReason={null} />
+      ) : null}
       <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
         <SheetContent
           className="w-full overflow-y-auto sm:max-w-lg"

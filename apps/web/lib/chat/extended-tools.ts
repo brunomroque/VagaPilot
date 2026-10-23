@@ -350,5 +350,39 @@ export function buildExtendedChatTools(
         }
       },
     }),
+    start_application: tool({
+      description: CHAT_TOOL_DESCRIPTIONS.start_application,
+      inputSchema: chatToolInputSchemas.start_application,
+      execute: async ({ jobMatchId }): Promise<ChatToolOutput> => {
+        const tr = await t()
+        const match = await ctx.supabase
+          .from("job_matches")
+          .select("id, job_postings(company, title, apply_url, canonical_url)")
+          .eq("id", jobMatchId)
+          .eq("user_id", ctx.user.id)
+          .maybeSingle()
+        const row = match.data as {
+          id: string
+          job_postings: { company: string | null; title: string; apply_url: string | null; canonical_url: string } | null
+        } | null
+        if (!row?.job_postings) {
+          return { kind: "error", code: "not_found", summary: tr("notFound") }
+        }
+        const posting = row.job_postings
+        const url = posting.apply_url ?? posting.canonical_url
+        const { cloudApplyAvailable } = await import("@/lib/apply/server")
+        const available = cloudApplyAvailable(url)
+        return {
+          kind: "apply_run",
+          jobMatchId,
+          runId: null,
+          company: posting.company ?? "Empresa",
+          roleTitle: posting.title,
+          available: available.ok,
+          unavailableReason: available.reason ?? null,
+          summary: tr(available.ok ? "cloudApplyOffer" : "cloudApplyUnavailable"),
+        }
+      },
+    }),
   }
 }

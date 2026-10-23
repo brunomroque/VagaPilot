@@ -278,4 +278,14 @@ export type ChatToolOutput =
       }[]
       summary: string
     }
+  | {
+      kind: "apply_run"
+      jobMatchId: string
+      runId: string | null
+      company: string
+      roleTitle: string
+      available: boolean
+      unavailableReason: string | null
+      summary: string
+    }
   | SettingsChangeOutput

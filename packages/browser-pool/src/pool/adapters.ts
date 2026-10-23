@@ -162,7 +162,7 @@ export function kernelAdapter(
 
 type BrowserbaseSession = { id: string; connectUrl: string }
 
-/** Browserbase (disabled by default). */
+/** Browserbase: REST session + connectUrl; live view via /sessions/{id}/debug. */
 export function browserbaseAdapter(
   secrets: ProviderSecrets,
   deps: AdapterDeps = {}
