@@ -66,14 +66,27 @@ Trial de 7 dias do Pro: aplicado no Checkout quando `plan=pro` e modo assinatura
 
 Ex.: `http://localhost:3100/api/stripe/webhook` em dev (com túnel ou Stripe CLI).
 
-**Eventos usados hoje** (`apps/web/app/api/stripe/webhook/route.ts`):
+**Eventos mínimos processados pelo handler** (`apps/web/app/api/stripe/webhook/route.ts`):
 
-- `checkout.session.completed` (Passe de busca, `mode: payment`)
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
+| Evento                          | Efeito no banco                                   | Condições no código                                                                                                            |
+| ------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `checkout.session.completed`    | Upsert em `subscriptions` com `plan: search_pass` | `mode === "payment"`, `payment_status` `paid` ou `no_payment_required`, `metadata.plan === "search_pass"` e `metadata.user_id` |
+| `customer.subscription.created` | Upsert assinatura (Pro/Executive)                 | `metadata.user_id` na subscription                                                                                             |
+| `customer.subscription.updated` | Idem                                              | Idem                                                                                                                           |
+| `customer.subscription.deleted` | Plano `free`, status `canceled`                   | `metadata.user_id` na subscription                                                                                             |
 
-Idempotência: tabela `stripe_events` (event.id). O handler grava o evento só depois de aplicar a mudança. No dashboard do Stripe, o endpoint de produção precisa incluir `checkout.session.completed` além dos eventos de assinatura. Os Price IDs anuais (R$ 468 e R$ 1.188) ficam nas variáveis de ambiente e devem ser conferidos no dashboard; o código não grava esses IDs.
+Outros tipos de evento são aceitos (assinatura verificada, resposta `200`), mas **ignorados** — não alteram `subscriptions`.
+
+Idempotência: tabela `stripe_events` (event.id). O handler grava o evento só depois de aplicar a mudança. **Sem `checkout.session.completed` no endpoint Stripe, o Passe de busca pago não ativa o plano** (assinaturas continuam funcionando pelos eventos `customer.subscription.*`). Os Price IDs anuais (R$ 468 e R$ 1.188) ficam nas variáveis de ambiente e devem ser conferidos no dashboard; o código não grava esses IDs.
+
+#### Auditoria via Stripe MCP (2026-10-23)
+
+Conta acessível na sessão MCP: **VagaPilot** test (`acct_1UTUOMEMPqsIYuI6`, `livemode=false`). **Live/produção não está autorizada** nesta sessão — o endpoint Netlify só pode ser conferido no Dashboard em **modo Live**.
+
+| Ambiente   | URL do endpoint                                                       | `checkout.session.completed`           | Observação                           |
+| ---------- | --------------------------------------------------------------------- | -------------------------------------- | ------------------------------------ |
+| Test (API) | `https://example.com/api/stripe/webhook` (`we_1UTWx7…`, **disabled**) | **Não** — só `customer.subscription.*` | Placeholder; dev usa `stripe listen` |
+| Produção   | `https://vagapilot.netlify.app/api/stripe/webhook`                    | **Verificar manualmente (Live)**       | Ver checklist abaixo                 |
 
 #### Desenvolvimento local (recomendado)
 
@@ -162,6 +175,20 @@ Escolha **uma** opção:
 
 3. **Onboarding Resend:** enquanto não houver domínio próprio, o Dashboard mostra um remetente de teste (ex. `@resend.dev`) — válido só para testes limitados; troque antes de produção.
 
+### Supabase Auth (confirmação de cadastro)
+
+E-mails de **signup / magic link** saem do **SMTP do projeto Supabase**, não do `RESEND_API_KEY` do Netlify/Inngest.
+
+| Campo (Dashboard → Authentication → SMTP) | Valor                                                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Host                                      | `smtp.resend.com`                                                                                    |
+| Port                                      | `465`                                                                                                |
+| Username                                  | `resend`                                                                                             |
+| Password                                  | API key Resend (`re_…`) — mesma política de segmentação VagaPilot; **não** gravar no repo            |
+| Sender                                    | Endereço em domínio **verified** no Resend (pode ser o mesmo domínio de `EMAIL_FROM` ou outro alias) |
+
+Template pt-BR e Redirect URLs: [QA_SMOKE_LANCAMENTO.md § Config manual](./QA_SMOKE_LANCAMENTO.md#config-manual-dashboard).
+
 ---
 
 ## 3. Variáveis de ambiente
@@ -217,4 +244,5 @@ Não foi executado automaticamente nesta configuração.
 
 ## Histórico
 
+- **2026-10-23:** Tabela de eventos do webhook alinhada ao código; auditoria MCP (test) do endpoint placeholder; checklist Live para `https://vagapilot.netlify.app/api/stripe/webhook` incluindo `checkout.session.completed`.
 - **2026-10-22:** Produtos/preços test VagaPilot criados via Stripe MCP; chave Resend `VagaPilot (dev)` criada; documento inicial.

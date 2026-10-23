@@ -395,19 +395,26 @@ Feito no código. Spec: §8.4 (análise no chat), §10.3–10.4 (confirmação a
 
 - Supabase Auth → URL Configuration: Site URL `https://vagapilot.netlify.app`. Redirect URLs: `https://vagapilot.netlify.app/auth/callback`, `https://vagapilot.netlify.app/auth/callback?next=/aceite`, `https://vagapilot.netlify.app/auth/callback?next=/app`, `https://vagapilot.netlify.app/auth/confirm`.
 - Supabase Auth → Emails → Confirm signup: assunto e corpo em pt-BR (o template do repo vale para o CLI local; o projeto hospedado precisa do mesmo texto). SMTP Resend no mesmo lugar, sem gravar a chave no repo.
-- Stripe: incluir `checkout.session.completed` no endpoint do webhook. Conferir os Price IDs anuais e do passe nas variáveis já documentadas em `docs/CONFIG_STRIPE_RESEND.md`.
+- Stripe: incluir `checkout.session.completed` no endpoint **Live** do webhook (`https://vagapilot.netlify.app/api/stripe/webhook`) — checklist em 5 passos em [CONFIG_STRIPE_RESEND.md](./CONFIG_STRIPE_RESEND.md). Test mode via MCP: placeholder `we_1UTWx7…` ainda sem esse evento (usar `stripe listen` em dev). Conferir Price IDs anuais e do passe nas variáveis documentadas no mesmo guia.
 - Aplicar `20261023170000_qa_pairing_grants_cv.sql` no projeto hospedado.
 - **2026-10-23 (lançamento):** checklist passo a passo em [QA_SMOKE_LANCAMENTO.md](./QA_SMOKE_LANCAMENTO.md) (pré-requisitos Netlify/Supabase/Stripe, fluxos cadastro, chat, planos, passe de busca, pareamento, `/dev/*` 404). Migrações `chat_first_persistence` e `qa_pairing_grants_cv` aplicadas no hospedado via MCP (`synbycvebzzqarojicfu`). Pendente manual: Auth URLs + template de e-mail no Supabase; evento `checkout.session.completed` no webhook Stripe de produção.
+- **2026-10-23 (Auth go-live):** mapeadas URLs de `emailRedirectTo` / OAuth / `/auth/callback` / `/auth/confirm` (código OK para `https://vagapilot.netlify.app`). MCP Supabase não altera URL Configuration/SMTP; logs `auth_logs` (24 h) sem erro de redirect, só `referer: http://localhost:3000` em chamadas `/user` (cliente dev). QA + CONFIG_STRIPE_RESEND atualizados com blocos copy-paste (dashboard, template pt-BR, Resend SMTP 465). `supabase config push` **não** executado (repo sem link; `site_url` local apontaria para 127.0.0.1).
 
-### P2 ainda aberto
+### P2 — QA código (2026-10-23)
 
-- Contador de uso não atômico.
-- Página pública de preços.
-- Cadastro sem nome / saudação pelo handle.
-- Onboarding pulou a etapa 3.
+Feito (ESPEC §14 `usage_counters`, §8.5 cadastro, §14 planos):
+
+- **Contador atômico:** migration `20261023180000_increment_usage.sql` (`increment_usage` com `INSERT … ON CONFLICT DO UPDATE … RETURNING`, só `service_role`). `apps/web/lib/entitlements/server.ts` usa RPC; se passar do limite do plano, reverte com delta negativo e lança `EntitlementError`. Teste em `packages/db/test/increment-usage.test.ts` (Supabase local).
+- **Preços públicos:** `/precos` sem login, cards reutilizando catálogo `buildPlanCatalog` + `PublicPlanCards`; landing aponta para `/precos`. `/app/planos` passou a usar `PlanCards` com checkout/portal e avisos `?billing=`.
+- **Cadastro com nome:** campo `firstName` no signup; metadata `first_name` + upsert em `candidate_profiles`; saudação usa `first_name` do perfil ou metadata (não o handle do e-mail).
+- **Rotas dev:** `app/dev/layout.tsx` chama `notFound()` em produção (cobre `/dev/entrar`, `/dev/ats-form` e futuras irmãs).
+- **Onboarding etapa 3:** `router.refresh()` após mudar `?etapa=` no wizard para evitar passo stale no App Router.
+
+Pendente P2 (deferido):
+
 - Lentidão de `/app/buscas` e `/app/atividade`.
 - Header `x-vagapilot-device-token` vazio (já resulta em não autorizado).
-- Senha do seed no código (só dev; não remover sem checar o fluxo local).
-- `/dev/ats-form` passou a responder 404 em produção; outras rotas dev irmãs não foram reescritas.
+- Senha do seed no código (só dev).
+- Aplicar migration `increment_usage` no Supabase hospedado (junto ao deploy).
 
-Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram. Só os testes unitários focados.
+Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram nesta rodada. Testes unitários focados + typecheck web.
