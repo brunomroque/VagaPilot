@@ -19,6 +19,8 @@ Referências: [ESPEC.md](./ESPEC.md), [CHAT-FIRST-JORNADA.md](./CHAT-FIRST-JORNA
 | `782552f`   | `docs(qa): record production smoke`  | Resultados smoke 23/10                                                                                                                           |
 | `11da660`   | `docs: document Stripe Live webhook` | Eventos webhook Live + PROGRESSO                                                                                                                 |
 | `fe5b83e`   | `feat(qa-p2): atomic usage…`         | RPC `increment_usage`, `/precos`, nome no cadastro, `/dev/*` 404 em prod                                                                         |
+| `32f60b7`   | `docs: add chat-first deploy…`       | Este checklist + `docs/*.env.txt` no `.gitignore`                                                                                                |
+| `7743fb0`   | `Complete chat-first spec gaps…`     | Selos, `register_gap`, eval `form_only`, e2e chat + CI Supabase local                                                                            |
 
 **Não commitar:** `docs/supabase-vagapilot.env.txt`, `.env*`, `.agents/`, `skills-lock.json`, `data/`, `.augment/`, `.bob/`, etc.
 
@@ -26,7 +28,7 @@ Referências: [ESPEC.md](./ESPEC.md), [CHAT-FIRST-JORNADA.md](./CHAT-FIRST-JORNA
 
 ## 2. Push (Git → Netlify)
 
-- [ ] `git fetch origin` e conferir que `main` local = remoto (ou fazer push dos commits acima).
+- [ ] `git fetch origin` e conferir que `main` local = remoto (inclui `32f60b7`; se estiver à frente, `git push origin main`).
 - [ ] **Nunca** incluir arquivos de segredo no commit (`docs/*.env.txt` está no `.gitignore`).
 - [ ] Push: `git push origin main`.
 - [ ] Netlify (`vagapilot`): build **ready**; conferir `NEXT_PUBLIC_APP_URL=https://vagapilot.netlify.app`.

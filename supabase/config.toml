@@ -270,7 +270,7 @@ otp_expiry = 3600
 
 [auth.email.template.confirmation]
 subject = "Confirme seu e-mail no VagaPilot"
-content_path = "./templates/confirmation.html"
+content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
