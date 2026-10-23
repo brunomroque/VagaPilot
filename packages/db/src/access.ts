@@ -63,7 +63,13 @@ export const serverOnlyTables = [
   "user_keys",
   "pairing_ip_attempts",
   "pairing_code_attempts",
+  "app_admins",
+  "apply_runs",
+  "browser_auth_states",
 ] as const
+
+/** Readable/writable only by app admins (public.is_app_admin()); service_role writes sessions. */
+export const adminTables = ["browser_providers", "browser_sessions"] as const
 
 export type OwnerCrudTable = (typeof ownerCrudTables)[number]
 export type TableName =
@@ -72,6 +78,7 @@ export type TableName =
   | (typeof appendOnlyTables)[number]
   | (typeof globalReadTables)[number]
   | (typeof serverOnlyTables)[number]
+  | (typeof adminTables)[number]
 
 /** Tables whose primary key is user_id (one row per user). */
 export const userKeyedTables = [
