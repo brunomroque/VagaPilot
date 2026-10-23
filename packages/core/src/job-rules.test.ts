@@ -19,6 +19,7 @@ import {
 import {
   detectTextLanguage,
   findApplyEmail,
+  looksLikeJobPosting,
   splitRequirementSections,
 } from "./job-text.js"
 
@@ -480,5 +481,12 @@ describe("job text helpers", () => {
         "We are looking for an engineer with experience and the team will grow"
       )
     ).toBe("en")
+  })
+
+  it("recognizes a long posting and ignores a short language command", () => {
+    const padded = `${text}\n${"Experiência fictícia em plataforma. ".repeat(12)}`
+    expect(padded.length).toBeGreaterThanOrEqual(280)
+    expect(looksLikeJobPosting(padded)).toBe(true)
+    expect(looksLikeJobPosting("meu inglês agora é avançado")).toBe(false)
   })
 })

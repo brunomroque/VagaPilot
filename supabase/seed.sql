@@ -130,16 +130,20 @@ begin
 
     insert into public.device_pairing_codes (code, user_id, expires_at)
     values (
-      case u.first_name when 'Marina' then '100001' else '200002' end,
+      case u.first_name when 'Marina' then 'ACME2345' else 'BETA6789' end,
       u.id,
       now() + interval '30 days'
     );
 
     insert into public.devices (user_id, name, token_hash) values (u.id, 'Chrome fictício', repeat('0', 64));
 
-    insert into public.subscriptions (user_id, plan, status) values (u.id, 'pro', 'trialing');
+    insert into public.subscriptions (user_id, plan, status) values (
+      u.id,
+      case u.first_name when 'Rafael' then 'free' else 'pro' end,
+      case u.first_name when 'Rafael' then 'active' else 'trialing' end
+    );
 
-    insert into public.usage_counters (user_id, period, metric, value) values (u.id, '2026-10', 'analises', 18);
+    insert into public.usage_counters (user_id, period, metric, value) values (u.id, '2026-10', 'job_analyses', 18);
   end loop;
 end;
 $$;

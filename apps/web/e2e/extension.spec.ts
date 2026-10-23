@@ -11,7 +11,7 @@ test.describe("Extension API (P5, CA8.1)", () => {
     const init = await page.request.post("/api/ext/pair/init")
     expect(init.ok()).toBeTruthy()
     const { code } = (await init.json()) as { code: string }
-    expect(code).toMatch(/^\d{6}$/)
+    expect(code).toMatch(/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/)
 
     const paired = await page.request.post("/api/ext/pair", {
       data: { code, deviceName: "Playwright fictício" },

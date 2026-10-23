@@ -27,8 +27,6 @@ export const ownerCrudTables = [
   "conversations",
   "messages",
   "consents",
-  "devices",
-  "device_pairing_codes",
   "notifications",
   "saved_searches",
   "job_ingestions",
@@ -36,8 +34,6 @@ export const ownerCrudTables = [
   "preferences",
   "user_settings",
   "memory_events",
-  "account_deletion_requests",
-  "privacy_exports",
 ] as const
 
 /**
@@ -48,16 +44,26 @@ export const ownerReadOnlyTables = [
   "subscriptions",
   "usage_counters",
   "gmail_connections",
+  "devices",
+  "device_pairing_codes",
+  "account_deletion_requests",
+  "privacy_exports",
+  "audit_log",
 ] as const
 
-/** Owner reads and appends; update/delete revoked. */
-export const appendOnlyTables = ["audit_log"] as const
+/** Audit writes go through service_role. The list stays so callers can spread it. */
+export const appendOnlyTables = [] as const
 
 /** Global public data: authenticated reads, service_role writes. */
 export const globalReadTables = ["job_postings"] as const
 
 /** No client access at all. */
-export const serverOnlyTables = ["stripe_events", "user_keys"] as const
+export const serverOnlyTables = [
+  "stripe_events",
+  "user_keys",
+  "pairing_ip_attempts",
+  "pairing_code_attempts",
+] as const
 
 export type OwnerCrudTable = (typeof ownerCrudTables)[number]
 export type TableName =

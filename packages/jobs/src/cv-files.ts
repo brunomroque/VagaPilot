@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto"
 
 import mammoth from "mammoth"
-import { extractText, getDocumentProxy } from "unpdf"
+import { getDocumentProxy } from "unpdf"
 
 /** Upload limits (spec 10.4: ≤ 10 MB, ≤ 15 pages, PDF/DOCX). */
 export const MAX_CV_BYTES = 10 * 1024 * 1024
@@ -82,11 +82,43 @@ export async function extractCvText(
     switch (type) {
       case "pdf": {
         const pdf = await getDocumentProxy(new Uint8Array(bytes))
-        if (pdf.numPages > MAX_CV_PAGES) {
-          throw new CvFileError("too_many_pages", "PDF has more than 15 pages")
+        try {
+          if (pdf.numPages > MAX_CV_PAGES) {
+            throw new CvFileError(
+              "too_many_pages",
+              "PDF has more than 15 pages"
+            )
+          }
+          const pages: string[] = []
+          for (let index = 1; index <= pdf.numPages; index++) {
+            const page = await pdf.getPage(index)
+            const content = await page.getTextContent()
+            const chunks: string[] = []
+            for (const item of content.items) {
+              if (!item || typeof item !== "object" || !("str" in item))
+                continue
+              const value = (item as { str?: unknown }).str
+              if (typeof value !== "string" || value.length === 0) continue
+              chunks.push(value)
+              chunks.push(
+                "hasEOL" in item && (item as { hasEOL?: boolean }).hasEOL
+                  ? "\n"
+                  : " "
+              )
+            }
+            pages.push(chunks.join(""))
+          }
+          return finish(pages.join("\n"), pdf.numPages)
+        } finally {
+          const cleanup = (pdf as { destroy?: () => Promise<void> }).destroy
+          if (cleanup) {
+            try {
+              await cleanup.call(pdf)
+            } catch {
+              // Keep the extraction result if cleanup fails.
+            }
+          }
         }
-        const { text } = await extractText(pdf, { mergePages: true })
-        return finish(text, pdf.numPages)
       }
       case "docx": {
         const { value } = await mammoth.extractRawText({

@@ -68,11 +68,12 @@ Ex.: `http://localhost:3100/api/stripe/webhook` em dev (com túnel ou Stripe CLI
 
 **Eventos usados hoje** (`apps/web/app/api/stripe/webhook/route.ts`):
 
+- `checkout.session.completed` (Passe de busca, `mode: payment`)
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
 
-Idempotência: tabela `stripe_events` (event.id).
+Idempotência: tabela `stripe_events` (event.id). O handler grava o evento só depois de aplicar a mudança. No dashboard do Stripe, o endpoint de produção precisa incluir `checkout.session.completed` além dos eventos de assinatura. Os Price IDs anuais (R$ 468 e R$ 1.188) ficam nas variáveis de ambiente e devem ser conferidos no dashboard; o código não grava esses IDs.
 
 #### Desenvolvimento local (recomendado)
 
@@ -87,6 +88,7 @@ O CLI imprime um **Signing secret** (`whsec_…`) → `STRIPE_WEBHOOK_SECRET`.
 - **Webhook do VagaPilot** (`/api/stripe/webhook`): use assinatura, não PaymentIntent:
 
   ```bash
+  stripe trigger checkout.session.completed
   stripe trigger customer.subscription.created
   stripe trigger customer.subscription.updated
   stripe trigger customer.subscription.deleted

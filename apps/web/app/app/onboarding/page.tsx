@@ -50,6 +50,27 @@ import {
 
 type RequirementKey = keyof OnboardingRequirements
 
+const CV_EXTRACTION_MESSAGE_KEYS = {
+  file_too_large: "cvs.extraction.file_too_large",
+  file_empty: "cvs.extraction.file_empty",
+  unsupported_type: "cvs.extraction.unsupported_type",
+  too_many_pages: "cvs.extraction.too_many_pages",
+  no_text: "cvs.extraction.no_text",
+  unreadable: "cvs.extraction.unreadable",
+} as const
+
+type CvExtractionMessageKey =
+  (typeof CV_EXTRACTION_MESSAGE_KEYS)[keyof typeof CV_EXTRACTION_MESSAGE_KEYS]
+
+function cvExtractionMessageKey(code: string | null): CvExtractionMessageKey {
+  if (code && code in CV_EXTRACTION_MESSAGE_KEYS) {
+    return CV_EXTRACTION_MESSAGE_KEYS[
+      code as keyof typeof CV_EXTRACTION_MESSAGE_KEYS
+    ]
+  }
+  return CV_EXTRACTION_MESSAGE_KEYS.unreadable
+}
+
 export default async function OnboardingPage({
   searchParams,
 }: {
@@ -110,9 +131,7 @@ export default async function OnboardingPage({
                     <Badge variant="outline">{version.language}</Badge>
                     {version.processing === "falhou" ? (
                       <span className="text-sm text-destructive">
-                        {t(
-                          `cvs.extraction.${version.extractionError ?? "unreadable"}`
-                        )}
+                        {t(cvExtractionMessageKey(version.extractionError))}
                       </span>
                     ) : version.processing === "pendente" ? (
                       <Badge variant="secondary">{t("cvs.processing")}</Badge>
@@ -155,7 +174,7 @@ export default async function OnboardingPage({
             </EmptyTitle>
             <EmptyDescription>
               {failed
-                ? t(`cvs.extraction.${failed.extractionError ?? "unreadable"}`)
+                ? t(cvExtractionMessageKey(failed.extractionError))
                 : pending
                   ? t("facts.pendingDescription")
                   : t("facts.emptyDescription")}

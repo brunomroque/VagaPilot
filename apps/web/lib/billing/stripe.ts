@@ -2,6 +2,8 @@ import "server-only"
 
 import Stripe from "stripe"
 
+import { nonBlank } from "@vagapilot/core/app-url"
+
 import type { PlanId } from "@vagapilot/core/entitlements"
 
 export function getStripe(): Stripe | null {
@@ -20,21 +22,24 @@ export function priceIdForPlan(
     "executive-month": process.env.STRIPE_PRICE_EXECUTIVE_MONTHLY,
     "executive-year": process.env.STRIPE_PRICE_EXECUTIVE_YEARLY,
   }
-  return (
-    map[`${plan}-${interval === "month" ? "month" : "year"}`]?.trim() ?? null
-  )
+  return nonBlank(map[`${plan}-${interval === "month" ? "month" : "year"}`])
 }
 
 export function searchPassPriceId(): string | null {
-  return process.env.STRIPE_PRICE_SEARCH_PASS?.trim() ?? null
+  return nonBlank(process.env.STRIPE_PRICE_SEARCH_PASS)
 }
 
-/** Dev seed hint: create BRL prices in Stripe Dashboard or via CLI; ids go in .env. */
+/**
+ * Seed hint in centavos. Yearly figures are the annual charge
+ * (12 × the annual monthly rate in ESPEC §14): Pro R$ 468, Executive R$ 1.188.
+ * Price IDs stay in env and must be confirmed in the Stripe dashboard.
+ * See docs/CONFIG_STRIPE_RESEND.md.
+ */
 export const BILLING_SEED_HINT = {
   proMonthlyBrl: 4_900,
-  proYearlyBrl: 39_00,
+  proYearlyBrl: 468_00,
   executiveMonthlyBrl: 12_900,
-  executiveYearlyBrl: 99_00,
+  executiveYearlyBrl: 1_188_00,
   searchPassBrl: 29_900,
   trialDays: 7,
 } as const

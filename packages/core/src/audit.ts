@@ -39,6 +39,7 @@ export const AUDIT_ACTIONS = [
   "gmail.synced",
   "data.exported",
   "account.deletion_requested",
+  "account.deletion_cancelled",
   "settings.changed",
   "settings.undone",
   "search.created",

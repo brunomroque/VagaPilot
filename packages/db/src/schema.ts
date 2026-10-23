@@ -189,6 +189,7 @@ export const cvVersions = pgTable(
     docxStoragePath: text("docx_storage_path"),
     fileSha256: text("file_sha256").notNull(),
     extractedText: text("extracted_text"),
+    extractionError: text("extraction_error"),
     origin: text("origin").notNull(),
     parentVersionId: uuid("parent_version_id").references(
       (): AnyPgColumn => cvVersions.id
@@ -567,7 +568,25 @@ export const devicePairingCodes = pgTable("device_pairing_codes", {
   code: text("code").primaryKey(),
   userId: ownerId(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  failedAttempts: integer("failed_attempts").notNull().default(0),
   createdAt: createdAt(),
+})
+
+/** Public pairing endpoint counters. No client access (service role only). */
+export const pairingIpAttempts = pgTable("pairing_ip_attempts", {
+  ip: text("ip").primaryKey(),
+  attempts: integer("attempts").notNull(),
+  windowStartedAt: timestamp("window_started_at", {
+    withTimezone: true,
+  }).notNull(),
+})
+
+export const pairingCodeAttempts = pgTable("pairing_code_attempts", {
+  code: text("code").primaryKey(),
+  attempts: integer("attempts").notNull(),
+  windowStartedAt: timestamp("window_started_at", {
+    withTimezone: true,
+  }).notNull(),
 })
 
 export const subscriptions = pgTable("subscriptions", {

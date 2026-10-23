@@ -269,7 +269,7 @@ Feito em 2026-10-22 (F11 RF11.1–RF11.11 e CA11.1–CA11.7, J5, RF5.2, RF15.2, 
 
 Feito em 2026-10-22 (F8, F8A parcial, F13B parcial, seções 8.4, 11.1/11.3, 16 P5, CA8.1–CA8.4).
 
-- Pareamento (11.3): código de 6 dígitos com TTL de 10 min (`device_pairing_codes`), `POST /api/ext/pair/init` (sessão web) e `POST /api/ext/pair` (extensão → token `vp_dev_*` hasheado em `devices`). Token em `chrome.storage.session`. UI em Configurações → Extensão Chrome.
+- Pareamento (11.3): código de 8 caracteres (`23456789ABCDEFGHJKLMNPQRSTUVWXYZ`) com TTL de 10 min (`device_pairing_codes`), `POST /api/ext/pair/init` (sessão web) e `POST /api/ext/pair` (extensão → token `vp_dev_*` hasheado em `devices`). Token em `chrome.storage.session`. UI em Configurações → Extensão Chrome.
 - Pacote de candidatura (8.4): ao **Aplicar** no chat, `recordDecision` cria `application_packages` (`payload_enc`, 24 h) e `buildApplyUrl` acrescenta `?vp_app={application_id}`. `GET /api/ext/packages/:id` devolve o snapshot decriptado + URL assinada do CV (nome neutro).
 - `@vagapilot/ats-adapters/form`: `FormFillAdapter` (Gupy, InHire, Greenhouse, Lever, Workday, genérico; LinkedIn só detecta). `listFields` ignora senha/OTP; preenchimento dispara `input`/`change`; CV via `DataTransfer`. Fixtures em `fixtures/ats/*.html`.
 - `@vagapilot/core`: `verifyGrounding`, `application-package` (Zod v1), `ext-auth`, `apply-url` (`?vp_app=`).
@@ -373,3 +373,41 @@ Não são requisitos novos; fecham questões da seção 20 para não travar o in
 Implementadas as fases 1–7: home `/app` com chat, painel em `/app/visao-geral`, sheet lateral, ferramentas ATS/CV/candidatura/perfil/Gmail, widgets de aprovação, migration `20261023160000_chat_first_persistence.sql`, onboarding “Fazer pelo chat”.
 
 Pendências: aplicar a nova migration no Supabase de produção (us-east-1); selo “Preenchido via chat” nas demais telas (CV, fatos, perfil, memória, buscas); fluxo completo de `register_gap` no cartão; eval `form_only` ampliado; e2e completos em CI com Supabase local.
+
+Commits na `main` (5× `feat(chat-first): fase …`), ainda não enviados ao remoto. Working tree separado: correções de typecheck/audit (`account.deletion_cancelled`), QA §11.3/§14 (pareamento, sidebar/plano, CV, billing) e migration `20261023170000_qa_pairing_grants_cv.sql` — revisar e commitar antes do push; não incluir `docs/supabase-vagapilot.env.txt`.
+
+## QA 23/10/2026 — P0 e P1
+
+Feito no código. Spec: §8.4 (análise no chat), §10.3–10.4 (confirmação antes de gravar memória), §11.3 (pareamento), §11.5 (Stripe), §12 (exclusão), §14 (planos, trial, passe de 90 dias).
+
+- **Pareamento (§11.3):** código de 8 caracteres do alfabeto `23456789ABCDEFGHJKLMNPQRSTUVWXYZ`, limite por IP (8 tentativas / 10 min), bloqueio do código após 5 erros e nova tentativa se a chave primária colidir. UI da extensão e Configurações acompanham o formato; TTL 10 minutos. **Spec §11.3 alinhada ao pareamento 8-char (QA 23/10/2026).**
+- **Passe de busca:** `checkout.session.completed` grava `plan=search_pass`, `status=active` e `current_period_end` em 90 dias a partir de `session.created`. `effectivePlan` volta para grátis quando essa data passa. O evento Stripe só é gravado depois do upsert; falha devolve 500 para o Stripe reenviar.
+- **Assinatura:** `current_period_end` vem de `items.data[0]`, com fallback no campo raiz, e nunca grava data inválida. `subscription.deleted` deixa o plano grátis, status `canceled` e o fim do período, sem apagar `stripe_customer_id`.
+- **Checkout:** customer com `idempotencyKey` `customer-${userId}`; trial de 7 dias só no primeiro Pro; preço vazio de env vira “não configurado” em pt-BR; success/cancel e portal voltam para `/app/planos`. Anual na página de planos: Pro R$ 468/ano (R$ 39/mês no anual) e Executivo R$ 1.188/ano (R$ 99/mês no anual), conforme §14. Os Price IDs continuam só no env.
+- **URL pública:** em produção, auth e Stripe falham se `NEXT_PUBLIC_APP_URL` faltar ou for localhost. Em dev, localhost segue válido. O dashboard do Supabase **não** foi alterado daqui.
+- **Grants:** migration `20261023170000_qa_pairing_grants_cv.sql`. `devices`, códigos de pareamento, exclusão de conta, exportações e `audit_log` ficam só leitura para `authenticated`. Consentimentos continuam insertáveis e deixam de ser atualizáveis. Cancelar exclusão é `DELETE /api/privacy/delete` com service role, só de `pending` para `cancelled`.
+- **Chat:** texto longo de vaga dispara a análise. Mudança de idioma pede confirmação e não grava só porque o texto cita um idioma ou uma cidade.
+- **CV:** extração percorre todas as páginas. PDF sem texto selecionável mostra a explicação em pt-BR em vez de “sem fatos”.
+- **Sidebar:** plano e limite vêm da assinatura e de §14 (grátis 15, Pro 200, executivo/passe sem teto mensal). O cartão de demonstração “18 de 30 / Plano Pro” saiu. No seed fictício, Marina fica Pro em teste e Rafael fica grátis; o contador usa a métrica `job_analyses`.
+- **E-mail de confirmação:** template pt-BR em `supabase/templates/confirmation.html` (local). SMTP Resend não foi ligado.
+
+### Dashboard (não feito daqui)
+
+- Supabase Auth → URL Configuration: Site URL `https://vagapilot.netlify.app`. Redirect URLs: `https://vagapilot.netlify.app/auth/callback`, `https://vagapilot.netlify.app/auth/callback?next=/aceite`, `https://vagapilot.netlify.app/auth/callback?next=/app`, `https://vagapilot.netlify.app/auth/confirm`.
+- Supabase Auth → Emails → Confirm signup: assunto e corpo em pt-BR (o template do repo vale para o CLI local; o projeto hospedado precisa do mesmo texto). SMTP Resend no mesmo lugar, sem gravar a chave no repo.
+- Stripe: incluir `checkout.session.completed` no endpoint do webhook. Conferir os Price IDs anuais e do passe nas variáveis já documentadas em `docs/CONFIG_STRIPE_RESEND.md`.
+- Aplicar `20261023170000_qa_pairing_grants_cv.sql` no projeto hospedado.
+- **2026-10-23 (lançamento):** checklist passo a passo em [QA_SMOKE_LANCAMENTO.md](./QA_SMOKE_LANCAMENTO.md) (pré-requisitos Netlify/Supabase/Stripe, fluxos cadastro, chat, planos, passe de busca, pareamento, `/dev/*` 404). Migrações `chat_first_persistence` e `qa_pairing_grants_cv` aplicadas no hospedado via MCP (`synbycvebzzqarojicfu`). Pendente manual: Auth URLs + template de e-mail no Supabase; evento `checkout.session.completed` no webhook Stripe de produção.
+
+### P2 ainda aberto
+
+- Contador de uso não atômico.
+- Página pública de preços.
+- Cadastro sem nome / saudação pelo handle.
+- Onboarding pulou a etapa 3.
+- Lentidão de `/app/buscas` e `/app/atividade`.
+- Header `x-vagapilot-device-token` vazio (já resulta em não autorizado).
+- Senha do seed no código (só dev; não remover sem checar o fluxo local).
+- `/dev/ats-form` passou a responder 404 em produção; outras rotas dev irmãs não foram reescritas.
+
+Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram. Só os testes unitários focados.

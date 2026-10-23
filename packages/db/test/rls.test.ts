@@ -170,51 +170,58 @@ describe.skipIf(!local.ok)(
       }
     )
 
-    describe.each(appendOnlyTables)("%s (append-only)", (table) => {
-      it("A reads only own entries", async () => {
-        const { data } = await asA.from(table).select("user_id")
-        expect(data?.length).toBeGreaterThan(0)
-        expect(data?.every((row) => row.user_id === seedUsers.a.id)).toBe(true)
-      })
-
-      it("A appends own entries but not entries for B", async () => {
-        const own = await asA.from(table).insert({
-          user_id: seedUsers.a.id,
-          actor: "usuario",
-          action: "rls.test",
+    // Empty while audit writes go through service_role. A string array keeps
+    // describe.each from inferring `never` and failing tsc.
+    describe.each(appendOnlyTables as readonly string[])(
+      "%s (append-only)",
+      (table) => {
+        it("A reads only own entries", async () => {
+          const { data } = await asA.from(table).select("user_id")
+          expect(data?.length).toBeGreaterThan(0)
+          expect(data?.every((row) => row.user_id === seedUsers.a.id)).toBe(
+            true
+          )
         })
-        expect(own.error).toBeNull()
-        const forB = await asA.from(table).insert({
-          user_id: seedUsers.b.id,
-          actor: "usuario",
-          action: "rls.test",
-        })
-        expect(forB.error?.code).toBe(PERMISSION_DENIED)
-      })
 
-      it("nobody updates or deletes through the API", async () => {
-        const update = await asA
-          .from(table)
-          .update({ action: "tampered" })
-          .eq("user_id", seedUsers.a.id)
-        expect(update.error?.code).toBe(PERMISSION_DENIED)
-        const remove = await asA
-          .from(table)
-          .delete()
-          .eq("user_id", seedUsers.a.id)
-        expect(remove.error?.code).toBe(PERMISSION_DENIED)
-        const adminUpdate = await admin
-          .from(table)
-          .update({ action: "tampered" })
-          .eq("user_id", seedUsers.b.id)
-        expect(adminUpdate.error?.code).toBe(PERMISSION_DENIED)
-        const adminDelete = await admin
-          .from(table)
-          .delete()
-          .eq("user_id", seedUsers.b.id)
-        expect(adminDelete.error?.code).toBe(PERMISSION_DENIED)
-      })
-    })
+        it("A appends own entries but not entries for B", async () => {
+          const own = await asA.from(table).insert({
+            user_id: seedUsers.a.id,
+            actor: "usuario",
+            action: "rls.test",
+          })
+          expect(own.error).toBeNull()
+          const forB = await asA.from(table).insert({
+            user_id: seedUsers.b.id,
+            actor: "usuario",
+            action: "rls.test",
+          })
+          expect(forB.error?.code).toBe(PERMISSION_DENIED)
+        })
+
+        it("nobody updates or deletes through the API", async () => {
+          const update = await asA
+            .from(table)
+            .update({ action: "tampered" })
+            .eq("user_id", seedUsers.a.id)
+          expect(update.error?.code).toBe(PERMISSION_DENIED)
+          const remove = await asA
+            .from(table)
+            .delete()
+            .eq("user_id", seedUsers.a.id)
+          expect(remove.error?.code).toBe(PERMISSION_DENIED)
+          const adminUpdate = await admin
+            .from(table)
+            .update({ action: "tampered" })
+            .eq("user_id", seedUsers.b.id)
+          expect(adminUpdate.error?.code).toBe(PERMISSION_DENIED)
+          const adminDelete = await admin
+            .from(table)
+            .delete()
+            .eq("user_id", seedUsers.b.id)
+          expect(adminDelete.error?.code).toBe(PERMISSION_DENIED)
+        })
+      }
+    )
 
     describe.each(globalReadTables)("%s (global read)", (table) => {
       it("authenticated users read every posting", async () => {

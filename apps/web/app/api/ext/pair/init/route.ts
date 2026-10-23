@@ -4,7 +4,7 @@ import { apiError } from "@/lib/http"
 import { createPairingCode } from "@/lib/ext/pairing"
 import { getUserContext } from "@/lib/server/context"
 
-/** Authenticated user creates a 6-digit pairing code (11.3, 10 min). */
+/** Authenticated user creates an 8-character pairing code (spec §11.3, 10 min). */
 export async function POST(_request: NextRequest) {
   const session = await getUserContext()
   if (!session.ok) return apiError("unauthorized", session.error.message, 401)

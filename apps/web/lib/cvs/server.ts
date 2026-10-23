@@ -46,12 +46,17 @@ export type CvVersionRow = {
   created_at: string
   processing: "pendente" | "pronto" | "falhou"
   proposedFacts: number
+  extractionError: string | null
 }
 
 export type CvLibrary = { tracks: CvTrackRow[]; versions: CvVersionRow[] }
 
-type RawVersion = Omit<CvVersionRow, "processing" | "proposedFacts"> & {
+type RawVersion = Omit<
+  CvVersionRow,
+  "processing" | "proposedFacts" | "extractionError"
+> & {
   extracted_text: string | null
+  extraction_error: string | null
 }
 
 function processingOf(text: string | null): CvVersionRow["processing"] {
@@ -69,7 +74,7 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
     ctx.supabase
       .from("cv_versions")
       .select(
-        "id, track_id, language, label, is_default, storage_path, file_sha256, origin, parent_version_id, created_at, extracted_text"
+        "id, track_id, language, label, is_default, storage_path, file_sha256, origin, parent_version_id, created_at, extracted_text, extraction_error"
       )
       .eq("user_id", ctx.user.id)
       .order("created_at", { ascending: false }),
@@ -94,10 +99,11 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
   return {
     tracks: (tracks.data ?? []) as CvTrackRow[],
     versions: ((versions.data ?? []) as RawVersion[]).map(
-      ({ extracted_text, ...version }) => ({
+      ({ extracted_text, extraction_error, ...version }) => ({
         ...version,
         processing: processingOf(extracted_text),
         proposedFacts: proposed.get(version.id) ?? 0,
+        extractionError: extraction_error,
       })
     ),
   }
@@ -130,6 +136,7 @@ export type UploadCvResult = {
   processing: "inngest" | "inline"
   status: CvVersionRow["processing"]
   proposedFacts: number
+  extractionError?: string | null
 }
 
 export type UploadErrorCode = CvFileErrorCode | "invalid_track"
@@ -252,6 +259,8 @@ export async function uploadCv(
       processing: "inline",
       status: result.text.status === "ok" ? "pronto" : "falhou",
       proposedFacts: result.facts?.proposed ?? 0,
+      extractionError:
+        result.text.status === "failed" ? result.text.code : null,
     },
   }
 }

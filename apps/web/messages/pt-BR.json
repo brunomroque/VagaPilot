@@ -58,6 +58,7 @@
       "weak_password": "Escolha uma senha mais forte.",
       "rate_limited": "Muitas tentativas. Aguarde alguns minutos.",
       "link_invalid": "O link expirou ou foi aberto em outro navegador. Entre novamente.",
+      "public_url": "O endereço público do app não está configurado. Avise o suporte.",
       "unknown": "Algo deu errado. Tente de novo."
     },
     "validation": {
@@ -96,6 +97,28 @@
     "subtitle": "Limites aplicados no servidor antes de chamadas de IA (ESPEC §14).",
     "legalDraft": "Preços e condições são rascunho até revisão jurídica.",
     "cta": "Assinar ou gerenciar",
+    "subscribe": "Assinar",
+    "manage": "Gerenciar cobrança",
+    "freeNote": "Seu plano inicial",
+    "current": "Plano atual: {plan}",
+    "interval": {
+      "month": "Mensal",
+      "year": "Anual"
+    },
+    "notices": {
+      "success": "Pagamento recebido. O plano aparece aqui assim que o Stripe confirmar.",
+      "cancel": "Checkout cancelado. Nenhuma cobrança foi feita."
+    },
+    "errors": {
+      "signIn": "Entre na conta para assinar.",
+      "notConfigured": "A cobrança não está configurada neste ambiente.",
+      "stripe": "O Stripe não está configurado neste ambiente.",
+      "invalid": "Não foi possível iniciar o checkout com esses dados.",
+      "checkoutFailed": "Não foi possível abrir o checkout. Tente de novo.",
+      "priceNotConfigured": "O preço deste plano ainda não está configurado.",
+      "publicUrl": "O endereço público do app não está configurado.",
+      "noCustomer": "Ainda não há uma assinatura para gerenciar. Escolha um plano primeiro."
+    },
     "plans": {
       "free": {
         "name": "Grátis",
@@ -125,6 +148,15 @@
           "Gmail e extensão",
           "Suporte prioritário (beta)"
         ]
+      },
+      "search_pass": {
+        "name": "Passe de busca",
+        "price": "R$ 299 / 90 dias",
+        "features": [
+          "Executivo por 90 dias",
+          "Análises ilimitadas (uso justo)",
+          "Pagamento único"
+        ]
       }
     }
   },
@@ -147,9 +179,20 @@
     "accountMenu": "Menu da conta",
     "memory": "Memória"
   },
+  "Pairing": {
+    "invalidPayload": "Envie o código e o nome do dispositivo.",
+    "rateLimited": "Muitas tentativas de pareamento. Aguarde alguns minutos.",
+    "invalid": "Código inválido ou expirado. Gere outro no app."
+  },
   "Plan": {
     "name": "Plano Pro",
-    "usage": "{used} de {limit} análises"
+    "usage": "{used} de {limit} análises",
+    "usageUnlimited": "{used} análises neste mês",
+    "trial": "Pro em teste",
+    "free": "Grátis",
+    "pro": "Pro",
+    "executive": "Executivo",
+    "search_pass": "Passe de busca"
   },
   "Profile": {
     "completion": "Perfil {percent}% completo"
@@ -1006,7 +1049,7 @@
         "file_empty": "O arquivo está vazio.",
         "unsupported_type": "Envie um PDF ou DOCX válido.",
         "too_many_pages": "O PDF tem mais de 15 páginas.",
-        "no_text": "Não encontramos texto no arquivo. Ele pode ser uma imagem escaneada.",
+        "no_text": "Não encontramos texto selecionável no arquivo. Envie um PDF com texto ou cole o currículo.",
         "unreadable": "Não conseguimos ler o arquivo.",
         "invalid_track": "Trilha inválida.",
         "unauthorized": "Sua sessão expirou. Entre novamente.",
@@ -1163,11 +1206,23 @@
     },
     "cvs": {
       "uploaded": "Currículos enviados",
-      "facts": "{count, plural, =0 {sem fatos} one {# fato} other {# fatos}}"
+      "facts": "{count, plural, =0 {sem fatos} one {# fato} other {# fatos}}",
+      "processing": "Processando…",
+      "extraction": {
+        "file_too_large": "Arquivo maior que 10 MB.",
+        "file_empty": "Arquivo vazio.",
+        "unsupported_type": "Use PDF ou DOCX.",
+        "too_many_pages": "PDF com mais de 15 páginas.",
+        "no_text": "Este PDF não tem texto selecionável. Envie um PDF com texto ou cole o currículo.",
+        "unreadable": "Não conseguimos ler o arquivo. Envie outro PDF ou DOCX, ou cole o currículo."
+      }
     },
     "facts": {
       "emptyTitle": "Nenhum fato para revisar",
-      "emptyDescription": "Tudo revisado, ou o currículo ainda está sendo processado."
+      "emptyDescription": "Tudo revisado, ou o currículo ainda está sendo processado.",
+      "unreadableTitle": "Não lemos o currículo",
+      "pendingTitle": "Processando currículo",
+      "pendingDescription": "Assim que a extração terminar, os fatos aparecem aqui para revisão."
     },
     "invites": {
       "soon": "Em breve",
@@ -1193,10 +1248,10 @@
     "description": "Gerencie integrações, a extensão Chrome e preferências da conta.",
     "integrations": "Integrações",
     "integrationsDescription": "Conecte o Gmail para acompanhar respostas das empresas e pareie a extensão para preencher formulários. Você decide o que ligar e pode revogar a qualquer momento.",
-    "more": "Exportação de dados, cobrança e preferências avançadas de privacidade chegam nas próximas fases. Preferências do assistente ficam em Memória; perfil e CVs nas rotas correspondentes.",
+    "more": "Exportação de dados e preferências avançadas de privacidade ficam nesta área. Cobrança e planos estão em Planos. Preferências do assistente ficam em Memória; perfil e CVs nas rotas correspondentes.",
     "extension": {
       "title": "Extensão Chrome",
-      "description": "Pareie a extensão com um código de 6 dígitos (válido por 10 minutos). O token fica só neste navegador.",
+      "description": "Pareie a extensão com um código de 8 caracteres (válido por 10 minutos). O token fica só neste navegador.",
       "hint": "Instale a extensão VagaPilot, clique em Parear e digite o código aqui gerado.",
       "generate": "Gerar código",
       "generated": "Código gerado. Digite-o na extensão em até 10 minutos.",

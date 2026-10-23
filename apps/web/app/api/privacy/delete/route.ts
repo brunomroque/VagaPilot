@@ -1,4 +1,7 @@
-import { requestAccountDeletion } from "@/lib/privacy/delete-account"
+import {
+  cancelAccountDeletion,
+  requestAccountDeletion,
+} from "@/lib/privacy/delete-account"
 import { apiError } from "@/lib/http"
 import { getUserContext } from "@/lib/server/context"
 
@@ -17,6 +20,37 @@ export async function POST() {
       scheduledPurgeAt: scheduled.toISOString(),
     })
   } catch {
-    return apiError("internal_error", "Could not schedule deletion.", 500)
+    return apiError(
+      "internal_error",
+      "Não foi possível agendar a exclusão.",
+      500
+    )
+  }
+}
+
+/** DELETE /api/privacy/delete — cancels a pending purge (spec §12). */
+export async function DELETE() {
+  const session = await getUserContext()
+  if (!session.ok) {
+    return session.error.code === "unauthorized"
+      ? apiError("unauthorized", "Entre na conta para continuar.", 401)
+      : apiError("not_configured", "O Supabase não está configurado.", 503)
+  }
+  try {
+    const cancelled = await cancelAccountDeletion(session.ctx.user.id)
+    if (!cancelled) {
+      return apiError(
+        "not_found",
+        "Não há uma exclusão pendente para cancelar.",
+        404
+      )
+    }
+    return Response.json({ cancelled: true })
+  } catch {
+    return apiError(
+      "internal_error",
+      "Não foi possível cancelar a exclusão.",
+      500
+    )
   }
 }

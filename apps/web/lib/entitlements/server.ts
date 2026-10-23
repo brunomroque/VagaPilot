@@ -6,11 +6,11 @@ import {
   checkAndIncrementUsage,
   DEFAULT_CHAT_TURN_COST_CENTS,
   DEFAULT_JOB_ANALYSIS_COST_CENTS,
+  effectivePlan,
   type PlanFeatures,
   type PlanId,
   type UsageMetric,
   usagePeriod,
-  isPlanId,
   limitsForPlan,
 } from "@vagapilot/core/entitlements"
 import type { JobAnalysisUsage } from "@vagapilot/jobs"
@@ -27,21 +27,68 @@ export class EntitlementError extends Error {
   }
 }
 
+export type PlanSnapshot = {
+  plan: PlanId
+  trialing: boolean
+  analysesUsed: number
+  analysesLimit: number | null
+}
+
 export async function getUserPlan(
   admin: SupabaseClient,
-  userId: string
+  userId: string,
+  now = new Date()
 ): Promise<PlanId> {
   const { data } = await admin
     .from("subscriptions")
-    .select("plan, status")
+    .select("plan, status, current_period_end")
     .eq("user_id", userId)
     .maybeSingle()
-  const row = data as { plan?: string; status?: string | null } | null
-  const rawPlan = row?.plan ?? "free"
-  if (!isPlanId(rawPlan) || rawPlan === "free") return "free"
-  const status = row?.status ?? ""
-  if (status === "active" || status === "trialing") return rawPlan
-  return "free"
+  const row = data as {
+    plan?: string
+    status?: string | null
+    current_period_end?: string | null
+  } | null
+  return effectivePlan({
+    plan: row?.plan,
+    status: row?.status,
+    currentPeriodEnd: row?.current_period_end,
+    now,
+  })
+}
+
+export async function getPlanSnapshot(userId: string): Promise<PlanSnapshot> {
+  const admin = getAdminClient()
+  const free = {
+    plan: "free" as const,
+    trialing: false,
+    analysesUsed: 0,
+    analysesLimit: limitsForPlan("free").jobAnalysesPerMonth,
+  }
+  if (!admin) return free
+  const now = new Date()
+  const { data } = await admin
+    .from("subscriptions")
+    .select("plan, status, current_period_end")
+    .eq("user_id", userId)
+    .maybeSingle()
+  const row = data as {
+    plan?: string
+    status?: string | null
+    current_period_end?: string | null
+  } | null
+  const plan = effectivePlan({
+    plan: row?.plan,
+    status: row?.status,
+    currentPeriodEnd: row?.current_period_end,
+    now,
+  })
+  return {
+    plan,
+    trialing: plan === "pro" && row?.status === "trialing",
+    analysesUsed: await readCounter(admin, userId, "job_analyses", now),
+    analysesLimit: limitsForPlan(plan).jobAnalysesPerMonth,
+  }
 }
 
 async function readCounter(

@@ -18,6 +18,17 @@ async function failure(code: AuthErrorCode): Promise<AuthActionResult> {
   return { error: { code, message: t(code) } }
 }
 
+async function appOriginOrError(): Promise<string | AuthActionResult> {
+  try {
+    return await getAppOrigin()
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("public_app_url:")) {
+      return failure("public_url")
+    }
+    throw error
+  }
+}
+
 function codeFromSupabase(
   code: string | undefined,
   status: number | undefined
@@ -63,7 +74,8 @@ export async function signUpWithPassword(
   const supabase = await createSupabaseServerClient()
   if (!supabase) return failure("not_configured")
 
-  const origin = await getAppOrigin()
+  const origin = await appOriginOrError()
+  if (typeof origin !== "string") return origin
   const { data, error } = await supabase.auth.signUp({
     ...parsed.data,
     options: { emailRedirectTo: `${origin}/auth/callback?next=/aceite` },
@@ -81,7 +93,8 @@ export async function signInWithGoogle(
   const supabase = await createSupabaseServerClient()
   if (!supabase) return failure("not_configured")
 
-  const origin = await getAppOrigin()
+  const origin = await appOriginOrError()
+  if (typeof origin !== "string") return origin
   const destination = safeNextPath(next, "/app")
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

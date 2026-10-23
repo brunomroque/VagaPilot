@@ -158,11 +158,12 @@ export function App() {
             />
           </label>
           <label>
-            Código de 6 dígitos
+            Código de 8 caracteres
             <input
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              maxLength={6}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              maxLength={8}
+              autoCapitalize="characters"
               style={{ width: "100%" }}
             />
           </label>

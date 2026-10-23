@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation"
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
 
@@ -7,9 +8,7 @@ export default async function DevAtsFormPage({
 }: {
   searchParams: Promise<{ fixture?: string; vp_app?: string }>
 }) {
-  if (process.env.NODE_ENV === "production") {
-    return <p>Não disponível.</p>
-  }
+  if (process.env.NODE_ENV === "production") notFound()
   const params = await searchParams
   const fixture = params.fixture ?? "generic-apply.html"
   const html = readFileSync(

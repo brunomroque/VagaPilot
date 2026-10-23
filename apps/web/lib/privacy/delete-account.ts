@@ -25,3 +25,25 @@ export async function requestAccountDeletion(userId: string): Promise<Date> {
   })
   return scheduled
 }
+
+export async function cancelAccountDeletion(userId: string): Promise<boolean> {
+  const admin = getAdminClient()
+  if (!admin) throw new Error("admin_not_configured")
+  const { data, error } = await admin
+    .from("account_deletion_requests")
+    .update({ status: "cancelled" })
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .select("user_id")
+    .maybeSingle()
+  if (error) throw new Error(error.message)
+  if (!data) return false
+  await audit({
+    userId,
+    actor: "usuario",
+    action: "account.deletion_cancelled",
+    targetType: "user",
+    targetId: userId,
+  })
+  return true
+}

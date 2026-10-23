@@ -37,7 +37,12 @@ const UPLOAD_ERRORS = [
 ] as const
 type UploadError = (typeof UPLOAD_ERRORS)[number]
 
-type UploadResponse = { id: string; status: string; proposedFacts: number }
+type UploadResponse = {
+  id: string
+  status: string
+  proposedFacts: number
+  extractionError?: string | null
+}
 
 /** P1.2 upload: PDF/DOCX ≤ 10 MB, up to `maxFiles` at a time, processed by `cv/uploaded`. */
 export function CvUpload({
@@ -120,11 +125,18 @@ export function CvUpload({
         results.push(payload)
       }
       if (results.length > 0) {
-        const facts = results.reduce(
-          (sum, result) => sum + result.proposedFacts,
-          0
-        )
-        toast.success(t("done", { count: results.length, facts }))
+        const failed = results.find((result) => result.status === "falhou")
+        if (failed) {
+          toast.error(
+            `${files[0]?.name ?? ""}: ${errorMessage(failed.extractionError ?? "no_text")}`.trim()
+          )
+        } else {
+          const facts = results.reduce(
+            (sum, result) => sum + result.proposedFacts,
+            0
+          )
+          toast.success(t("done", { count: results.length, facts }))
+        }
         setFiles([])
         if (inputRef.current) inputRef.current.value = ""
         onUploaded?.(results)

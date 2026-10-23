@@ -5,6 +5,7 @@
  * itself; the server validates every call either way.
  */
 import { extractUrls } from "@vagapilot/core/guardrails"
+import { looksLikeJobPosting } from "@vagapilot/core/job-text"
 import {
   inferSeniority,
   type LanguageLevel,
@@ -391,7 +392,7 @@ function languageLevel(
   folded: string
 ): ChatToolInput<"update_language_level"> | null {
   const patterns = [
-    /\b(ingles|espanhol|frances|alemao|italiano)\s+(?:agora\s+)?(?:e|esta|ficou|virou|passou a ser|subiu para|foi para|:)?\s*(?:o\s+)?(?:nivel\s+)?(basico|intermediario|avancado|fluente|nativo|a1|a2|b1|b2|c1|c2)\b/,
+    /\b(?:meu|minha)\s+(?:nivel\s+de\s+)?(ingles|espanhol|frances|alemao|italiano)\s+(?:agora\s+)?(?:e|esta|ficou|virou|passou a ser|subiu para|foi para)\s+(?:o\s+)?(?:nivel\s+)?(basico|intermediario|avancado|fluente|nativo|a1|a2|b1|b2|c1|c2)\b/,
     /\b(?:atualize|atualiza|mude|muda|altere|altera|coloque|coloca|ponha)\s+(?:o\s+)?(?:meu\s+)?(?:nivel\s+(?:de\s+)?)?(ingles|espanhol|frances|alemao|italiano)\s+(?:para|como|pra)\s+(basico|intermediario|avancado|fluente|nativo|a1|a2|b1|b2|c1|c2)\b/,
     /\b(?:tenho|falo)\s+(ingles|espanhol|frances|alemao|italiano)\s+(basico|intermediario|avancado|fluente|nativo|a1|a2|b1|b2|c1|c2)\b/,
     /\bnivel de (ingles|espanhol|frances|alemao|italiano)\s*(?:e|:|agora e)?\s*(basico|intermediario|avancado|fluente|nativo|a1|a2|b1|b2|c1|c2)\b/,
@@ -436,7 +437,7 @@ function proposedFact(
  */
 export function parseSettingsIntent(text: string): IntentCall[] {
   const folded = foldKeepLength(text)
-  if (extractUrls(text).length > 0) return []
+  if (extractUrls(text).length > 0 || looksLikeJobPosting(text)) return []
   const calls: IntentCall[] = []
 
   if (

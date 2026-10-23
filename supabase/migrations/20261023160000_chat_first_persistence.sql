@@ -68,22 +68,22 @@ alter table public.chat_record_links enable row level security;
 alter table public.platform_profiles enable row level security;
 
 create policy chat_record_links_select on public.chat_record_links
-  for select using (user_id = auth.uid());
+  for select to authenticated using ((select auth.uid()) = user_id);
 create policy chat_record_links_insert on public.chat_record_links
-  for insert with check (user_id = auth.uid());
+  for insert to authenticated with check ((select auth.uid()) = user_id);
 create policy chat_record_links_update on public.chat_record_links
-  for update using (user_id = auth.uid());
+  for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 create policy chat_record_links_delete on public.chat_record_links
-  for delete using (user_id = auth.uid());
+  for delete to authenticated using ((select auth.uid()) = user_id);
 
 create policy platform_profiles_select on public.platform_profiles
-  for select using (user_id = auth.uid());
+  for select to authenticated using ((select auth.uid()) = user_id);
 create policy platform_profiles_insert on public.platform_profiles
-  for insert with check (user_id = auth.uid());
+  for insert to authenticated with check ((select auth.uid()) = user_id);
 create policy platform_profiles_update on public.platform_profiles
-  for update using (user_id = auth.uid());
+  for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 create policy platform_profiles_delete on public.platform_profiles
-  for delete using (user_id = auth.uid());
+  for delete to authenticated using ((select auth.uid()) = user_id);
 
 grant select, insert, update, delete on public.chat_record_links to authenticated;
 grant select, insert, update, delete on public.platform_profiles to authenticated;

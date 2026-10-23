@@ -89,6 +89,7 @@ export async function extractAndStoreCvText(
     .update({
       extracted_text:
         result.status === "ok" ? result.text : EXTRACTION_FAILED_TEXT,
+      extraction_error: result.status === "failed" ? result.code : null,
     })
     .eq("id", input.cvVersionId)
     .eq("user_id", input.userId)

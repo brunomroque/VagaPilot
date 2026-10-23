@@ -83,21 +83,21 @@ Gmail: cron `0 */2 * * *`. Para cada conexão ativa, `history.list` desde `last_
 
 Todas autenticadas com cookie Supabase ou token de dispositivo. Zod na entrada. Rate limit (Upstash). Erro `{ error: { code, message } }`.
 
-| Rota                                                                                                                   | Uso                                                |
-| ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `POST /api/chat`                                                                                                       | Chat com stream (AI SDK UI messages)               |
-| `GET/PUT /api/profile`                                                                                                 | Perfil                                             |
-| `GET/POST/PATCH /api/facts`                                                                                            | Fatos                                              |
-| `POST /api/cv-versions`, `GET /api/cv-versions/:id/file`                                                               | CV; download com nome neutro (URL assinada, 5 min) |
-| `POST /api/jobs/ingest`                                                                                                | Ingestão sem chat                                  |
-| `GET /api/applications`, `PATCH /api/applications/:id`                                                                 | Controle                                           |
-| `GET /api/applications/export?format=csv\|pdf`                                                                         | Exportação                                         |
-| `POST /api/approvals/:id/decide`                                                                                       | Aprovar ou rejeitar                                |
-| `POST /api/ext/pair`, `GET /api/ext/packages/:id`, `POST /api/ext/questions`, `POST /api/ext/applications/:id/confirm` | Extensão                                           |
-| `GET /api/google/oauth/start`, `GET /api/google/oauth/callback`, `DELETE /api/google/connection`                       | Gmail                                              |
-| `POST /api/stripe/webhook`, `POST /api/billing/checkout`, `POST /api/billing/portal`                                   | Cobrança                                           |
-| `POST /api/privacy/export`, `POST /api/privacy/delete`                                                                 | LGPD                                               |
-| `POST /api/inngest`                                                                                                    | Jobs                                               |
+| Rota                                                                                                                                              | Uso                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `POST /api/chat`                                                                                                                                  | Chat com stream (AI SDK UI messages)               |
+| `GET/PUT /api/profile`                                                                                                                            | Perfil                                             |
+| `GET/POST/PATCH /api/facts`                                                                                                                       | Fatos                                              |
+| `POST /api/cv-versions`, `GET /api/cv-versions/:id/file`                                                                                          | CV; download com nome neutro (URL assinada, 5 min) |
+| `POST /api/jobs/ingest`                                                                                                                           | Ingestão sem chat                                  |
+| `GET /api/applications`, `PATCH /api/applications/:id`                                                                                            | Controle                                           |
+| `GET /api/applications/export?format=csv\|pdf`                                                                                                    | Exportação                                         |
+| `POST /api/approvals/:id/decide`                                                                                                                  | Aprovar ou rejeitar                                |
+| `POST /api/ext/pair/init`, `POST /api/ext/pair`, `GET /api/ext/packages/:id`, `POST /api/ext/questions`, `POST /api/ext/applications/:id/confirm` | Extensão                                           |
+| `GET /api/google/oauth/start`, `GET /api/google/oauth/callback`, `DELETE /api/google/connection`                                                  | Gmail                                              |
+| `POST /api/stripe/webhook`, `POST /api/billing/checkout`, `POST /api/billing/portal`                                                              | Cobrança                                           |
+| `POST /api/privacy/export`, `POST /api/privacy/delete`                                                                                            | LGPD                                               |
+| `POST /api/inngest`                                                                                                                               | Jobs                                               |
 
 ## 9. Modelo de dados
 
@@ -325,7 +325,9 @@ Escopos restritos `gmail.readonly` e `gmail.send`, incrementais e separados. Ver
 
 ### 11.3 Extensão
 
-Chrome Web Store, propósito único. Permissões mínimas: `activeTab`, `scripting`, `storage`, `sidePanel`; hosts só dos ATS suportados, genérico sob demanda. Token em `chrome.storage.session`. Pareamento por código de 6 dígitos (10 min). Nunca clicar em submit no MVP. Nunca ler `input[type=password]` nem autocomplete de senha/OTP. Senha de ATS nunca persistida. Captcha, 2FA e login social: o usuário. Evidência: protocolo, URL e screenshot da confirmação, não da página com senha. Payload ao backend limitado a rótulos/opções, texto de confirmação e screenshot da confirmação. Nome de arquivo do CV sempre neutro (`buildCvFilename`).
+Chrome Web Store, propósito único. Permissões mínimas: `activeTab`, `scripting`, `storage`, `sidePanel`; hosts só dos ATS suportados, genérico sob demanda. Token de dispositivo em `chrome.storage.session` após pareamento. Nunca clicar em submit no MVP. Nunca ler `input[type=password]` nem autocomplete de senha/OTP. Senha de ATS nunca persistida. Captcha, 2FA e login social: o usuário. Evidência: protocolo, URL e screenshot da confirmação, não da página com senha. Payload ao backend limitado a rótulos/opções, texto de confirmação e screenshot da confirmação. Nome de arquivo do CV sempre neutro (`buildCvFilename`).
+
+Pareamento: o app web autenticado gera um código via `POST /api/ext/pair/init` (Configurações → Extensão Chrome); cada usuário mantém no máximo um código ativo por vez. A extensão envia o código em `POST /api/ext/pair` (endpoint público, sem sessão de usuário) com o nome do dispositivo e recebe uma vez o token em texto claro (`vp_dev_*`); a extensão guarda o token e o servidor persiste apenas o hash SHA-256 em `devices`. O código tem 8 caracteres do alfabeto sem ambíguos `23456789ABCDEFGHJKLMNPQRSTUVWXYZ` (exclui `0`, `1`, `I` e `O`; ~32⁸ combinações), normalizado em maiúsculas sem espaços ou hífens, com TTL de 10 minutos. Um código numérico de seis dígitos (~10⁶) seria pequeno demais para um endpoint público sem sessão; o formato de 8 caracteres mantém digitação manual no painel lateral da extensão (campo de 8 caracteres, maiúsculas). Rate limit por IP em `POST /api/ext/pair`: janela deslizante de 10 minutos, no máximo 8 tentativas por IP (HTTP 429). Lockout por código: após 5 tentativas inválidas para a mesma string (`failed_attempts` em `device_pairing_codes`, contador auxiliar em `pairing_code_attempts`), o código é invalidado e removido. Na geração (`pair/init`), até 5 novas tentativas se o valor de `code` colidir na chave primária. Tabelas `pairing_ip_attempts` e `pairing_code_attempts` são acessadas só via `service_role`. Evolução futura opcional: confirmação explícita no app web no lugar do código (fora do MVP).
 
 ### 11.4 Workers (fase 2)
 

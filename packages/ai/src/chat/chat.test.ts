@@ -154,6 +154,23 @@ describe("parseSearchRequest / parseSettingsIntent (F14)", () => {
       }
     }
   })
+
+  it("does not treat a pasted job as a language change", () => {
+    const posting = [
+      "Sobre a vaga de plataforma em São Paulo.",
+      "Inglês fluente é um diferencial da empresa fictícia.",
+      "Requisitos:",
+      "- Experiência com Kubernetes em produção",
+      "- Liderança de times de engenharia",
+      "Diferenciais",
+      "- Terraform",
+      "Descrição da vaga ".repeat(30),
+    ].join("\n")
+    expect(parseSettingsIntent(posting)).toEqual([])
+    expect(parseSettingsIntent("meu inglês agora é avançado")[0]?.tool).toBe(
+      "update_language_level"
+    )
+  })
 })
 
 describe("fake orchestrator", () => {

@@ -25,6 +25,7 @@ export function AppShell({
   tracker,
   nowIso,
   chatBootstrap,
+  plan,
   children,
 }: {
   displayName: string
@@ -38,6 +39,12 @@ export function AppShell({
     cvOptions: { id: string; label: string }[]
     pendingQuestions: PendingQuestionView[]
     nextSteps: NextStepsPayload
+  }
+  plan: {
+    name: string
+    used: number
+    limit: number | null
+    usageLabel: string
   }
   children: ReactNode
 }) {

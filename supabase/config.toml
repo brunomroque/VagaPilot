@@ -155,6 +155,11 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
+# Local site URL stays on the dev server. The hosted Supabase project is configured
+# in the dashboard (this file does not change it):
+#   Site URL = https://vagapilot.netlify.app
+#   Redirect URLs include https://vagapilot.netlify.app/auth/callback
+#   and https://vagapilot.netlify.app/auth/callback?next=/aceite
 site_url = "http://127.0.0.1:3100"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
@@ -168,6 +173,10 @@ additional_redirect_urls = [
   "http://localhost:3000/auth/callback",
   "http://127.0.0.1:3000/auth/confirm",
   "http://localhost:3000/auth/confirm",
+  "https://vagapilot.netlify.app/auth/callback",
+  "https://vagapilot.netlify.app/auth/confirm",
+  "https://vagapilot.netlify.app/auth/callback?next=/aceite",
+  "https://vagapilot.netlify.app/auth/callback?next=/app",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
@@ -250,6 +259,18 @@ otp_expiry = 3600
 # pass = "env(SENDGRID_API_KEY)"
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
+
+# Production SMTP (Resend) is set in the hosted dashboard, not in this file.
+# Authentication → Emails → SMTP. Do not commit API keys.
+# [auth.email.smtp]
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+
+[auth.email.template.confirmation]
+subject = "Confirme seu e-mail no VagaPilot"
+content_path = "./templates/confirmation.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

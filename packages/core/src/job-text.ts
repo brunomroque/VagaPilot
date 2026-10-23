@@ -122,6 +122,27 @@ export function splitRequirementSections(text: string): {
   return { required, preferred }
 }
 
+const JOB_SIGNAL =
+  /requisitos|responsabilidades|atribuicoes|sobre a vaga|descricao da vaga|job description|requirements|responsibilities|qualificacoes|diferenciais|beneficios|what you'?ll do|what you will do/i
+
+/**
+ * A pasted job description, not a settings command. Short utterances stay false
+ * so "meu inglês agora é avançado" is not treated as a posting.
+ */
+export function looksLikeJobPosting(text: string): boolean {
+  const trimmed = text.trim()
+  if (trimmed.length < 280) return false
+  const sections = splitRequirementSections(trimmed)
+  if (sections.required.length >= 2) return true
+  if (sections.required.length >= 1 && sections.preferred.length >= 1) {
+    return true
+  }
+  const folded = trimmed.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+  const hits = folded.match(new RegExp(JOB_SIGNAL.source, "gi"))?.length ?? 0
+  if (hits >= 2 && trimmed.length >= 400) return true
+  return hits >= 1 && trimmed.length >= 700
+}
+
 const EMAIL = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi
 const APPLY_HINT =
   /(envie|enviar|encaminhe|mande|send|e-?mail|curr[ií]culo|\bcv\b|candidat|apply)/i

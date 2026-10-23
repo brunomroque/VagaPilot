@@ -22,6 +22,8 @@ export type AuthErrorCode =
   | "google_unavailable"
   | "weak_password"
   | "rate_limited"
+  | "link_invalid"
+  | "public_url"
   | "unknown"
 
 export type AuthActionResult =

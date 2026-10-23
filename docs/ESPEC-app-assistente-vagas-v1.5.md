@@ -328,7 +328,7 @@ Convenção: **RF** = requisito funcional; **CA** = critério de aceite (verific
 
 **RF**
 
-- RF8.1 Login na extensão via token de dispositivo (pareamento por código de 6 dígitos exibido no app); token revogável.
+- RF8.1 Login na extensão via token de dispositivo (pareamento por código de 8 caracteres exibido no app; ver [ESPEC.md](./ESPEC.md) §11.3); token revogável.
 - RF8.2 Detecção do ATS na aba ativa e carregamento do "pacote de candidatura" correspondente à candidatura iniciada no app (via `application_id` no parâmetro da URL aberta pelo app ou seleção manual).
 - RF8.3 Adaptadores de preenchimento por ATS (MVP: Gupy, InHire, Greenhouse, Lever, Workday, genérico por heurística de rótulos); mapeamento de campos por rótulo/atributos `name`, `autocomplete`, `aria-label`.
 - RF8.4 Upload do CV via `DataTransfer` no `input[type=file]` com nome neutro.
@@ -2034,8 +2034,8 @@ Testes de integração com mocks da Gmail API.
 **P5.1 — Pareamento e pacote**
 
 ```text
-Na apps/extension (WXT, MV3) implemente pareamento (@docs/ESPEC.md F8 RF8.1): o app mostra código de 6 dígitos
-(válido 10 min) em Configurações → Dispositivos; a extensão troca o código por token de dispositivo (hash salvo em
+Na apps/extension (WXT, MV3) implemente pareamento (@docs/ESPEC.md §11.3, RF8.1): o app mostra código de 8 caracteres
+(válido 10 min) em Configurações → Extensão Chrome; a extensão troca o código por token de dispositivo (hash salvo em
 devices) guardado em chrome.storage.session. Backend: POST /api/ext/pair, GET /api/ext/packages/:id
 (retorna application_package decifrado só para o dono, expira em 24 h, marca consumed_at).
 "Aplicar" no JobCard (start_assisted_application) cria application + package e abre apply_url?vp_app={id}.
