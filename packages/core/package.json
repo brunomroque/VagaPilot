@@ -10,6 +10,8 @@
     "./br-documents": "./src/br-documents.ts",
     "./consents": "./src/consents.ts",
     "./crypto": "./src/crypto.ts",
+    "./legal": "./src/legal.ts",
+    "./risks": "./src/risks.ts",
     "./cv-filename": "./src/cv-filename.ts",
     "./email": "./src/email.ts",
     "./email-dates": "./src/email-dates.ts",
@@ -38,7 +40,9 @@
     "./postgres": "./src/postgres.ts",
     "./application-email": "./src/application-email.ts",
     "./ats-score": "./src/ats-score.ts",
-    "./cv-structure": "./src/cv-structure.ts"
+    "./cv-structure": "./src/cv-structure.ts",
+    "./permissions": "./src/permissions.ts",
+    "./sensitive-report": "./src/sensitive-report.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

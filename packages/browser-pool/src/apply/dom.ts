@@ -57,6 +57,20 @@ export async function collectFields(
       const placeholder = el.getAttribute("placeholder")
       return (placeholder ?? el.getAttribute("name") ?? "").trim()
     }
+    // Terms link next to a checkbox (inside its label or the label's container).
+    const linkFor = (el: HTMLElement): string | null => {
+      const label =
+        (el.id && root.querySelector(`label[for="${CSS.escape(el.id)}"]`)) ||
+        el.closest("label")
+      const scopes = [label, label?.parentElement, el.parentElement].filter(
+        Boolean
+      ) as Element[]
+      for (const scopeEl of scopes) {
+        const a = scopeEl.querySelector("a[href]") as HTMLAnchorElement | null
+        if (a?.href && /^https?:/i.test(a.href)) return a.href
+      }
+      return null
+    }
     const radios = new Map<string, FieldInfo>()
     const controls = root.querySelectorAll("input, select, textarea")
     for (const node of Array.from(controls)) {
@@ -153,6 +167,7 @@ export async function collectFields(
         required,
         options,
         currentValue: current,
+        linkHref: type === "checkbox" ? linkFor(el) : null,
       })
     }
     document.body.dataset.vpCounter = String(counter)

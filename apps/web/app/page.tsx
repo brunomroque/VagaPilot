@@ -46,6 +46,9 @@ export default async function HomePage() {
         >
           {t("aiUsage")}
         </Link>
+        <Link href="/riscos" className="underline-offset-4 hover:underline">
+          Riscos da automação
+        </Link>
       </nav>
     </main>
   )

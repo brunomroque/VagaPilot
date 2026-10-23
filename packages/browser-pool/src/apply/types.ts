@@ -24,12 +24,16 @@ export type FieldInfo = {
   required: boolean
   options: string[]
   currentValue: string | null
+  /** Link next to the field (e.g. the site's terms URL for a consent checkbox). */
+  linkHref?: string | null
 }
 
 export type ResolvedAnswer = {
   label: string
   value: string
   source: "profile" | "standard_answer" | "run_answer" | "cv"
+  /** 0..1 when the AI picked/derived the value. */
+  confidence?: number
 }
 
 export type UnknownQuestion = {
@@ -37,6 +41,12 @@ export type UnknownQuestion = {
   kind: FieldKind
   options: string[]
   required: boolean
+  /** Terms/privacy/consent checkbox: only the user may accept it ("Aceito" / "Cancelar"). */
+  consent?: { termsUrl: string | null }
+  /** Standing-permission prompt for an account/e-mail action ("Permissões do agente"). */
+  permission?: {
+    action: "create_site_account" | "open_email_link" | "use_email_code"
+  }
 }
 
 export type PageState =
@@ -87,7 +97,11 @@ export interface AtsDriver {
   /** Types a verification code into the current step and confirms it. */
   enterCode?(page: Page, code: string): Promise<boolean>
   /** Creates the account on the signup form (never the application submit). */
-  signup?(page: Page, account: SiteAccount, ctx: FillContext): Promise<boolean>
+  signup?(
+    page: Page,
+    account: SiteAccount,
+    ctx: FillContext
+  ): Promise<boolean | { questions: UnknownQuestion[] }>
   /** Logs in with a stored site account. */
   login?(page: Page, account: SiteAccount): Promise<boolean>
 }

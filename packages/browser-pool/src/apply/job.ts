@@ -13,6 +13,38 @@ import {
   keyProviderFromEnv,
   type FieldCrypto,
 } from "@vagapilot/core/crypto"
+import { termsSnapshotHash } from "@vagapilot/core/legal"
+import {
+  categoriesForLabels,
+  consentActionFor,
+  cardChoicesFor,
+  CARD_CHOICES,
+} from "@vagapilot/core/permissions"
+import {
+  buildSensitiveReport,
+  categoryCounts,
+  mergeReports,
+  shouldNotifySensitive,
+  type ReportField,
+  type ReportOrigin,
+  type SensitiveReport,
+} from "@vagapilot/core/sensitive-report"
+import {
+  authStateKeyFromEnv,
+  openAuthState,
+  sealAuthState,
+} from "../auth/crypto.js"
+import {
+  decide,
+  EMPTY_PERMISSIONS,
+  loadPermissionState,
+  PERMISSION_ALLOW,
+  PERMISSION_DENY,
+  permissionLabel,
+  recordPermissionUse,
+  sensitiveReportAad,
+  type PermissionState,
+} from "./permissions.js"
 import { checkTransition, type ApplicationStatus } from "@vagapilot/core/status"
 import {
   fromBytea,
@@ -109,6 +141,16 @@ export type ApplyJobOptions = {
     userId: string,
     domains: string[]
   ) => Promise<SegmentVerification | null>
+  /**
+   * "Dados sensíveis enviados" e-mail (opt-in, off by default). Called only when at least one
+   * notable field was filled under a standing permission; the report holds only those fields.
+   */
+  notifySensitive?: (input: {
+    userId: string
+    runId: string
+    applicationId: string
+    report: SensitiveReport
+  }) => Promise<void>
 }
 
 type RunRow = {
@@ -214,21 +256,45 @@ async function loadRunAnswers(
   ctx: Ctx,
   run: RunRow
 ): Promise<Record<string, string>> {
+  return (await loadRunAnswerMeta(ctx, run)).answers
+}
+
+async function loadRunAnswerMeta(
+  ctx: Ctx,
+  run: RunRow
+): Promise<{
+  answers: Record<string, string>
+  origins: Record<string, ReportOrigin>
+}> {
   const { data } = await ctx.admin
     .from("pending_questions")
-    .select("question_text, answer, status")
+    .select("question_text, answer, status, field_type, proposed_from")
     .eq("application_id", run.application_id)
     .eq("user_id", run.user_id)
     .eq("status", "respondida")
   const answers: Record<string, string> = {}
+  const origins: Record<string, ReportOrigin> = {}
   for (const row of (data ?? []) as {
     question_text: string
     answer: string | null
+    field_type: string | null
+    proposed_from: { run_id?: string; auto?: boolean; origin?: ReportOrigin } | null
   }[]) {
-    if (row.answer?.trim())
-      answers[normalizeLabel(row.question_text)] = row.answer.trim()
+    // Consent/permission decisions are per action: only the ones given for THIS run count.
+    if (
+      (row.field_type === "consent" || row.field_type === "permission") &&
+      row.proposed_from?.run_id !== run.id
+    )
+      continue
+    if (row.answer?.trim()) {
+      const key = normalizeLabel(row.question_text)
+      answers[key] = row.answer.trim()
+      origins[key] = row.proposed_from?.auto
+        ? (row.proposed_from.origin ?? "automatico")
+        : "uma_vez"
+    }
   }
-  return answers
+  return { answers, origins }
 }
 
 async function downloadCv(
@@ -324,7 +390,9 @@ async function audit(
     | "apply.verification_link_opened"
     | "apply.verification_escalated"
     | "apply.site_account_created"
-    | "apply.site_login",
+    | "apply.site_login"
+    | "apply.consent_requested"
+    | "agent_permission.auto_used",
   runId: string,
   details: Record<string, unknown>
 ) {
@@ -338,11 +406,60 @@ async function audit(
   }).catch(() => undefined)
 }
 
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.toLowerCase()
+  } catch {
+    return ""
+  }
+}
+
+function siteHost(url: string): string {
+  try {
+    return new URL(url).hostname.toLowerCase()
+  } catch {
+    return ""
+  }
+}
+
+/** Only http(s) links on the run's own site (same host or a parent/sub domain of it). */
+function safeTermsUrl(href: string | null, site: string): string | null {
+  if (!href) return null
+  try {
+    const u = new URL(href)
+    if (!/^https?:$/.test(u.protocol)) return null
+    const host = u.hostname.toLowerCase()
+    const base = site.split(".").slice(-2).join(".")
+    return base && (host === base || host.endsWith(`.${base}`)) ? u.toString() : null
+  } catch {
+    return null
+  }
+}
+
+/** SHA-256 of the terms page text at the moment we asked (best effort, 5 s, 1 MB). */
+async function snapshotTerms(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(5000) })
+    if (!res.ok) return null
+    const body = (await res.text()).slice(0, 1_000_000)
+    const text = body.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>/gi, " ")
+    return termsSnapshotHash(text)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Stores the questions the user must answer. Consent boxes covered by a standing permission (with
+ * every data category confirmed) are answered here and logged; returns how many still need the
+ * user, or a failure when a deny rule blocks a required consent.
+ */
 async function askQuestions(
   ctx: Ctx,
   run: RunRow,
-  outcome: Extract<SegmentOutcome, { kind: "needs_answers" }>
-) {
+  outcome: Extract<SegmentOutcome, { kind: "needs_answers" }>,
+  perms: PermissionState = EMPTY_PERMISSIONS
+): Promise<{ asked: number; failed?: string }> {
   const { data } = await ctx.admin
     .from("pending_questions")
     .select("question_text")
@@ -354,20 +471,149 @@ async function askQuestions(
       normalizeLabel(r.question_text)
     )
   )
-  const rows = outcome.questions
-    .filter((q) => !open.has(normalizeLabel(q.label)))
-    .map((q) => ({
-      user_id: run.user_id,
-      application_id: run.application_id,
-      question_text: q.label.slice(0, 500),
-      field_type: q.kind,
-      options: q.options.length ? q.options : null,
-      status: "aberta",
-    }))
+  const site = siteHost(run.target_url)
+  const host = hostOf(run.target_url)
+  const fresh = outcome.questions.filter((q) => !open.has(normalizeLabel(q.label)))
+  let failed: string | undefined
+  let autoCount = 0
+  const rows = (
+    await Promise.all(
+      fresh.map(async (q) => {
+        if (q.permission) {
+          const d = decide(perms, q.permission.action, host, ["contato"])
+          return {
+            user_id: run.user_id,
+            application_id: run.application_id,
+            question_text: q.label.slice(0, 500),
+            field_type: "permission",
+            options: cardChoicesFor({
+              action: q.permission.action,
+              siteRisk: perms.siteRisk,
+            }).map((c) => CARD_CHOICES[c]),
+            proposed_from: {
+              permission: true,
+              action: q.permission.action,
+              run_id: run.id,
+              site,
+              host,
+              categories: ["contato"],
+              missing: d.missing ?? [],
+              reason: d.reason,
+            },
+            status: "aberta",
+          }
+        }
+        if (!q.consent)
+          return {
+            user_id: run.user_id,
+            application_id: run.application_id,
+            question_text: q.label.slice(0, 500),
+            field_type: q.kind,
+            options: q.options.length ? q.options : null,
+            status: "aberta",
+          }
+        // Terms/privacy/consent of the site: the user decides, or a standing permission does.
+        const termsUrl = safeTermsUrl(q.consent.termsUrl, site)
+        const termsSha = termsUrl ? await snapshotTerms(termsUrl) : null
+        const { action, categories } = consentActionFor(q.label)
+        const d = decide(perms, action, host, categories)
+        const meta = {
+          consent: true,
+          run_id: run.id,
+          site,
+          host,
+          action,
+          categories,
+          terms_url: termsUrl,
+          terms_sha256: termsSha,
+        }
+        if (d.decision !== "ask") {
+          await recordPermissionUse(ctx.admin, {
+            user_id: run.user_id,
+            run_id: run.id,
+            action_type: action,
+            site: host,
+            decision: d.decision,
+            reason: d.reason,
+            rule_id: d.rule?.id ?? null,
+            categories,
+            field_label: q.label.slice(0, 300),
+            terms_url: termsUrl,
+            terms_sha256: termsSha,
+          })
+          await audit(ctx, run.user_id, "agent_permission.auto_used", run.id, {
+            action,
+            site: host,
+            decision: d.decision,
+            reason: d.reason,
+            categories,
+          })
+        }
+        if (d.decision === "deny") {
+          failed = `Bloqueado pelas suas Permissões do agente (${action === "accept_marketing_optin" ? "marketing" : "termos"} negados em ${host}). Ajuste em Configurações → Permissões do agente.`
+          return null
+        }
+        if (d.decision === "allow") {
+          autoCount += 1
+          await ctx.admin
+            .from("apply_consent_decisions")
+            .insert({
+              user_id: run.user_id,
+              application_id: run.application_id,
+              site,
+              field_label: q.label.slice(0, 500),
+              terms_url: termsUrl,
+              terms_sha256: termsSha,
+              decision: "aceito",
+            })
+            .then(
+              () => undefined,
+              () => undefined
+            )
+          return {
+            user_id: run.user_id,
+            application_id: run.application_id,
+            question_text: q.label.slice(0, 500),
+            field_type: "consent",
+            options: ["Aceito", "Cancelar"],
+            answer: "Aceito",
+            proposed_from: {
+              ...meta,
+              auto: true,
+              origin: d.reason === "allow_rule" ? "regra" : "automatico",
+              rule_id: d.rule?.id ?? null,
+            },
+            status: "respondida",
+          }
+        }
+        return {
+          user_id: run.user_id,
+          application_id: run.application_id,
+          question_text: q.label.slice(0, 500),
+          field_type: "consent",
+          options: cardChoicesFor({ action, siteRisk: perms.siteRisk }).map(
+            (c) => CARD_CHOICES[c]
+          ),
+          proposed_from: { ...meta, missing: d.missing ?? [], reason: d.reason },
+          status: "aberta",
+        }
+      })
+    )
+  ).filter((r): r is NonNullable<typeof r> => r !== null)
   if (rows.length) await ctx.admin.from("pending_questions").insert(rows)
-  await audit(ctx, run.user_id, "question.asked", run.id, {
-    count: outcome.questions.length,
-  })
+  const asked = rows.filter((r) => r.status === "aberta").length
+  if (asked)
+    await audit(ctx, run.user_id, "question.asked", run.id, { count: asked })
+  const consents = rows.filter(
+    (r) => r.field_type === "consent" && r.status === "aberta"
+  )
+  if (consents.length)
+    await audit(ctx, run.user_id, "apply.consent_requested", run.id, {
+      site,
+      count: consents.length,
+    })
+  void autoCount
+  return { asked, failed }
 }
 
 async function requestApproval(
@@ -425,6 +671,80 @@ async function requestApproval(
   })
   await audit(ctx, run.user_id, "approval.requested", run.id, {
     approval_id: approvalId,
+  })
+  return approvalId
+}
+
+/** final_submit under a confirmed standing permission: approve the exact preview just created. */
+async function autoApproveSubmit(
+  ctx: Ctx,
+  run: RunRow,
+  approvalId: string,
+  reason: string,
+  ruleId?: string
+) {
+  await ctx.admin
+    .from("approvals")
+    .update({
+      status: "aprovada",
+      decided_at: new Date().toISOString(),
+      decided_via: "agent_permission",
+    })
+    .eq("id", approvalId)
+    .eq("user_id", run.user_id)
+    .eq("status", "pendente")
+  await ctx.update(run.id, { phase: "submit_approved", approval_id: approvalId })
+  await audit(ctx, run.user_id, "agent_permission.auto_used", run.id, {
+    action: "final_submit",
+    approval_id: approvalId,
+    reason,
+    rule_id: ruleId ?? null,
+  })
+}
+
+async function loadSensitiveReport(
+  ctx: Ctx,
+  run: RunRow,
+  key: Buffer | null
+): Promise<SensitiveReport | null> {
+  if (!key) return null
+  const { data } = await ctx.admin
+    .from("apply_runs")
+    .select("sensitive_report_enc")
+    .eq("id", run.id)
+    .maybeSingle()
+  const bytes = fromBytea(
+    (data as { sensitive_report_enc?: string | null } | null)
+      ?.sensitive_report_enc
+  )
+  if (!bytes) return null
+  try {
+    return openAuthState<SensitiveReport>(
+      key,
+      sensitiveReportAad(run.user_id, run.id),
+      bytes
+    )
+  } catch {
+    return null
+  }
+}
+
+/** Owner-only report sealed at rest; admins only ever read sensitive_counts. */
+async function saveSensitiveReport(
+  ctx: Ctx,
+  run: RunRow,
+  key: Buffer | null,
+  report: SensitiveReport
+) {
+  await ctx.update(run.id, {
+    sensitive_counts: categoryCounts(report),
+    ...(key
+      ? {
+          sensitive_report_enc: toBytea(
+            sealAuthState(key, sensitiveReportAad(run.user_id, run.id), report)
+          ),
+        }
+      : {}),
   })
 }
 
@@ -629,6 +949,48 @@ export async function runApplyJob(
           .verificationFor(run.user_id, verifyDomains)
           .catch(() => null)
       : null
+    const host = hostOf(run.target_url)
+    const perms = await loadPermissionState(admin, run.user_id, host).catch(
+      () => EMPTY_PERMISSIONS
+    )
+    const reportKey = (() => {
+      try {
+        return authStateKeyFromEnv(env)
+      } catch {
+        return null
+      }
+    })()
+    let report = await loadSensitiveReport(ctx, run, reportKey)
+    let answerMeta = await loadRunAnswerMeta(ctx, run)
+    const permit = async (
+      action: "create_site_account" | "open_email_link" | "use_email_code"
+    ): Promise<"allow" | "ask" | "deny"> => {
+      const d = decide(perms, action, host, ["contato"])
+      if (d.decision !== "ask") {
+        await recordPermissionUse(admin, {
+          user_id: run.user_id,
+          run_id: run.id,
+          action_type: action,
+          site: host,
+          decision: d.decision,
+          reason: d.reason,
+          rule_id: d.rule?.id ?? null,
+          categories: ["contato"],
+        })
+        await audit(ctx, run.user_id, "agent_permission.auto_used", run.id, {
+          action,
+          site: host,
+          decision: d.decision,
+          reason: d.reason,
+        })
+        return d.decision
+      }
+      const given = answerMeta.answers[normalizeLabel(permissionLabel(action))]
+      if (given === PERMISSION_ALLOW) return "allow"
+      if (given === PERMISSION_DENY) return "deny"
+      return "ask"
+    }
+    let autoRounds = 0
     const accountEmail = payload.profile.email
     const account =
       hasAuthKey && accountEmail
@@ -743,7 +1105,13 @@ export async function runApplyJob(
           page,
           driver,
           url: run.target_url,
-          ctx: { payload, runAnswers: await loadRunAnswers(ctx, run), cvPath },
+          ctx: {
+            payload,
+            runAnswers: (answerMeta = await loadRunAnswerMeta(ctx, run))
+              .answers,
+            cvPath,
+          },
+          permit,
           deadline: Date.now() + sessionMs - 60_000,
           approvedSummaryHash: submitHash,
           humanWaitMs: options.humanWaitMs,
@@ -785,7 +1153,21 @@ export async function runApplyJob(
                 : null
             ).catch(() => undefined)
           },
-          onProgress: async (step) => {
+          onProgress: async (step, filled) => {
+            const fields: ReportField[] = filled.map((f) => ({
+              question: f.label,
+              answer: f.value,
+              origin:
+                f.source === "run_answer"
+                  ? (answerMeta.origins[normalizeLabel(f.label)] ?? "uma_vez")
+                  : "perfil",
+              confidence: f.confidence ?? null,
+            }))
+            const next = buildSensitiveReport(host, fields)
+            if (next.entries.length) {
+              report = mergeReports(report, next)
+              await saveSensitiveReport(ctx, run, reportKey, report)
+            }
             await ctx.update(run.id, {
               step_index: step,
               phase: submitHash ? "submitting" : "running",
@@ -851,8 +1233,22 @@ export async function runApplyJob(
         case "continue":
           continue
         case "needs_answers":
+          {
+            const asked = await askQuestions(ctx, run, outcome, perms)
+            if (asked.failed) {
+              phase = "failed"
+              await ctx.update(run.id, {
+                phase,
+                last_error: asked.failed,
+                lease_until: null,
+                live_view_url: null,
+              })
+              return { runId, phase, segments }
+            }
+            // Everything covered by standing permissions: keep going without pausing.
+            if (asked.asked === 0 && autoRounds++ < 3) continue
+          }
           phase = "waiting_answers"
-          await askQuestions(ctx, run, outcome)
           await ctx.update(run.id, {
             phase,
             lease_until: null,
@@ -878,11 +1274,59 @@ export async function runApplyJob(
           return { runId, phase, segments }
         case "review":
           phase = "review_ready"
-          await requestApproval(ctx, run, outcome)
+          {
+            const approvalId = await requestApproval(ctx, run, outcome)
+            const d = decide(
+              perms,
+              "final_submit",
+              host,
+              categoriesForLabels(outcome.summary.map((f) => f.label))
+            )
+            if (d.decision === "allow" && approvalId && autoRounds++ < 4) {
+              await autoApproveSubmit(ctx, run, approvalId, d.reason, d.rule?.id)
+              await recordPermissionUse(admin, {
+                user_id: run.user_id,
+                run_id: run.id,
+                action_type: "final_submit",
+                site: host,
+                decision: "allow",
+                reason: d.reason,
+                rule_id: d.rule?.id ?? null,
+              })
+              run.phase = "submit_approved"
+              run.approval_id = approvalId
+              continue
+            }
+          }
           return { runId, phase, segments }
         case "submitted":
           phase = "submitted"
           await markSubmitted(ctx, run, outcome)
+          if (report && options.notifySensitive) {
+            const { data: prefs } = await admin
+              .from("agent_permission_prefs")
+              .select("notify_sensitive_email")
+              .eq("user_id", run.user_id)
+              .maybeSingle()
+            const optIn = Boolean(
+              (prefs as { notify_sensitive_email?: boolean } | null)
+                ?.notify_sensitive_email
+            )
+            if (shouldNotifySensitive(report, optIn))
+              await options
+                .notifySensitive({
+                  userId: run.user_id,
+                  runId: run.id,
+                  applicationId: run.application_id,
+                  report: {
+                    ...report,
+                    entries: report.entries.filter(
+                      (e) => e.origin === "regra" || e.origin === "automatico"
+                    ),
+                  },
+                })
+                .catch(() => undefined)
+          }
           return { runId, phase, segments }
         case "failed":
           if (
@@ -919,3 +1363,23 @@ export async function runApplyJob(
 }
 
 export { hashSummary }
+
+/**
+ * Opens a run's sealed "Dados sensíveis enviados" report (owner views only). Returns null
+ * without the key or on any tampering.
+ */
+export function openSensitiveReportColumn(
+  value: string | null | undefined,
+  userId: string,
+  runId: string,
+  env: Env = process.env
+): SensitiveReport | null {
+  try {
+    const key = authStateKeyFromEnv(env)
+    const bytes = fromBytea(value)
+    if (!key || !bytes) return null
+    return openAuthState<SensitiveReport>(key, sensitiveReportAad(userId, runId), bytes)
+  } catch {
+    return null
+  }
+}

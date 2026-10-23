@@ -1,5 +1,7 @@
-import { LegalDraft } from "@/components/legal-draft"
+import { PublicLegalPage } from "@/components/risk/public-legal-page"
+
+export const dynamic = "force-dynamic"
 
 export default function PrivacyPage() {
-  return <LegalDraft title="privacyTitle" />
+  return <PublicLegalPage slug="politica-de-privacidade" fallback="privacyTitle" />
 }

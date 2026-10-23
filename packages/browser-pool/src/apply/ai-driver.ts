@@ -9,6 +9,7 @@ import {
   summarizeScope,
   unknownInScope,
 } from "./dom.js"
+import { CONSENT_ACCEPT, normalizeLabel } from "./resolver.js"
 import type {
   AtsDriver,
   FieldInfo,
@@ -354,14 +355,44 @@ export function aiDriver(options: AiDriverOptions): AtsDriver {
       await fillKey(page, current.emailField, account.email)
       await fillPasswords(page, current.passwordFields, account.password)
       // Name, phone… from the profile; anything unknown makes signup escalate to the user.
+      // Terms/privacy/consent boxes are NEVER ticked here: the resolver only checks them after
+      // the user answered "Aceito" in this run; otherwise they come back as consent questions.
       const { unknown } = await fillScope(page, "body", ctx)
+      const consent = unknown.filter((q) => q.consent)
+      if (consent.length) return { questions: consent }
       if (unknown.length) return false
-      if (current.termsCheckbox)
-        await page
-          .locator(`[data-vp-key="${current.termsCheckbox}"]`)
-          .first()
-          .check()
-          .catch(() => undefined)
+      if (current.termsCheckbox) {
+        const box = page.locator(`[data-vp-key="${current.termsCheckbox}"]`).first()
+        const checked = await box.isChecked().catch(() => false)
+        if (!checked) {
+          const label = await box
+            .evaluate((el) => {
+              const input = el as HTMLInputElement
+              const lab =
+                (input.id && document.querySelector(`label[for="${CSS.escape(input.id)}"]`)) ||
+                input.closest("label")
+              const a = (lab?.querySelector("a[href]") ?? lab?.parentElement?.querySelector("a[href]")) as HTMLAnchorElement | null
+              return { text: (lab?.textContent ?? "").replace(/\s+/g, " ").trim(), href: a?.href ?? null }
+            })
+            .catch(() => ({ text: "", href: null as string | null }))
+          const termsLabel = label.text || "Aceite dos termos de uso do site"
+          const decided = ctx.runAnswers[normalizeLabel(termsLabel)]
+          if (decided && normalizeLabel(decided) === normalizeLabel(CONSENT_ACCEPT)) {
+            // The user accepted these terms themselves in this run (audited by the app).
+            await box.check().catch(() => undefined)
+          } else return {
+            questions: [
+              {
+                label: termsLabel,
+                kind: "checkbox",
+                options: ["Aceito", "Cancelar"],
+                required: true,
+                consent: { termsUrl: label.href },
+              },
+            ],
+          }
+        }
+      }
       if (!(await click(page, current.accountButton))) return false
       const after = await plan(page)
       return after.state !== "signup"

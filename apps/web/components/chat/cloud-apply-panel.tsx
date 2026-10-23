@@ -12,6 +12,10 @@ import {
   resumeApplyRunAction,
   startCloudApplyAction,
 } from "@/app/app/chat/actions"
+import type { Grant } from "@/components/permissions/category-grant"
+import { PermissionRunCard } from "@/components/permissions/run-card"
+import { SensitiveReportView } from "@/components/permissions/sensitive-report"
+import { RiskAlertList } from "@/components/risk/risk-alerts"
 import { SiteLoginCard } from "@/components/settings/site-login-card"
 import type { ApplyRunView } from "@/lib/apply/server"
 import { Button } from "@workspace/ui/components/button"
@@ -63,6 +67,7 @@ export function CloudApplyPanel({
   const [busy, startTransition] = useTransition()
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [remember, setRemember] = useState<Record<string, boolean>>({})
+  const [needsConsent, setNeedsConsent] = useState(false)
 
   const refresh = useCallback(async () => {
     if (!runId) return
@@ -92,6 +97,10 @@ export function CloudApplyPanel({
     startTransition(async () => {
       const result = await startCloudApplyAction({ matchId })
       if (!result.ok) {
+        if (result.error.message === "risk_consent_required") {
+          setNeedsConsent(true)
+          return
+        }
         toast.error(t("errors.start", { reason: result.error.message }))
         return
       }
@@ -99,16 +108,17 @@ export function CloudApplyPanel({
     })
   }
 
-  function answer(questionId: string) {
-    const value = answers[questionId]?.trim()
+  function answer(questionId: string, explicit?: string, grant?: Grant) {
+    const value = (explicit ?? answers[questionId])?.trim()
     if (!value) return
     startTransition(async () => {
       const result = await answerPendingQuestionAction({
         questionId,
         answer: value,
         remember: remember[questionId] ?? false,
+        ...(grant ? { grant } : {}),
       })
-      if (!result.ok) toast.error(t("errors.generic"))
+      if (!result.ok) toast.error(result.error.message || t("errors.generic"))
       await refresh()
     })
   }
@@ -139,6 +149,21 @@ export function CloudApplyPanel({
     return (
       <div className="flex flex-col gap-1 rounded-md border p-3 text-sm">
         <p className="text-muted-foreground">{t("intro")}</p>
+        <p className="text-xs text-muted-foreground">
+          A automação age em seu nome em sites de terceiros e pode errar ou ser bloqueada.{" "}
+          <a href="/app/configuracoes/riscos" className="underline">
+            Riscos e responsabilidades
+          </a>
+        </p>
+        {needsConsent ? (
+          <p role="alert" className="rounded border border-amber-500/50 bg-amber-500/5 p-2 text-xs">
+            Antes da primeira candidatura na nuvem (e quando os termos mudam), você precisa ler e
+            aceitar o Termo de Riscos e os Termos de Uso.{" "}
+            <a href="/app/configuracoes/riscos" className="font-medium underline">
+              Ler e aceitar
+            </a>
+          </p>
+        ) : null}
         <div>
           <Button size="sm" onClick={start} disabled={busy}>
             {t("start")}
@@ -167,6 +192,7 @@ export function CloudApplyPanel({
           </Button>
         ) : null}
       </div>
+      {run ? <RiskAlertList alerts={run.alerts} /> : null}
       {run?.lastError ? (
         <p className="text-xs text-destructive">{run.lastError}</p>
       ) : null}
@@ -219,7 +245,61 @@ export function CloudApplyPanel({
       {phase === "waiting_answers" && run?.questions.length ? (
         <div className="flex flex-col gap-3">
           <p className="text-xs text-muted-foreground">{t("questionsHelp")}</p>
-          {run.questions.map((q) => (
+          {run.questions.map((q) =>
+            q.card ? (
+              <PermissionRunCard
+                key={q.id}
+                question={q.question}
+                options={q.options}
+                card={q.card}
+                termsUrl={q.consent?.termsUrl ?? null}
+                busy={busy}
+                onAnswer={(value, grant) => answer(q.id, value, grant)}
+              />
+            ) : q.consent ? (
+              <div
+                key={q.id}
+                role="alertdialog"
+                aria-labelledby={`q-${q.id}`}
+                className="flex flex-col gap-2 rounded border border-amber-500/60 bg-amber-500/5 p-2"
+              >
+                <p id={`q-${q.id}`} className="text-xs">
+                  <strong>O site pede que você aceite:</strong> “{q.question}”
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  O VagaPilot nunca marca termos, privacidade, marketing ou consentimentos sozinho.
+                  Leia o texto do site e decida. Sua decisão vale só para esta candidatura e fica
+                  registrada.
+                </p>
+                {q.consent.termsUrl ? (
+                  <a
+                    href={q.consent.termsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs underline"
+                  >
+                    Ler os termos do site
+                  </a>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Link dos termos não encontrado: abra a visualização ao vivo para ler.
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => answer(q.id, "Aceito")} disabled={busy}>
+                    Aceito
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => answer(q.id, "Cancelar")}
+                    disabled={busy}
+                  >
+                    Cancelar candidatura
+                  </Button>
+                </div>
+              </div>
+            ) : (
             <div key={q.id} className="flex flex-col gap-1">
               <label className="font-medium" htmlFor={`q-${q.id}`}>
                 {q.question}
@@ -268,10 +348,17 @@ export function CloudApplyPanel({
                 </Button>
               </div>
             </div>
-          ))}
+            )
+          )}
         </div>
       ) : null}
 
+      {(phase === "review_ready" || phase === "submitted") && run?.sensitiveReport ? (
+        <SensitiveReportView
+          report={run.sensitiveReport}
+          title={phase === "submitted" ? "Dados sensíveis enviados" : "Dados sensíveis que serão enviados"}
+        />
+      ) : null}
       {phase === "review_ready" && run ? (
         <div className="flex flex-col gap-2">
           <p className="text-xs text-muted-foreground">{t("reviewHelp")}</p>
@@ -279,7 +366,20 @@ export function CloudApplyPanel({
             {run.reviewFields.map((field, i) => (
               <div key={`${field.label}-${i}`} className="contents">
                 <dt className="text-muted-foreground">{field.label}</dt>
-                <dd className="break-words">{field.value}</dd>
+                <dd
+                  className={
+                    run.lowConfidence.includes(field.label)
+                      ? "break-words rounded bg-amber-500/10 px-1 outline outline-1 outline-amber-500/60"
+                      : "break-words"
+                  }
+                >
+                  {field.value}
+                  {run.lowConfidence.includes(field.label) ? (
+                    <span className="ml-1 text-[10px] text-amber-700 dark:text-amber-400">
+                      (confira: baixa confiança)
+                    </span>
+                  ) : null}
+                </dd>
               </div>
             ))}
           </dl>
@@ -291,6 +391,10 @@ export function CloudApplyPanel({
               className="max-h-96 w-full rounded border object-contain object-top"
             />
           ) : null}
+          <p className="text-xs">
+            <strong>Você é responsável pelo envio.</strong> Confira cada resposta: o envio só
+            acontece depois da sua aprovação e não pode ser desfeito pelo VagaPilot.
+          </p>
           <div className="flex gap-2">
             <Button
               size="sm"

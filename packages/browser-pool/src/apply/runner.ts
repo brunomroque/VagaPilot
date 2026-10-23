@@ -67,6 +67,13 @@ export type SegmentInput = {
     get(): Promise<SiteAccount | null>
     create(): Promise<SiteAccount>
   } | null
+  /**
+   * Standing permission for account/e-mail actions. "ask" pauses with a permission question,
+   * "deny" hands the step to the human in the live view. Absent: allowed (legacy behaviour).
+   */
+  permit?(
+    action: "create_site_account" | "open_email_link" | "use_email_code"
+  ): Promise<"allow" | "ask" | "deny">
   /** Audit hook (no secrets: codes and passwords never reach it). */
   onVerification?(event: VerificationEvent): Promise<void>
   /** Called after signup/verification so the job saves browser_auth_states right away. */
@@ -115,6 +122,35 @@ async function waitForHuman(
     if (state !== blocking) return state
   }
   return "timeout"
+}
+
+const PERMISSION_TITLES = {
+  create_site_account: "Criar conta no site",
+  open_email_link: "Abrir link de confirmação do e-mail",
+  use_email_code: "Usar código recebido por e-mail",
+} as const
+
+/** null: go ahead; "deny": hand over to the human; outcome: pause and ask. */
+async function gateAction(
+  input: SegmentInput,
+  action: keyof typeof PERMISSION_TITLES
+): Promise<null | "deny" | SegmentOutcome> {
+  if (!input.permit) return null
+  const decision = await input.permit(action)
+  if (decision === "allow") return null
+  if (decision === "deny") return "deny"
+  return {
+    kind: "needs_answers",
+    questions: [
+      {
+        label: `Permissão do agente: ${PERMISSION_TITLES[action]}`,
+        kind: "radio",
+        options: ["Permitir", "Negar"],
+        required: true,
+        permission: { action },
+      },
+    ],
+  }
 }
 
 const MAX_AUTO_VERIFICATIONS = 3
@@ -166,8 +202,17 @@ async function handleAccountStep(
       }
     }
     if (state === "signup" && driver.signup && input.account) {
+      if (!existing) {
+        const gate = await gateAction(input, "create_site_account")
+        if (gate === "deny") return escalate("signup", "permission_denied")
+        if (gate) return gate
+      }
       const account = existing ?? (await input.account.create())
-      if (await driver.signup(page, account, input.ctx)) {
+      const result = await driver.signup(page, account, input.ctx)
+      // Consent boxes of the signup form (terms/privacy) are never ticked by us: ask the user.
+      if (typeof result === "object" && result.questions.length)
+        return { kind: "needs_answers", questions: result.questions }
+      if (result === true) {
         await input.onVerification?.({
           kind: "signed_up",
           created: account.created,
@@ -182,6 +227,9 @@ async function handleAccountStep(
   if (state === "verify_code") {
     if (!input.verification || !driver.enterCode)
       return escalate("code", "no_gmail")
+    const gate = await gateAction(input, "use_email_code")
+    if (gate === "deny") return escalate("code", "permission_denied")
+    if (gate) return gate
     const found = await input.verification.awaitCode(since)
     if (!found) return escalate("code", "no_code_email")
     if (!(await driver.enterCode(page, found.value)))
@@ -197,6 +245,9 @@ async function handleAccountStep(
   }
   // verify_email
   if (!input.verification) return escalate("link", "no_gmail")
+  const gate = await gateAction(input, "open_email_link")
+  if (gate === "deny") return escalate("link", "permission_denied")
+  if (gate) return gate
   const found = await input.verification.awaitLink(since)
   if (!found) return escalate("link", "no_link_email")
   // Same browser context, so the session the ATS creates sticks to this run.

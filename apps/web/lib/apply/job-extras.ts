@@ -7,7 +7,7 @@ import type { ApplyJobOptions } from "@vagapilot/browser-pool/job"
  * confirmation links of the run's ATS.
  */
 export async function applyJobExtras(): Promise<
-  Pick<ApplyJobOptions, "genericPlanner" | "verificationFor">
+  Pick<ApplyJobOptions, "genericPlanner" | "verificationFor" | "notifySensitive">
 > {
   const [{ createApplyPagePlanner }, gmail] = await Promise.all([
     import("@vagapilot/ai"),
@@ -30,6 +30,26 @@ export async function applyJobExtras(): Promise<
         awaitCode: (since) => hooks.awaitCode(domains, since),
         awaitLink: (since) => hooks.awaitLink(domains, since),
       }
+    },
+    // Opt-in (off by default): only auto-filled notable fields; the subject never has values.
+    async notifySensitive({ userId, runId, report }) {
+      const [{ createMailerFromEnv }, { adminFromEnv }, sr] = await Promise.all([
+        import("@vagapilot/jobs"),
+        import("@vagapilot/browser-pool/job"),
+        import("@vagapilot/core/sensitive-report"),
+      ])
+      const mailer = createMailerFromEnv()
+      if (mailer.kind !== "resend") return
+      const { data } = await adminFromEnv().auth.admin.getUserById(userId)
+      const to = data.user?.email
+      if (!to) return
+      const appUrl = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "")
+      await mailer.send({
+        to,
+        subject: sr.sensitiveEmailSubject(null),
+        text: sr.sensitiveEmailBody(report, appUrl),
+        idempotencyKey: `sensitive-report-${runId}`,
+      })
     },
   }
 }
