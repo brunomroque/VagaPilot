@@ -1,14 +1,16 @@
+/** PostHog lazy-loads SDK bundles and config from subdomains of posthog.com (see PostHog CSP docs). */
+const POSTHOG_ORIGIN = "https://*.posthog.com"
+
 /** Content-Security-Policy for the web app (spec 12, OWASP ASVS). */
 export function buildContentSecurityPolicy(isDev: boolean): string {
-  const scriptSrc = isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-    : "script-src 'self' 'unsafe-inline'"
+  const scriptParts = ["'self'", "'unsafe-inline'", POSTHOG_ORIGIN]
+  if (isDev) scriptParts.splice(2, 0, "'unsafe-eval'")
+  const scriptSrc = `script-src ${scriptParts.join(" ")}`
   const connect = [
     "'self'",
     "https://*.supabase.co",
     "wss://*.supabase.co",
-    "https://eu.i.posthog.com",
-    "https://us.i.posthog.com",
+    POSTHOG_ORIGIN,
     "https://*.sentry.io",
     "https://cloud.langfuse.com",
   ].join(" ")
