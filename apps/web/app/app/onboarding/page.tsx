@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import Link from "next/link"
 import {
   CheckCircle2Icon,
   CircleIcon,
@@ -107,9 +108,19 @@ export default async function OnboardingPage({
                   </span>
                   <span className="flex gap-2">
                     <Badge variant="outline">{version.language}</Badge>
-                    <Badge variant="secondary">
-                      {t("cvs.facts", { count: version.proposedFacts })}
-                    </Badge>
+                    {version.processing === "falhou" ? (
+                      <span className="text-sm text-destructive">
+                        {t(
+                          `cvs.extraction.${version.extractionError ?? "unreadable"}`
+                        )}
+                      </span>
+                    ) : version.processing === "pendente" ? (
+                      <Badge variant="secondary">{t("cvs.processing")}</Badge>
+                    ) : (
+                      <Badge variant="secondary">
+                        {t("cvs.facts", { count: version.proposedFacts })}
+                      </Badge>
+                    )}
                   </span>
                 </li>
               ))}
@@ -121,17 +132,37 @@ export default async function OnboardingPage({
     }
     case "fatos": {
       const review = await loadFactReview(ctx, "proposto")
-      content =
-        review.groups.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyTitle>{t("facts.emptyTitle")}</EmptyTitle>
-              <EmptyDescription>{t("facts.emptyDescription")}</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          <FactReview groups={review.groups} status="proposto" />
-        )
+      if (review.groups.length > 0) {
+        content = <FactReview groups={review.groups} status="proposto" />
+        break
+      }
+      const library = await loadCvLibrary(ctx)
+      const failed = library.versions.find(
+        (version) => version.processing === "falhou"
+      )
+      const pending = library.versions.some(
+        (version) => version.processing === "pendente"
+      )
+      content = (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyTitle>
+              {failed
+                ? t("facts.unreadableTitle")
+                : pending
+                  ? t("facts.pendingTitle")
+                  : t("facts.emptyTitle")}
+            </EmptyTitle>
+            <EmptyDescription>
+              {failed
+                ? t(`cvs.extraction.${failed.extractionError ?? "unreadable"}`)
+                : pending
+                  ? t("facts.pendingDescription")
+                  : t("facts.emptyDescription")}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )
       break
     }
     case "trilhas": {
@@ -246,16 +277,29 @@ export default async function OnboardingPage({
   }
 
   return (
-    <WizardShell
-      step={step}
-      steps={ONBOARDING_STEPS.map((name) => t(`steps.${name}.label`))}
-      title={t(`steps.${key}.title`)}
-      description={t(`steps.${key}.description`)}
-      canAdvance={canAdvance}
-      blockedReason={blockedReason}
-      missing={missing}
-    >
-      {content}
-    </WizardShell>
+    <>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>{t("chatOption.title")}</CardTitle>
+          <CardDescription>{t("chatOption.description")}</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Button render={<Link href="/app" />}>
+            {t("chatOption.action")}
+          </Button>
+        </CardFooter>
+      </Card>
+      <WizardShell
+        step={step}
+        steps={ONBOARDING_STEPS.map((name) => t(`steps.${name}.label`))}
+        title={t(`steps.${key}.title`)}
+        description={t(`steps.${key}.description`)}
+        canAdvance={canAdvance}
+        blockedReason={blockedReason}
+        missing={missing}
+      >
+        {content}
+      </WizardShell>
+    </>
   )
 }

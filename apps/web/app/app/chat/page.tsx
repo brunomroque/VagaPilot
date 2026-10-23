@@ -3,12 +3,10 @@ import { RocketIcon } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 
 import { ChatView } from "@/components/chat/chat-view"
+import { ConversationList } from "@/components/chat/conversation-list"
 import { NotConfigured } from "@/components/app/not-configured"
-import {
-  defaultConversation,
-  findConversation,
-  loadUIMessages,
-} from "@/lib/chat/conversations"
+import { loadChatBootstrap } from "@/lib/chat/bootstrap"
+import { findConversation, listConversations } from "@/lib/chat/conversations"
 import { loadOnboardingState } from "@/lib/onboarding/server"
 import { getUserContext } from "@/lib/server/context"
 import {
@@ -17,12 +15,6 @@ import {
   AlertTitle,
 } from "@workspace/ui/components/alert"
 import { buttonVariants } from "@workspace/ui/components/button"
-
-const CV_LANGUAGE_LABEL: Record<string, string> = {
-  "pt-BR": "PT",
-  en: "EN",
-  es: "ES",
-}
 
 export default async function ChatPage({
   searchParams,
@@ -41,27 +33,13 @@ export default async function ChatPage({
     params.c && /^[0-9a-f-]{36}$/i.test(params.c)
       ? await findConversation(ctx, params.c)
       : null
-  const conversation = requested ?? (await defaultConversation(ctx))
-  const [messages, versions, pendingQuestions] = await Promise.all([
-    loadUIMessages(ctx, conversation.id),
-    ctx.supabase
-      .from("cv_versions")
-      .select("id, label, language")
-      .eq("user_id", ctx.user.id)
-      .order("label"),
-    ctx.supabase
-      .from("pending_questions")
-      .select("id, application_id, question_text, options, proposed_answer")
-      .eq("user_id", ctx.user.id)
-      .eq("status", "aberta")
-      .order("created_at", { ascending: true }),
-  ])
-  const cvOptions = (
-    (versions.data ?? []) as { id: string; label: string; language: string }[]
-  ).map((cv) => ({
-    id: cv.id,
-    label: `${cv.label} · ${CV_LANGUAGE_LABEL[cv.language] ?? cv.language}`,
-  }))
+  const bootstrap = await loadChatBootstrap(ctx)
+  const conversation = requested ?? {
+    id: bootstrap.conversationId,
+    title: null,
+    created_at: "",
+  }
+  const conversations = await listConversations(ctx)
   const initialPrompt = params.analisar?.trim().slice(0, 8000) || null
 
   return (
@@ -81,27 +59,30 @@ export default async function ChatPage({
           </AlertDescription>
         </Alert>
       ) : null}
+      <ConversationList
+        activeId={conversation.id}
+        items={conversations.map((row) => ({
+          id: row.id,
+          title: row.title,
+          lastMessageAt: row.last_message_at ?? null,
+        }))}
+      />
       <ChatView
         key={conversation.id}
         conversationId={conversation.id}
-        initialMessages={messages}
-        cvOptions={cvOptions}
+        initialMessages={
+          conversation.id === bootstrap.conversationId
+            ? bootstrap.initialMessages
+            : await import("@/lib/chat/conversations").then((m) =>
+                m.loadUIMessages(ctx, conversation.id)
+              )
+        }
+        cvOptions={bootstrap.cvOptions}
         initialPrompt={initialPrompt}
-        pendingQuestions={(
-          (pendingQuestions.data ?? []) as {
-            id: string
-            application_id: string
-            question_text: string
-            options: string[] | null
-            proposed_answer: string | null
-          }[]
-        ).map((row) => ({
-          id: row.id,
-          applicationId: row.application_id,
-          questionText: row.question_text,
-          options: row.options ?? [],
-          proposedAnswer: row.proposed_answer,
-        }))}
+        pendingQuestions={bootstrap.pendingQuestions}
+        nextSteps={bootstrap.nextSteps}
+        screenContext={{ screen: "chat", pathname: "/app/chat" }}
+        variant="page"
       />
     </div>
   )

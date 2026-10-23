@@ -367,3 +367,9 @@ Não são requisitos novos; fecham questões da seção 20 para não travar o in
 - **2026-10-23 (`/api/cv-versions` 500):** o POST gravava o arquivo e a linha em `cv_versions`, depois quebrava em `permission denied for sequence audit_log_id_seq` (o `bigserial` não herda o GRANT da tabela). `service_role` e `authenticated` receberam `USAGE, SELECT` nas sequences de `public`, com default privileges para as próximas. Migração `20261023040812_authenticated_sequence_grants.sql` aplicada no projeto `synbycvebzzqarojicfu`. O upload que falhou às 04:02 UTC pode ter ficado sem extração de texto; vale enviar o arquivo de novo.
 - **2026-10-22 (MCP Supabase):** servidor oficial em `.cursor/mcp.json`, só neste repositório, com `project_ref=synbycvebzzqarojicfu` (projeto VagaPilot na nuvem). Autenticação OAuth no Cursor (Settings → Tools & MCP). Não foi adicionado ao `mcp.json` global do usuário.
 - **2026-10-22 (schema remoto):** as 9 migrações de `supabase/migrations` foram aplicadas no projeto `synbycvebzzqarojicfu` via MCP. Histórico remoto alinhado às versões locais. 40 tabelas em `public` com RLS, buckets privados `cvs`/`evidences`/`exports`, Realtime em `job_ingestions` e `pending_questions`. Sem seed. Advisors: `stripe_events` e `user_keys` com RLS e sem policy (acesso só servidor, de propósito).
+
+## Chat-first (docs/CHAT-FIRST-JORNADA.md) — 2026-10-23
+
+Implementadas as fases 1–7: home `/app` com chat, painel em `/app/visao-geral`, sheet lateral, ferramentas ATS/CV/candidatura/perfil/Gmail, widgets de aprovação, migration `20261023160000_chat_first_persistence.sql`, onboarding “Fazer pelo chat”.
+
+Pendências: aplicar a nova migration no Supabase de produção (us-east-1); selo “Preenchido via chat” nas demais telas (CV, fatos, perfil, memória, buscas); fluxo completo de `register_gap` no cartão; eval `form_only` ampliado; e2e completos em CI com Supabase local.
