@@ -31,6 +31,10 @@ import {
   type PendingQuestionView,
 } from "./pending-questions-panel"
 import { NextStepsView } from "./next-steps-view"
+import {
+  ComposerAttachments,
+  type PendingAttachment,
+} from "./composer-attachments"
 import { ToolOutputView } from "./tool-output-view"
 
 const MAX_CHARS = 8000
@@ -68,6 +72,7 @@ export function ChatView({
 }) {
   const t = useTranslations("Chat")
   const [input, setInput] = useState("")
+  const [attachments, setAttachments] = useState<PendingAttachment[]>([])
   const [notice, setNotice] = useState<string | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const sentInitial = useRef(false)
@@ -118,23 +123,53 @@ export function ChatView({
 
   function send(text: string) {
     const trimmed = text.trim()
-    if (!trimmed || busy) return
+    if ((!trimmed && attachments.length === 0) || busy) return
     if (trimmed.length > MAX_CHARS) {
       setNotice(t("errors.tooLong", { max: MAX_CHARS.toLocaleString("pt-BR") }))
       return
     }
     setNotice(null)
     captureChatMessageSent()
-    void sendMessage({ text: trimmed })
+    const parts: Array<
+      | { type: "text"; text: string }
+      | {
+          type: "data-attachment"
+          data: {
+            attachmentId: string
+            fileName: string
+            kind: PendingAttachment["kind"]
+            cvVersionId?: string
+          }
+        }
+    > = []
+    if (trimmed) parts.push({ type: "text", text: trimmed })
+    for (const item of attachments) {
+      parts.push({
+        type: "data-attachment",
+        data: {
+          attachmentId: item.id,
+          fileName: item.fileName,
+          kind: item.kind,
+          ...(item.cvVersionId ? { cvVersionId: item.cvVersionId } : {}),
+        },
+      })
+    }
+    void sendMessage(
+      (parts.length === 1 && parts[0]?.type === "text"
+        ? { text: trimmed }
+        : { parts }) as Parameters<typeof sendMessage>[0]
+    )
     setInput("")
+    setAttachments([])
   }
 
   function sendDataAction(data: {
-    action: "fact_destination"
+    action: "fact_destination" | "attachment_intent"
     choice: string
-    pendingQuestionId: string
-    statement: string
-    suggestedUsage: "cv_relevant" | "form_only"
+    pendingQuestionId?: string
+    statement?: string
+    suggestedUsage?: "cv_relevant" | "form_only"
+    attachmentIds?: string[]
   }) {
     if (busy) return
     setNotice(null)
@@ -250,6 +285,13 @@ export function ChatView({
         <label htmlFor="chat-input" className="sr-only">
           {t("inputLabel")}
         </label>
+        <ComposerAttachments
+          conversationId={conversationId}
+          messageHint={input}
+          disabled={busy}
+          items={attachments}
+          onChange={setAttachments}
+        />
         <Textarea
           id="chat-input"
           value={input}
@@ -279,7 +321,11 @@ export function ChatView({
                 })
               : t("hint")}
           </p>
-          <Button type="submit" size="sm" disabled={busy || !input.trim()}>
+          <Button
+            type="submit"
+            size="sm"
+            disabled={busy || (!input.trim() && attachments.length === 0)}
+          >
             <SendHorizontalIcon data-icon="inline-start" />
             {t("send")}
           </Button>
@@ -299,11 +345,12 @@ function ChatMessage({
   cvOptions: CvOption[]
   onAnswer: (text: string) => void
   onDataAction: (data: {
-    action: "fact_destination"
+    action: "fact_destination" | "attachment_intent"
     choice: string
-    pendingQuestionId: string
-    statement: string
-    suggestedUsage: "cv_relevant" | "form_only"
+    pendingQuestionId?: string
+    statement?: string
+    suggestedUsage?: "cv_relevant" | "form_only"
+    attachmentIds?: string[]
   }) => void
 }) {
   const t = useTranslations("Chat")
@@ -311,11 +358,25 @@ function ChatMessage({
     const text = message.parts
       .map((part) => (part.type === "text" ? part.text : ""))
       .join("\n")
+    const files = message.parts
+      .filter((part) => part.type === "data-attachment")
+      .map(
+        (part) =>
+          (part as { data?: { fileName?: string } }).data?.fileName ?? ""
+      )
+      .filter(Boolean)
     return (
       <div className="flex justify-end" data-testid="chat-message-user">
-        <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm break-words whitespace-pre-wrap text-primary-foreground">
-          {text}
-        </p>
+        <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm break-words whitespace-pre-wrap text-primary-foreground">
+          {files.length > 0 ? (
+            <ul className="mb-2 space-y-1 text-xs opacity-90">
+              {files.map((fileName, index) => (
+                <li key={index}>📎 {fileName}</li>
+              ))}
+            </ul>
+          ) : null}
+          {text ? <p>{text}</p> : null}
+        </div>
       </div>
     )
   }

@@ -2,6 +2,15 @@
 
 Fonte de implementação: [ESPEC.md](./ESPEC.md). Documento original completo: [ESPEC-app-assistente-vagas.pdf](./ESPEC-app-assistente-vagas.pdf) (v1.4).
 
+### 2026-10-23 — Anexos no chat (F7 / F14 / B1)
+
+- `POST /api/chat/attachments`: upload seguro (PDF/DOCX/TXT ≤ 10 MB, imagens ≤ 5 MB) para bucket privado `chat-attachments` ou pipeline de CV (`cvs` + `cv/uploaded`).
+- Composer do chat com clipe de papel; mensagens com partes `data-attachment`; rota `POST /api/chat` infere intenção (`packages/core/chat-attachments`) e mostra quick-replies (`attachment_intent`) quando ambíguo.
+- Fluxos: revisão de CV (hash/fatos propostos), atualizar perfil (link `/app/fatos`), ingestão de vaga (texto/OCR de print via Gemini), comparação ATS quando há CV + JD, card de vaga para candidatura assistida.
+- Migração `20261024120000_chat_attachments.sql` (`chat_attachments`, `cv_versions.source_message_id`, bucket `chat-attachments`).
+- Testes: `packages/core/src/chat-attachments.test.ts`, `apps/web/app/api/chat/attachments/route.test.ts`.
+- Pendências: progresso em tempo real do `cv/uploaded` no widget; e2e `cv-no-chat.spec.ts`; enriquecer revisão de CV com diff LLM após extração.
+
 ## Fase 0 — Fundação
 
 ### P0.1 — Monorepo
