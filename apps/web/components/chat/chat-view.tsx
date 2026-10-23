@@ -5,8 +5,12 @@ import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai"
 import {
   BotIcon,
+  FileTextIcon,
+  ImageIcon,
   LoaderCircleIcon,
+  PaperclipIcon,
   PlusIcon,
+  XIcon,
   SendHorizontalIcon,
   SparklesIcon,
 } from "lucide-react"
@@ -34,13 +38,26 @@ import { NextStepsView } from "./next-steps-view"
 import { ToolOutputView } from "./tool-output-view"
 
 const MAX_CHARS = 8000
+const MAX_FILES = 4
+const MAX_FILE_BYTES = 4 * 1024 * 1024
+const ACCEPT =
+  ".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/png,image/jpeg,image/webp"
+
+type AttachmentRef = {
+  id: string
+  path: string
+  name: string
+  kind: "cv" | "job_description" | "job_image" | "document"
+  type: "pdf" | "docx" | "txt" | "png" | "jpg" | "webp"
+}
 
 function errorMessage(error: Error, fallback: string): string {
   try {
     const parsed = JSON.parse(error.message) as { error?: { message?: string } }
     return parsed.error?.message ?? fallback
   } catch {
-    return fallback
+    const text = error.message?.trim()
+    return text && text.length < 300 ? text : fallback
   }
 }
 
@@ -68,6 +85,9 @@ export function ChatView({
 }) {
   const t = useTranslations("Chat")
   const [input, setInput] = useState("")
+  const [files, setFiles] = useState<File[]>([])
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const sentInitial = useRef(false)
@@ -94,7 +114,59 @@ export function ChatView({
     },
   })
 
-  const busy = status === "submitted" || status === "streaming"
+  const busy = status === "submitted" || status === "streaming" || uploading
+
+  function addFiles(list: FileList | null) {
+    if (!list) return
+    const next = [...files]
+    for (const file of Array.from(list)) {
+      if (next.length >= MAX_FILES) {
+        setNotice(t("attachments.errors.tooMany", { max: MAX_FILES }))
+        break
+      }
+      if (file.size > MAX_FILE_BYTES) {
+        setNotice(`${file.name}: ${t("attachments.errors.tooLarge")}`)
+        continue
+      }
+      next.push(file)
+    }
+    setFiles(next)
+  }
+
+  async function uploadFiles(): Promise<AttachmentRef[] | null> {
+    const form = new FormData()
+    form.set("conversationId", conversationId)
+    for (const file of files) form.append("files", file)
+    setUploading(true)
+    try {
+      const response = await fetch("/api/chat/attachments", {
+        method: "POST",
+        body: form,
+      })
+      const body = (await response.json().catch(() => null)) as {
+        attachments?: AttachmentRef[]
+        error?: { message?: string }
+      } | null
+      if (!response.ok || !body?.attachments) {
+        const message = body?.error?.message ?? t("attachments.errors.failed")
+        setNotice(message)
+        toast.error(message)
+        return null
+      }
+      return body.attachments.map(({ id, path, name, kind, type }) => ({
+        id,
+        path,
+        name,
+        kind,
+        type,
+      }))
+    } catch {
+      setNotice(t("attachments.errors.failed"))
+      return null
+    } finally {
+      setUploading(false)
+    }
+  }
 
   useEffect(() => {
     if (variant === "home") captureChatOpened("home")
@@ -116,9 +188,35 @@ export function ChatView({
     return () => clearTimeout(timer)
   }, [initialPrompt, conversationId, sendMessage])
 
+  async function sendWithFiles(text: string) {
+    const refs = await uploadFiles()
+    if (!refs) return
+    captureChatMessageSent()
+    void sendMessage({
+      parts: [
+        { type: "text", text: text || t("attachments.defaultMessage") },
+        { type: "data-attachments", data: { items: refs } },
+      ],
+    } as Parameters<typeof sendMessage>[0])
+    setFiles([])
+    setInput("")
+  }
+
   function send(text: string) {
     const trimmed = text.trim()
-    if (!trimmed || busy) return
+    if (busy) return
+    if (files.length > 0) {
+      if (trimmed.length > MAX_CHARS) {
+        setNotice(
+          t("errors.tooLong", { max: MAX_CHARS.toLocaleString("pt-BR") })
+        )
+        return
+      }
+      setNotice(null)
+      void sendWithFiles(trimmed)
+      return
+    }
+    if (!trimmed) return
     if (trimmed.length > MAX_CHARS) {
       setNotice(t("errors.tooLong", { max: MAX_CHARS.toLocaleString("pt-BR") }))
       return
@@ -269,8 +367,62 @@ export function ChatView({
           placeholder={t("placeholder")}
           aria-describedby="chat-input-hint"
           className="max-h-48 resize-none"
+          onPaste={(event) => {
+            if (event.clipboardData.files.length > 0) {
+              event.preventDefault()
+              addFiles(event.clipboardData.files)
+            }
+          }}
+        />
+        {files.length > 0 ? (
+          <ul className="flex flex-wrap gap-2" data-testid="chat-attachments">
+            {files.map((file, index) => (
+              <li
+                key={`${file.name}-${index}`}
+                className="flex items-center gap-1 rounded-md border bg-muted px-2 py-1 text-xs"
+              >
+                {file.type.startsWith("image/") ? (
+                  <ImageIcon className="size-3.5" aria-hidden="true" />
+                ) : (
+                  <FileTextIcon className="size-3.5" aria-hidden="true" />
+                )}
+                <span className="max-w-40 truncate">{file.name}</span>
+                <button
+                  type="button"
+                  className="rounded p-0.5 hover:bg-background"
+                  aria-label={t("attachments.remove", { name: file.name })}
+                  onClick={() => setFiles(files.filter((_, i) => i !== index))}
+                >
+                  <XIcon className="size-3" aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={ACCEPT}
+          className="hidden"
+          data-testid="chat-file-input"
+          onChange={(event) => {
+            addFiles(event.target.files)
+            event.target.value = ""
+          }}
         />
         <div className="flex items-center justify-between gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={busy || files.length >= MAX_FILES}
+            onClick={() => fileInputRef.current?.click()}
+            aria-label={t("attachments.attach")}
+            title={t("attachments.hint")}
+          >
+            <PaperclipIcon />
+          </Button>
           <p id="chat-input-hint" className="text-xs text-muted-foreground">
             {input.length > MAX_CHARS - 1000
               ? t("counter", {
@@ -279,9 +431,20 @@ export function ChatView({
                 })
               : t("hint")}
           </p>
-          <Button type="submit" size="sm" disabled={busy || !input.trim()}>
-            <SendHorizontalIcon data-icon="inline-start" />
-            {t("send")}
+          <Button
+            type="submit"
+            size="sm"
+            disabled={busy || (!input.trim() && files.length === 0)}
+          >
+            {uploading ? (
+              <LoaderCircleIcon
+                data-icon="inline-start"
+                className="animate-spin"
+              />
+            ) : (
+              <SendHorizontalIcon data-icon="inline-start" />
+            )}
+            {uploading ? t("attachments.uploading") : t("send")}
           </Button>
         </div>
       </form>
@@ -311,11 +474,41 @@ function ChatMessage({
     const text = message.parts
       .map((part) => (part.type === "text" ? part.text : ""))
       .join("\n")
+    const attached = message.parts.flatMap((part) =>
+      part.type === "data-attachments"
+        ? ((part as { data?: { items?: AttachmentRef[] } }).data?.items ?? [])
+        : []
+    )
     return (
-      <div className="flex justify-end" data-testid="chat-message-user">
-        <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm break-words whitespace-pre-wrap text-primary-foreground">
-          {text}
-        </p>
+      <div
+        className="flex flex-col items-end gap-1"
+        data-testid="chat-message-user"
+      >
+        {attached.length > 0 ? (
+          <ul className="flex flex-wrap justify-end gap-1">
+            {attached.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-center gap-1 rounded-md border bg-muted px-2 py-1 text-xs"
+              >
+                {item.kind === "job_image" ? (
+                  <ImageIcon className="size-3.5" aria-hidden="true" />
+                ) : (
+                  <FileTextIcon className="size-3.5" aria-hidden="true" />
+                )}
+                <span className="max-w-40 truncate">{item.name}</span>
+                <span className="text-muted-foreground">
+                  · {t(`attachments.kinds.${item.kind}`)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {text ? (
+          <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm break-words whitespace-pre-wrap text-primary-foreground">
+            {text}
+          </p>
+        ) : null}
       </div>
     )
   }

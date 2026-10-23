@@ -228,6 +228,8 @@ export type ChatToolOutput =
       question: string
       options: string[]
       allowFreeText?: boolean
+      /** "attachments": answer applies to the files of the previous user message. */
+      context?: "attachments"
       summary: string
     }
   | {

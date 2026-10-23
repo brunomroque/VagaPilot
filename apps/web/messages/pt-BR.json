@@ -1567,7 +1567,8 @@
       "tooManyLinks": "Envie até {max} links por vez. Divida a lista em partes.",
       "failed": "Não consegui concluir a resposta. Tente de novo.",
       "aiUnavailable": "IA indisponível: o modelo não está configurado neste ambiente (falta GOOGLE_GENERATIVE_AI_API_KEY). Avise o administrador.",
-      "planLimit": "Você atingiu o limite do seu plano ou o teto diário de uso de IA. Veja Planos em Configurações."
+      "planLimit": "Você atingiu o limite do seu plano ou o teto diário de uso de IA. Veja Planos em Configurações.",
+      "attachmentsMissing": "Não encontrei os anexos desta mensagem. Anexe de novo."
     },
     "refusals": {
       "off_topic": "Posso ajudar com suas vagas, CVs e candidaturas. Quer analisar uma vaga? Cole o link aqui.",
@@ -1693,6 +1694,38 @@
         "start": "Não consegui iniciar: {reason}",
         "approval": "Não consegui registrar a decisão: {reason}",
         "generic": "Algo deu errado. Tente de novo."
+      }
+    },
+    "attachments": {
+      "attach": "Anexar arquivo",
+      "hint": "CV (PDF/DOCX), vaga (PDF/TXT) ou print (PNG/JPG/WEBP), até 4 arquivos de 4 MB",
+      "uploading": "Enviando anexos…",
+      "remove": "Remover {name}",
+      "defaultMessage": "Segue anexo.",
+      "askWhat": "Recebi o arquivo. O que você quer que eu faça com ele?",
+      "kinds": {
+        "cv": "CV",
+        "job_description": "Vaga",
+        "job_image": "Print de vaga",
+        "document": "Documento"
+      },
+      "options": {
+        "review": "Revisar este CV",
+        "updateProfile": "Atualizar meus dados com este CV",
+        "newVersion": "Salvar como nova versão de CV",
+        "compareJob": "Comparar com uma vaga",
+        "apply": "Candidatar",
+        "analyzeJob": "Analisar como vaga",
+        "skip": "Pular"
+      },
+      "errors": {
+        "unauthorized": "Entre na sua conta para anexar arquivos.",
+        "invalid": "Anexo inválido.",
+        "tooLarge": "arquivo acima de 4 MB.",
+        "tooMany": "Envie até {max} arquivos por vez.",
+        "unsupported": "formato não aceito (use PDF, DOCX, TXT, PNG, JPG ou WEBP).",
+        "rateLimited": "Muitos anexos em pouco tempo. Aguarde um minuto.",
+        "failed": "Não consegui enviar o anexo. Tente de novo."
       }
     }
   },

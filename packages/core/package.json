@@ -31,6 +31,7 @@
     "./settings": "./src/settings.ts",
     "./policy": "./src/policy.ts",
     "./guardrails": "./src/guardrails.ts",
+    "./chat-attachments": "./src/chat-attachments.ts",
     "./grounding": "./src/grounding.ts",
     "./application-package": "./src/application-package.ts",
     "./ext-auth": "./src/ext-auth.ts",

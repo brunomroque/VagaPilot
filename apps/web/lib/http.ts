@@ -17,6 +17,7 @@ export type ApiErrorCode =
   | "input_too_long"
   | "rate_limited"
   | "too_many_links"
+  | "too_many_files"
 
 /**
  * Same-origin redirect with a relative Location, so the browser keeps the host it used

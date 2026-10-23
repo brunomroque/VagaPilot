@@ -47,6 +47,7 @@ export const AUDIT_ACTIONS = [
   "search.deleted",
   "chat.off_topic_refused",
   "chat.injection_blocked",
+  "chat.attachment_uploaded",
   "ratelimit.hit",
   "killswitch.toggled",
   "risk.accepted",

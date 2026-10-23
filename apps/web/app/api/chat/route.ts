@@ -38,6 +38,21 @@ import {
   saveMessage,
 } from "@/lib/chat/conversations"
 import { startIngestion } from "@/lib/chat/jobs-server"
+import {
+  ATTACHMENT_PROMPT_TOOL,
+  attachmentPromptBlock,
+  attachmentsPartSchema,
+  attachmentTools,
+  turnAttachmentRefs,
+} from "@/lib/chat/attachment-turn"
+import {
+  loadChatAttachments,
+  type ChatAttachment,
+} from "@/lib/chat/attachments-server"
+import {
+  detectAttachmentIntent,
+  type AttachmentIntent,
+} from "@vagapilot/core/chat-attachments"
 import { outputFilterTransform } from "@/lib/chat/output-filter"
 import { handleChatDataAction } from "@/lib/chat/data-actions"
 import { buildChatTools, type ChatTurnState } from "@/lib/chat/tools"
@@ -83,6 +98,7 @@ const bodySchema = z.object({
               suggestedUsage: z.enum(["cv_relevant", "form_only"]).optional(),
             }),
           }),
+          attachmentsPartSchema,
         ])
       )
       .min(1)
@@ -189,7 +205,10 @@ export async function POST(request: Request) {
     (part) => part.type === "data-action"
   )
   const text = textOf(parsed.data.message)
-  if (!text && !dataActionPart) {
+  const attachmentsPart = parsed.data.message.parts.find(
+    (part) => part.type === "data-attachments"
+  )
+  if (!text && !dataActionPart && !attachmentsPart) {
     return apiError("invalid_request", t("invalid"), 400)
   }
   if (text.length > MAX_CHAT_INPUT_CHARS) {
@@ -257,17 +276,18 @@ export async function POST(request: Request) {
     return apiError("not_found", t("invalid"), 404)
   }
   const history = await loadUIMessages(ctx, conversation.id)
-  const userMessage: UIMessage = dataActionPart
-    ? {
-        id: parsed.data.message.id,
-        role: "user",
-        parts: parsed.data.message.parts as UIMessage["parts"],
-      }
-    : {
-        id: parsed.data.message.id,
-        role: "user",
-        parts: [{ type: "text", text }],
-      }
+  const userMessage: UIMessage =
+    dataActionPart || attachmentsPart
+      ? {
+          id: parsed.data.message.id,
+          role: "user",
+          parts: parsed.data.message.parts as UIMessage["parts"],
+        }
+      : {
+          id: parsed.data.message.id,
+          role: "user",
+          parts: [{ type: "text", text }],
+        }
   await saveMessage(ctx, conversation.id, {
     role: userMessage.role,
     parts: userMessage.parts as UIMessage["parts"],
@@ -326,14 +346,67 @@ export async function POST(request: Request) {
     )
   }
 
-  const topic = await classifyTopic(text)
-  const jobPaste = urls.length === 0 && looksLikeJobPosting(text)
+  const turnRefs = turnAttachmentRefs(parsed.data.message.parts, history)
+  let attachments: ChatAttachment[] = []
+  let attachmentIntent: AttachmentIntent | null = null
+  if (turnRefs.refs.length > 0) {
+    attachments = await loadChatAttachments(ctx, turnRefs.refs)
+    if (attachments.length === 0) {
+      return apiError("not_found", t("attachmentsMissing"), 404)
+    }
+    const decision = detectAttachmentIntent(
+      attachments.map((a) => ({ kind: a.kind, url: a.image?.url ?? null })),
+      text
+    )
+    attachmentIntent = decision.intent
+    if (decision.intent === "ask" && !turnRefs.fromPrompt) {
+      const tA = await getTranslations("Chat.attachments")
+      const output: ChatToolOutput = {
+        kind: "options",
+        context: "attachments",
+        question: tA("askWhat"),
+        options: decision.options.map((key) => tA(`options.${key}`)),
+        allowFreeText: true,
+        summary: tA("askWhat"),
+      }
+      return directResponse(
+        ctx,
+        conversation.id,
+        originalMessages,
+        async (writer) => {
+          const toolCallId = `attach-${crypto.randomUUID()}`
+          writer.write({
+            type: "tool-input-available",
+            toolCallId,
+            toolName: ATTACHMENT_PROMPT_TOOL,
+            input: { count: attachments.length },
+          })
+          writer.write({ type: "tool-output-available", toolCallId, output })
+        }
+      )
+    }
+    if (decision.intent === "ask") attachmentIntent = "cv_review"
+  }
+  const hasAttachments = attachments.length > 0
+
+  const topic = text
+    ? await classifyTopic(text)
+    : ({
+        verdict: "in_scope",
+        reason: "attachments_only",
+        model: "rules",
+      } as Awaited<ReturnType<typeof classifyTopic>>)
+  const jobPaste =
+    !hasAttachments && urls.length === 0 && looksLikeJobPosting(text)
   const hardRefusal =
     topic.verdict === "injection" ||
     topic.verdict === "prompt_leak" ||
     topic.verdict === "fraud" ||
     topic.verdict === "discriminatory"
-  if (isRefusedVerdict(topic.verdict) && (hardRefusal || !jobPaste)) {
+  if (
+    isRefusedVerdict(topic.verdict) &&
+    (hardRefusal || (!jobPaste && !hasAttachments))
+  ) {
     await audit({
       userId: ctx.user.id,
       actor: "sistema",
@@ -364,7 +437,7 @@ export async function POST(request: Request) {
     )
   }
 
-  if (urls.length > 0) {
+  if (urls.length > 0 && !hasAttachments) {
     const tTools = await getTranslations("ChatTools")
     return directResponse(
       ctx,
@@ -467,10 +540,13 @@ export async function POST(request: Request) {
   const state: ChatTurnState = {
     conversationId: conversation.id,
     utterance: text,
-    untrustedSeen: looksLikeJobPosting(text),
+    untrustedSeen: hasAttachments || looksLikeJobPosting(text),
     screenContext: parsed.data.context,
   }
-  const tools = buildChatTools(ctx, state)
+  const tools = {
+    ...buildChatTools(ctx, state),
+    ...(hasAttachments ? attachmentTools(ctx, attachments) : {}),
+  }
   let messages: ModelMessage[]
   try {
     messages = await convertToModelMessages(originalMessages, {
@@ -482,6 +558,22 @@ export async function POST(request: Request) {
       ...textOnlyHistory(history),
       userMessage,
     ])
+  }
+  if (hasAttachments && attachmentIntent && attachmentIntent !== "ask") {
+    const last = messages[messages.length - 1]
+    const block = attachmentPromptBlock(attachments, attachmentIntent)
+    if (last && last.role === "user") {
+      const content =
+        typeof last.content === "string"
+          ? [{ type: "text" as const, text: last.content }]
+          : last.content
+      messages[messages.length - 1] = {
+        ...last,
+        content: [...content, { type: "text", text: block }],
+      }
+    } else {
+      messages.push({ role: "user", content: block })
+    }
   }
   try {
     const { assertOrchestratorBillable, recordOrchestratorCost } =
@@ -531,7 +623,10 @@ export async function POST(request: Request) {
       stream: result.stream,
       originalMessages,
       onEnd: persistOnEnd(ctx, conversation.id),
-      onError: () => t("failed"),
+      onError: (error) => {
+        console.error("chat stream failed", error)
+        return t("failed")
+      },
     }),
   })
 }
