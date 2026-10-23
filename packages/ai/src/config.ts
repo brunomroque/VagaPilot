@@ -18,7 +18,7 @@ export type AiConfig = {
 }
 
 export const DEFAULT_EXTRACTION_MODEL = "google/gemini-2.5-flash"
-export const DEFAULT_LARGE_MODEL = "google/gemini-2.5-pro"
+export const DEFAULT_LARGE_MODEL = "google/gemini-2.5-flash"
 export const DEFAULT_EMBEDDING_MODEL = "google/gemini-embedding-001"
 export const EMBEDDING_DIMENSIONS = 1536
 
