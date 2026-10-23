@@ -10,4 +10,4 @@ allowBuilds:
   "@parcel/watcher": true
   "@swc/core": true
   protobufjs: false
-  core-js: set this to true or false
+  core-js: true
