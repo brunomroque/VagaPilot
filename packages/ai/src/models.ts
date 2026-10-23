@@ -1,8 +1,9 @@
-import { createGateway, type LanguageModel } from "ai"
+import { type LanguageModel } from "ai"
 import { MockLanguageModelV4 } from "ai/test"
 
 import { getAiConfig, type AiConfig } from "./config.js"
 import { FAKE_MODEL_ID } from "./fake.js"
+import { realLanguageModel } from "./providers.js"
 
 export type ModelOptions = {
   /** Overrides the model (tests inject mocks). */
@@ -58,13 +59,10 @@ export function resolveModel(
   switch (config.mode) {
     case "fake":
       return { model: fake(), id: FAKE_MODEL_ID }
-    case "gateway": {
-      const gateway = createGateway({
-        apiKey: config.apiKey,
-        baseURL: config.baseURL,
-      })
+    case "gateway":
+    case "google": {
       const id = size === "small" ? config.extractionModel : config.largeModel
-      return { model: gateway(id), id }
+      return { model: realLanguageModel(config, id), id }
     }
     default: {
       const unreachable: never = config.mode

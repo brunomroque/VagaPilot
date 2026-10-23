@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto"
 
+import { isAiUnavailable } from "@vagapilot/ai"
+
 import type { SupabaseClient } from "@supabase/supabase-js"
 import {
   canonicalizeUrl,
@@ -239,6 +241,17 @@ export async function processJobIngestion(
       return outcome(row, { status: "falhou", errorCode: "empty" })
     }
 
+    if (!deps.extract && isAiUnavailable()) {
+      // Production without a model key: never show heuristic ("fake") fit numbers.
+      console.error("ai unavailable: no model key configured", {
+        ingestionId: row.id,
+      })
+      await update(deps.admin, row, {
+        status: "falhou",
+        error_code: "ai_unavailable",
+      })
+      return outcome(row, { status: "falhou", errorCode: "ai_unavailable" })
+    }
     const extracted = await (deps.extract ?? extractJobPosting)(raw, {
       assertBillable: () =>
         deps.usage?.beforeExtract(input.userId) ?? Promise.resolve(),

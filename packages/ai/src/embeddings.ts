@@ -1,7 +1,8 @@
-import { createGateway, embedMany, type EmbeddingModel } from "ai"
+import { embedMany, type EmbeddingModel } from "ai"
 
 import { EMBEDDING_DIMENSIONS, getAiConfig, type AiConfig } from "./config.js"
 import { createFakeEmbeddingModel, FAKE_MODEL_ID } from "./fake.js"
+import { realEmbeddingModel } from "./providers.js"
 
 type EmbeddingCallOptions = {
   dimensions?: number
@@ -53,16 +54,12 @@ function resolveEmbeddingModel(config: AiConfig): {
   switch (config.mode) {
     case "fake":
       return { model: createFakeEmbeddingModel(), id: FAKE_MODEL_ID }
-    case "gateway": {
-      const gateway = createGateway({
-        apiKey: config.apiKey,
-        baseURL: config.baseURL,
-      })
+    case "gateway":
+    case "google":
       return {
-        model: gateway.embeddingModel(config.embeddingModel),
+        model: realEmbeddingModel(config),
         id: config.embeddingModel,
       }
-    }
     default: {
       const unreachable: never = config.mode
       throw new Error(`Unhandled AI provider mode: ${String(unreachable)}`)

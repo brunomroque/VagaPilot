@@ -11,8 +11,11 @@ import {
 import { getTranslations } from "next-intl/server"
 import { z } from "zod"
 
+import * as Sentry from "@sentry/nextjs"
+
 import {
   classifyTopic,
+  isAiUnavailable,
   llmTelemetryOptions,
   ORCHESTRATOR_SYSTEM_V1,
   resolveChatModel,
@@ -420,6 +423,27 @@ export async function POST(request: Request) {
     void recordOrchestratorCost(ctx.user.id).catch(() => undefined)
   } catch {
     return apiError("conflict", t("planLimit"), 402)
+  }
+
+  if (isAiUnavailable()) {
+    // Production without GOOGLE_GENERATIVE_AI_API_KEY / AI_GATEWAY_API_KEY: say so instead of
+    // answering with the keyword-based fake orchestrator.
+    Sentry.captureMessage("chat: AI unavailable (no model key)", "error")
+    const unavailable = t("aiUnavailable")
+    return directResponse(
+      ctx,
+      conversation.id,
+      originalMessages,
+      async (writer) => {
+        writer.write({ type: "text-start", id: "ai-unavailable" })
+        writer.write({
+          type: "text-delta",
+          id: "ai-unavailable",
+          delta: unavailable,
+        })
+        writer.write({ type: "text-end", id: "ai-unavailable" })
+      }
+    )
   }
 
   const refusal = (await getTranslations("Chat.refusals"))("prompt_leak")

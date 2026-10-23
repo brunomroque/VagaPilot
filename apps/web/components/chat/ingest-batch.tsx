@@ -216,7 +216,9 @@ function FailedItem({
         ? t("errors.not_found")
         : item.errorCode === "timeout"
           ? t("errors.timeout")
-          : t("errors.generic")
+          : item.errorCode === "ai_unavailable"
+            ? t("errors.ai_unavailable")
+            : t("errors.generic")
 
   return (
     <Alert className="w-full max-w-2xl" data-testid="ingest-failed">

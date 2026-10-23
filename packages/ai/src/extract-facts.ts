@@ -1,8 +1,9 @@
 import { isExcerptInText } from "@vagapilot/core/facts"
-import { createGateway, generateText, Output, type LanguageModel } from "ai"
+import { generateText, Output, type LanguageModel } from "ai"
 
 import { getAiConfig, type AiConfig } from "./config.js"
 import { createFakeExtractionModel, FAKE_MODEL_ID } from "./fake.js"
+import { realLanguageModel } from "./providers.js"
 import {
   EXTRACT_FACTS_PROMPT_VERSION,
   EXTRACT_FACTS_SYSTEM_V1,
@@ -45,16 +46,12 @@ function resolveModel(
   switch (config.mode) {
     case "fake":
       return { model: createFakeExtractionModel(text), id: FAKE_MODEL_ID }
-    case "gateway": {
-      const gateway = createGateway({
-        apiKey: config.apiKey,
-        baseURL: config.baseURL,
-      })
+    case "gateway":
+    case "google":
       return {
-        model: gateway(config.extractionModel),
+        model: realLanguageModel(config, config.extractionModel),
         id: config.extractionModel,
       }
-    }
     default: {
       const unreachable: never = config.mode
       throw new Error(`Unhandled AI provider mode: ${String(unreachable)}`)
