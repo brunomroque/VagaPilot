@@ -17,6 +17,9 @@ export async function buildPrivacyExportBundle(
     consents,
     audit,
     conversations,
+    messages,
+    chatLinks,
+    platformProfiles,
   ] = await Promise.all([
     supabase.from("candidate_profiles").select("*").eq("user_id", userId),
     supabase.from("applications").select("*").eq("user_id", userId),
@@ -34,8 +37,14 @@ export async function buildPrivacyExportBundle(
       .limit(500),
     supabase
       .from("conversations")
-      .select("id, title, created_at")
+      .select("id, title, created_at, updated_at, archived_at, context")
       .eq("user_id", userId),
+    supabase
+      .from("messages")
+      .select("id, conversation_id, role, created_at")
+      .eq("user_id", userId),
+    supabase.from("chat_record_links").select("*").eq("user_id", userId),
+    supabase.from("platform_profiles").select("*").eq("user_id", userId),
   ])
 
   const payload = {
@@ -48,6 +57,9 @@ export async function buildPrivacyExportBundle(
     consents: consents.data ?? [],
     audit_log: audit.data ?? [],
     conversations: conversations.data ?? [],
+    messages: messages.data ?? [],
+    chat_record_links: chatLinks.data ?? [],
+    platform_profiles: platformProfiles.data ?? [],
   }
 
   const json = JSON.stringify(payload, null, 2)

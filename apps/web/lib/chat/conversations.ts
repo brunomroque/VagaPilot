@@ -13,6 +13,9 @@ export type ConversationRow = {
   id: string
   title: string | null
   created_at: string
+  updated_at?: string | null
+  archived_at?: string | null
+  last_message_at?: string | null
 }
 
 export async function findConversation(
@@ -112,7 +115,44 @@ export async function saveMessage(
     .single()
   if (error || !data)
     throw new Error(`messages insert failed: ${error?.message}`)
-  return String((data as { id: string }).id)
+  const messageId = String((data as { id: string }).id)
+  const now = new Date().toISOString()
+  await ctx.supabase
+    .from("conversations")
+    .update({ updated_at: now, last_message_at: now })
+    .eq("id", conversationId)
+    .eq("user_id", ctx.user.id)
+  return messageId
+}
+
+export async function listConversations(
+  ctx: UserContext,
+  includeArchived = false
+): Promise<ConversationRow[]> {
+  let query = ctx.supabase
+    .from("conversations")
+    .select("id, title, created_at, updated_at, archived_at, last_message_at")
+    .eq("user_id", ctx.user.id)
+    .order("last_message_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+  if (!includeArchived) {
+    query = query.is("archived_at", null)
+  }
+  const { data, error } = await query
+  if (error) throw new Error(error.message)
+  return (data ?? []) as ConversationRow[]
+}
+
+export async function archiveConversation(
+  ctx: UserContext,
+  conversationId: string
+): Promise<void> {
+  const { error } = await ctx.supabase
+    .from("conversations")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("id", conversationId)
+    .eq("user_id", ctx.user.id)
+  if (error) throw new Error(error.message)
 }
 
 /** Messages the user sent in the last minute (rate limit, CA14.10). */

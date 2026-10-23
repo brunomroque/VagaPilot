@@ -20,6 +20,7 @@ import {
 import type { TrackerApplication } from "@vagapilot/core/tracker"
 
 import { CompanyLogo } from "@/components/app/company-logo"
+import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import {
   companyInitials,
   DueBadge,
@@ -497,6 +498,10 @@ export function ApplicationSheet() {
                 <Badge variant="outline">
                   {t(`Tracker.sources.${application.source}`)}
                 </Badge>
+                <FilledViaChatBadgeClient
+                  tableName="applications"
+                  recordId={application.id}
+                />
                 {application.route ? (
                   <Badge variant="outline">
                     {t(`Tracker.routes.${application.route}`)}

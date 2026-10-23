@@ -92,6 +92,107 @@ export function limitsForPlan(plan: PlanId): PlanLimits {
   }
 }
 
+/** Search pass length (spec §14: R$ 299 / 90 days, Executive for 3 months). */
+export const SEARCH_PASS_DAYS = 90
+export const SEARCH_PASS_DURATION_MS = SEARCH_PASS_DAYS * 24 * 60 * 60 * 1000
+
+const PRO_TRIAL_CONSUMED_STATUSES = new Set([
+  "trialing",
+  "active",
+  "canceled",
+  "past_due",
+  "unpaid",
+  "paused",
+  "incomplete_expired",
+])
+
+function finiteUnixSeconds(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+    return null
+  return value
+}
+
+/**
+ * End of a one-time search pass. Anchored on the Checkout Session `created` time
+ * so a Stripe retry does not extend the 90 days.
+ */
+export function searchPassPeriodEndIso(
+  createdUnixSeconds: number,
+  nowMs = Date.now()
+): string {
+  const startMs =
+    finiteUnixSeconds(createdUnixSeconds) != null
+      ? createdUnixSeconds * 1000
+      : nowMs
+  return new Date(startMs + SEARCH_PASS_DURATION_MS).toISOString()
+}
+
+/**
+ * Subscription period end. Newer Stripe APIs put it on the first item;
+ * older payloads still send the root field. Never returns an invalid date.
+ */
+export function subscriptionPeriodEndIso(input: {
+  itemPeriodEnd?: unknown
+  currentPeriodEnd?: unknown
+}): string | null {
+  const seconds =
+    finiteUnixSeconds(input.itemPeriodEnd) ??
+    finiteUnixSeconds(input.currentPeriodEnd)
+  if (seconds == null) return null
+  return new Date(seconds * 1000).toISOString()
+}
+
+/**
+ * Plan the product should enforce. A search pass past `current_period_end`
+ * (or missing that timestamp) falls back to free.
+ */
+export function effectivePlan(input: {
+  plan: unknown
+  status: unknown
+  currentPeriodEnd: unknown
+  now: Date
+}): PlanId {
+  if (!isPlanId(input.plan) || input.plan === "free") return "free"
+  const status = typeof input.status === "string" ? input.status : ""
+  if (status !== "active" && status !== "trialing") return "free"
+  if (input.plan === "search_pass") {
+    if (status !== "active") return "free"
+    if (typeof input.currentPeriodEnd !== "string") return "free"
+    const end = new Date(input.currentPeriodEnd).getTime()
+    if (!Number.isFinite(end) || end <= input.now.getTime()) return "free"
+  }
+  return input.plan
+}
+
+/**
+ * Spec §14: 7-day Pro trial, once. `priorSubscriptionCount` < 0 means the
+ * Stripe history could not be read — fail closed (no second trial).
+ * Search pass and Executive do not call this.
+ */
+export function proTrialStillAvailable(input: {
+  plan: unknown
+  status: unknown
+  stripeSubscriptionId: unknown
+  priorSubscriptionCount: number
+}): boolean {
+  if (input.priorSubscriptionCount < 0) return false
+  if (input.priorSubscriptionCount > 0) return false
+  if (
+    typeof input.stripeSubscriptionId === "string" &&
+    input.stripeSubscriptionId.length > 0
+  ) {
+    return false
+  }
+  if (
+    input.plan === "pro" &&
+    typeof input.status === "string" &&
+    PRO_TRIAL_CONSUMED_STATUSES.has(input.status)
+  ) {
+    return false
+  }
+  return true
+}
+
 export function isPlanId(value: unknown): value is PlanId {
   return (
     typeof value === "string" && (PLAN_IDS as readonly string[]).includes(value)
