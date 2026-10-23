@@ -374,7 +374,7 @@ Implementadas as fases 1–7: home `/app` com chat, painel em `/app/visao-geral`
 
 Pendências: aplicar a nova migration no Supabase de produção (us-east-1); selo “Preenchido via chat” nas demais telas (CV, fatos, perfil, memória, buscas); fluxo completo de `register_gap` no cartão; eval `form_only` ampliado; e2e completos em CI com Supabase local.
 
-Commits na `main` (5× `feat(chat-first): fase …`), ainda não enviados ao remoto. Working tree separado: correções de typecheck/audit (`account.deletion_cancelled`), QA §11.3/§14 (pareamento, sidebar/plano, CV, billing) e migration `20261023170000_qa_pairing_grants_cv.sql` — revisar e commitar antes do push; não incluir `docs/supabase-vagapilot.env.txt`.
+Commits em `main` (push `origin/main`, 2026-10-23): 5× `feat(chat-first)`, `49d941b` (QA pareamento/billing/CV + core `app-url`/`audit`), docs smoke/Stripe, `fe5b83e` (P2). Checklist de deploy: [DEPLOY-CHAT-FIRST.md](./DEPLOY-CHAT-FIRST.md). Não versionar `docs/supabase-vagapilot.env.txt` (`.gitignore`: `docs/*.env.txt`).
 
 ## QA 23/10/2026 — P0 e P1
 
@@ -402,6 +402,8 @@ Feito no código. Spec: §8.4 (análise no chat), §10.3–10.4 (confirmação a
 
 ### P2 — QA código (2026-10-23)
 
+**Entrega:** commit `fe5b83e` em `main` (push `origin/main`, 2026-10-23). Após o deploy Netlify, o link da landing para `/precos` deixa de retornar 404 em produção.
+
 Feito (ESPEC §14 `usage_counters`, §8.5 cadastro, §14 planos):
 
 - **Contador atômico:** migration `20261023180000_increment_usage.sql` (`increment_usage` com `INSERT … ON CONFLICT DO UPDATE … RETURNING`, só `service_role`). `apps/web/lib/entitlements/server.ts` usa RPC; se passar do limite do plano, reverte com delta negativo e lança `EntitlementError`. Teste em `packages/db/test/increment-usage.test.ts` (Supabase local).
@@ -415,6 +417,6 @@ Pendente P2 (deferido):
 - Lentidão de `/app/buscas` e `/app/atividade`.
 - Header `x-vagapilot-device-token` vazio (já resulta em não autorizado).
 - Senha do seed no código (só dev).
-- Migration `increment_usage` aplicada no Supabase hospedado (`synbycvebzzqarojicfu`, 2026-10-23).
+- Migration `increment_usage` aplicada no Supabase hospedado (`synbycvebzzqarojicfu`, 2026-10-23; registro `20261023144419`, SQL equivalente ao arquivo `20261023180000_increment_usage.sql` no repo).
 
 Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram nesta rodada. Testes unitários focados + typecheck web.
