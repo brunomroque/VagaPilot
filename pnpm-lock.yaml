@@ -150,6 +150,9 @@ importers:
       cn:
         specifier: ^0.5.0
         version: 0.5.0
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       inngest:
         specifier: ^4.25.0
         version: 4.25.0(@opentelemetry/core@3.0.0(@opentelemetry/api@1.10.0))(express@5.3.0)(hono@4.13.13)(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(zod@4.6.6)
@@ -183,6 +186,9 @@ importers:
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      stripe:
+        specifier: ^23.0.0
+        version: 23.0.0(@types/node@24.19.2)
       zod:
         specifier: ^4.6.6
         version: 4.6.6
@@ -6092,6 +6098,15 @@ packages:
 
   strip-literal@4.0.0:
     resolution: {integrity: sha512-PaqAvfUZKBwc/SLmNZtHmzK+v19Z4O4eS3cKPeGvbIv/U3pnyEq4Tuw3/4v/FwfM8VQaEawsyCcOQ0P+kpwWWw==}
+
+  stripe@23.0.0:
+    resolution: {integrity: sha512-MDE2A5ZVVluYURORaZEVghSmnLJc3w6aHAlZSxDQMsOjOb3V0O6ro/CiaeFlJS4N7uIVmsg98ocRsPmUK6YfyA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@types/node': '>=20'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   styled-jsx@5.1.6:
     resolution: {integrity: sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==}
@@ -12178,6 +12193,10 @@ snapshots:
   strip-literal@4.0.0:
     dependencies:
       js-tokens: 10.0.0
+
+  stripe@23.0.0(@types/node@24.19.2):
+    optionalDependencies:
+      '@types/node': 24.19.2
 
   styled-jsx@5.1.6(@babel/core@7.29.7)(react@19.3.0):
     dependencies:
