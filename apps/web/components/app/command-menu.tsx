@@ -4,12 +4,14 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   BriefcaseBusinessIcon,
+  MessageSquareTextIcon,
   SettingsIcon,
   UserRoundIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { navItems } from "@/components/app/app-sidebar"
+import { useChatSheet } from "@/components/chat/chat-sheet-context"
 import { useWorkspace } from "@/components/app/workspace-context"
 import {
   Command,
@@ -27,6 +29,7 @@ export function CommandMenu() {
   const router = useRouter()
   const { applications, selectApplication, commandOpen, setCommandOpen } =
     useWorkspace()
+  const { openChat } = useChatSheet()
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -85,6 +88,19 @@ export function CommandMenu() {
                 </span>
               </CommandItem>
             ))}
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading={t("Command.assistant")}>
+            <CommandItem
+              value={t("Command.askChat")}
+              onSelect={() => {
+                setCommandOpen(false)
+                openChat()
+              }}
+            >
+              <MessageSquareTextIcon />
+              {t("Command.askChat")}
+            </CommandItem>
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading={t("Command.pages")}>

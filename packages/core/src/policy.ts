@@ -30,6 +30,19 @@ export const CHAT_TOOL_NAMES = [
   "draft_application_email",
   "request_send_email",
   "send_email",
+  "open_screen",
+  "ats_score",
+  "propose_cv_adjustment",
+  "apply_cv_adjustment",
+  "ensure_hybrid_cv",
+  "list_cv_tracks",
+  "create_application",
+  "update_application_status",
+  "read_gmail",
+  "answer_missing_info",
+  "classify_fact",
+  "get_profile_tracking",
+  "mark_profile_updated",
 ] as const
 export type ChatToolName = (typeof CHAT_TOOL_NAMES)[number]
 
@@ -57,7 +70,14 @@ export function toolRisk(tool: ChatToolName): ToolRisk {
     case "get_settings":
     case "ask_clarification":
     case "export_tracker":
+    case "open_screen":
+    case "ats_score":
+    case "list_cv_tracks":
+    case "read_gmail":
+    case "get_profile_tracking":
       return "leitura"
+    case "mark_profile_updated":
+      return "baixo"
     case "record_decision":
       return "interna"
     case "create_saved_search":
@@ -70,6 +90,10 @@ export function toolRisk(tool: ChatToolName): ToolRisk {
       return "baixo"
     case "update_language_level":
     case "propose_fact":
+    case "propose_cv_adjustment":
+    case "ensure_hybrid_cv":
+    case "answer_missing_info":
+    case "classify_fact":
     case "draft_application_email":
     case "request_send_email":
       return "medio"
@@ -77,7 +101,11 @@ export function toolRisk(tool: ChatToolName): ToolRisk {
       return "alto"
     case "delete_saved_search":
     case "set_approval_mode":
+    case "apply_cv_adjustment":
       return "alto"
+    case "create_application":
+    case "update_application_status":
+      return "baixo"
     default: {
       const unreachable: never = tool
       throw new Error(`Unknown tool: ${String(unreachable)}`)
@@ -144,7 +172,9 @@ export function policyCheck(input: {
     case "baixo":
       return lowRisk(input.origin)
     case "medio":
-      if (input.tool === "update_language_level") return lowRisk(input.origin)
+      // Language level used to apply with undo. A pasted job ("inglês fluente",
+      // a city) was stored as the user's own fact. Confirmation is required first
+      // (QA); the card still supports undo after the person confirms.
       return confirmedByPerson
         ? { decision: "allow" }
         : { decision: "require_confirmation", reason: "sensitive" }

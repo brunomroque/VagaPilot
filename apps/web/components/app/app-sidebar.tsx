@@ -56,7 +56,8 @@ import {
 } from "@workspace/ui/components/sidebar"
 
 type NavKey =
-  | "overview"
+  | "homeChat"
+  | "panel"
   | "applications"
   | "tasks"
   | "resumes"
@@ -67,7 +68,8 @@ type NavKey =
 type NavItem = { key: NavKey; href: string; icon: LucideIcon }
 
 const workspaceItems: NavItem[] = [
-  { key: "overview", href: "/app", icon: LayoutDashboardIcon },
+  { key: "homeChat", href: "/app", icon: MessageSquareTextIcon },
+  { key: "panel", href: "/app/visao-geral", icon: LayoutDashboardIcon },
   {
     key: "applications",
     href: "/app/candidaturas",
@@ -93,7 +95,8 @@ function initialsOf(name: string) {
 }
 
 function isActive(pathname: string, href: string) {
-  return href === "/app" ? pathname === "/app" : pathname.startsWith(href)
+  if (href === "/app") return pathname === "/app" || pathname === "/app/"
+  return pathname.startsWith(href)
 }
 
 function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
@@ -130,12 +133,24 @@ function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
   )
 }
 
-export function AppSidebar({ displayName }: { displayName: string }) {
+export function AppSidebar({
+  displayName,
+  plan,
+}: {
+  displayName: string
+  plan: {
+    name: string
+    used: number
+    limit: number | null
+    usageLabel: string
+  }
+}) {
   const t = useTranslations()
   const { setOpenMobile } = useSidebar()
-  const usage = Math.round(
-    (demoProfile.plan.used / demoProfile.plan.limit) * 100
-  )
+  const usage =
+    plan.limit && plan.limit > 0
+      ? Math.min(100, Math.round((plan.used / plan.limit) * 100))
+      : 0
 
   return (
     <Sidebar
@@ -161,22 +176,13 @@ export function AppSidebar({ displayName }: { displayName: string }) {
             <span className="row-span-2 flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
               <ZapIcon className="size-4 fill-current" />
             </span>
-            <CardTitle>{t("Plan.name")}</CardTitle>
-            <CardDescription>
-              {t("Plan.usage", {
-                used: demoProfile.plan.used,
-                limit: demoProfile.plan.limit,
-              })}
-            </CardDescription>
+            <CardTitle>{plan.name}</CardTitle>
+            <CardDescription>{plan.usageLabel}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Progress
-              value={usage}
-              aria-label={t("Plan.usage", {
-                used: demoProfile.plan.used,
-                limit: demoProfile.plan.limit,
-              })}
-            />
+            {plan.limit != null ? (
+              <Progress value={usage} aria-label={plan.usageLabel} />
+            ) : null}
           </CardContent>
         </Card>
         <SidebarMenu>

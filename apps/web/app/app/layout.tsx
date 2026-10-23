@@ -1,9 +1,12 @@
 import type { ReactNode } from "react"
 import { redirect } from "next/navigation"
-import { getFormatter } from "next-intl/server"
+import { getFormatter, getTranslations } from "next-intl/server"
 
 import { AppShell } from "@/components/app/app-shell"
 import { getCurrentUser, hasAcceptedTerms } from "@/lib/auth/session"
+import { loadChatBootstrap } from "@/lib/chat/bootstrap"
+import { getPlanSnapshot } from "@/lib/entitlements/server"
+import { getUserContext } from "@/lib/server/context"
 import { loadTrackerData } from "@/lib/tracker/load"
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -12,6 +15,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   if (!(await hasAcceptedTerms(user))) redirect("/aceite")
 
   const format = await getFormatter()
+  const tPlan = await getTranslations("Plan")
   const today = format.dateTime(new Date(), {
     weekday: "long",
     day: "numeric",
@@ -19,6 +23,17 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   })
   const firstName = user.displayName.split(" ")[0] ?? user.displayName
   const tracker = await loadTrackerData(user)
+  const snapshot = await getPlanSnapshot(user.id)
+  const userContext = await getUserContext()
+  const chatBootstrap = userContext.ok
+    ? await loadChatBootstrap(userContext.ctx)
+    : {
+        conversationId: "00000000-0000-4000-8000-000000000001",
+        initialMessages: [],
+        cvOptions: [],
+        pendingQuestions: [],
+        nextSteps: { kind: "next_steps" as const, items: [], summary: "" },
+      }
 
   return (
     <AppShell
@@ -27,6 +42,19 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       today={today}
       tracker={tracker}
       nowIso={new Date().toISOString()}
+      chatBootstrap={chatBootstrap}
+      plan={{
+        name: snapshot.trialing ? tPlan("trial") : tPlan(snapshot.plan),
+        used: snapshot.analysesUsed,
+        limit: snapshot.analysesLimit,
+        usageLabel:
+          snapshot.analysesLimit == null
+            ? tPlan("usageUnlimited", { used: snapshot.analysesUsed })
+            : tPlan("usage", {
+                used: snapshot.analysesUsed,
+                limit: snapshot.analysesLimit,
+              }),
+      }}
     >
       {children}
     </AppShell>

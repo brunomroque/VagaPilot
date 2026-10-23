@@ -12,6 +12,7 @@ import {
   createFactSearch,
 } from "@vagapilot/ai"
 import { MAX_LINKS_PER_BATCH } from "@vagapilot/core/guardrails"
+import { looksLikeJobPosting } from "@vagapilot/core/job-text"
 import {
   suggestSalary,
   type Regime,
@@ -28,6 +29,8 @@ import {
 } from "@vagapilot/core/status"
 import { searchConfirmedFacts } from "@vagapilot/db/server"
 
+import { buildExtendedChatTools } from "@/lib/chat/extended-tools"
+import { buildDeepLink } from "@/lib/chat/screens"
 import {
   loadJobCards,
   recordDecision,
@@ -60,6 +63,13 @@ export type ChatTurnState = {
   conversationId: string
   utterance: string
   untrustedSeen: boolean
+  screenContext?: {
+    screen?: string
+    pathname?: string
+    applicationId?: string | null
+    jobPostingId?: string | null
+    cvVersionId?: string | null
+  }
 }
 
 async function latestMatchForPosting(
@@ -79,6 +89,7 @@ export function buildChatTools(
   ctx: UserContext,
   state: ChatTurnState
 ): ToolSet {
+  if (looksLikeJobPosting(state.utterance)) state.untrustedSeen = true
   const origin = (): ToolOrigin =>
     state.untrustedSeen ? "untrusted_content" : "user_turn"
   const t = () => getTranslations("ChatTools")
@@ -105,6 +116,7 @@ export function buildChatTools(
     })
 
   return {
+    ...buildExtendedChatTools(ctx, state),
     ingest_job_postings: tool({
       description: CHAT_TOOL_DESCRIPTIONS.ingest_job_postings,
       inputSchema: chatToolInputSchemas.ingest_job_postings,
@@ -462,6 +474,26 @@ export function buildChatTools(
       execute: async ({ approvalId }): Promise<ChatToolOutput> => {
         const tr = await t()
         return toolSendEmail(ctx, approvalId, tr("emailSent"))
+      },
+    }),
+    open_screen: tool({
+      description: CHAT_TOOL_DESCRIPTIONS.open_screen,
+      inputSchema: chatToolInputSchemas.open_screen,
+      execute: async (input): Promise<ChatToolOutput> => {
+        const tr = await t()
+        const href = buildDeepLink({
+          screen: input.screen,
+          applicationId: input.applicationId,
+          cvVersionId: input.cvVersionId,
+          factId: input.factId,
+          searchId: input.searchId,
+        })
+        return {
+          kind: "deep_link",
+          href,
+          label: tr("deepLink", { screen: input.screen }),
+          summary: tr("deepLinkSummary"),
+        }
       },
     }),
   }

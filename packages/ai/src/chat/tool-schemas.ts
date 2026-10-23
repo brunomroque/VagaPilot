@@ -142,6 +142,80 @@ export const chatToolInputSchemas = {
   send_email: z.object({
     approvalId: z.uuid(),
   }),
+  open_screen: z.object({
+    screen: z.enum([
+      "home",
+      "panel",
+      "chat",
+      "applications",
+      "tasks",
+      "cvs",
+      "searches",
+      "memory",
+      "facts",
+      "profile",
+      "settings",
+      "onboarding",
+    ]),
+    applicationId: z.uuid().optional(),
+    cvVersionId: z.uuid().optional(),
+    factId: z.uuid().optional(),
+    searchId: z.uuid().optional(),
+  }),
+  ats_score: z.object({
+    cvVersionId: z.uuid(),
+    jobPostingId: z.uuid(),
+    jobMatchId: z.uuid().optional(),
+  }),
+  propose_cv_adjustment: z.object({
+    cvVersionId: z.uuid(),
+    jobPostingId: z.uuid(),
+    trackId: z.uuid().optional(),
+  }),
+  apply_cv_adjustment: z.object({
+    approvalId: z.uuid(),
+  }),
+  ensure_hybrid_cv: z.object({
+    sourceCvVersionId: z.uuid().optional(),
+  }),
+  list_cv_tracks: z.object({}),
+  create_application: z.object({
+    jobMatchId: z.uuid(),
+    cvVersionId: z.uuid().optional(),
+    status: z.enum(["rascunho", "em_andamento"]).optional(),
+  }),
+  update_application_status: z.object({
+    applicationId: z.uuid(),
+    status: z.enum([
+      "rascunho",
+      "descartada",
+      "em_andamento",
+      "enviada",
+      "em_analise",
+      "etapa_pendente",
+      "entrevista",
+      "proposta",
+      "reprovada",
+      "encerrada",
+    ]),
+  }),
+  read_gmail: z.object({
+    applicationId: z.uuid().optional(),
+    query: z.string().max(200).optional(),
+    limit: z.number().int().min(1).max(10).optional(),
+  }),
+  answer_missing_info: z.object({
+    pendingQuestionId: z.uuid(),
+    answerText: z.string().min(1).max(2000),
+  }),
+  classify_fact: z.object({
+    factId: z.uuid(),
+    usage: z.enum(["cv_relevant", "form_only"]),
+  }),
+  get_profile_tracking: z.object({}),
+  mark_profile_updated: z.object({
+    platformProfileId: z.uuid(),
+  }),
 } as const satisfies Record<ChatToolName, z.ZodType>
 
 export type ChatToolInput<T extends ChatToolName> = z.infer<
@@ -188,4 +262,27 @@ export const CHAT_TOOL_DESCRIPTIONS: Record<ChatToolName, string> = {
   request_send_email:
     "Pedido de envio: cria aprovação com hash do rascunho exato.",
   send_email: "Envia o e-mail aprovado (só approvalId; conteúdo vem do banco).",
+  open_screen:
+    "Devolve um link profundo para uma tela existente do app (candidaturas, CVs, perfil…).",
+  ats_score:
+    "Calcula score ATS determinístico do CV contra a vaga (keywords cobertas e faltantes).",
+  propose_cv_adjustment:
+    "Propõe nova versão de CV só com adições baseadas em fatos confirmados (aprovação).",
+  apply_cv_adjustment:
+    "Aplica ajuste de CV aprovado (só approvalId; valida hash e prazo).",
+  ensure_hybrid_cv:
+    "Garante trilha Híbrido atualizada com conteúdo cv_relevant (aprovação).",
+  list_cv_tracks: "Lista trilhas de CV e versões padrão por idioma.",
+  create_application: "Cria candidatura a partir de uma vaga analisada.",
+  update_application_status:
+    "Atualiza status da candidatura (enviada exige confirmação).",
+  read_gmail:
+    "Resume threads de e-mail ligadas a candidaturas (somente leitura).",
+  answer_missing_info:
+    "Processa resposta livre a pergunta pendente e sugere destino (cartão).",
+  classify_fact: "Define se fato é cv_relevant ou form_only após confirmação.",
+  get_profile_tracking:
+    "Lista perfis em plataformas externas e status desatualizado.",
+  mark_profile_updated:
+    "Marca perfil de plataforma como atualizado manualmente.",
 }

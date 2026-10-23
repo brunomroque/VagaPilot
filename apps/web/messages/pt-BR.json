@@ -134,6 +134,8 @@
     "workspace": "Workspace",
     "assistant": "Assistente",
     "overview": "Visão geral",
+    "homeChat": "Início (chat)",
+    "panel": "Painel",
     "applications": "Candidaturas",
     "tasks": "Tarefas",
     "resumes": "Currículos",
@@ -166,7 +168,9 @@
     "placeholder": "Buscar candidatura ou página...",
     "empty": "Nada encontrado.",
     "pages": "Páginas",
-    "applications": "Candidaturas"
+    "applications": "Candidaturas",
+    "assistant": "Assistente",
+    "askChat": "Perguntar ao chat…"
   },
   "AnalyzeDialog": {
     "title": "Vamos analisar uma nova vaga",
@@ -1090,6 +1094,11 @@
   },
   "Onboarding": {
     "title": "Configure seu VagaPilot",
+    "chatOption": {
+      "title": "Prefere conversar?",
+      "description": "Faça o onboarding pelo chat: eu pergunto seção por seção e você confirma antes de salvar.",
+      "action": "Fazer pelo chat"
+    },
     "description": "Leva uns 10 minutos. Você pode parar e continuar depois de onde parou.",
     "later": "Continuar depois",
     "stepOf": "Etapa {step} de {total}",
@@ -1430,9 +1439,33 @@
       "12h": "12 horas"
     }
   },
+  "AppHome": {
+    "title": "Início",
+    "subtitle": "Converse com o VagaPilot — ele preenche candidaturas, CVs e memória por trás.",
+    "panel": {
+      "title": "Painel",
+      "description": "Resumo rápido do controle.",
+      "full": "Ver painel completo",
+      "applicationsMonth": "Candidaturas no mês",
+      "pendingActions": "Ações pendentes",
+      "avgFit": "Fit médio"
+    }
+  },
   "Chat": {
     "title": "Conversar",
+    "homeTitle": "VagaPilot",
+    "conversations": {
+      "label": "Conversas",
+      "untitled": "Conversa",
+      "archive": "Arquivar"
+    },
     "newConversation": "Nova conversa",
+    "sheet": {
+      "fab": "Perguntar ao VagaPilot",
+      "fabShort": "Chat",
+      "title": "Assistente",
+      "contextHint": "Contexto: {screen}"
+    },
     "logLabel": "Mensagens da conversa",
     "thinking": "Pensando…",
     "working": "Trabalhando nisso…",
@@ -1516,7 +1549,47 @@
       "factReject": "Descartar",
       "factConfirmed": "Confirmado",
       "factRejected": "Descartado",
-      "factFailed": "Não foi possível registrar sua decisão."
+      "factFailed": "Não foi possível registrar sua decisão.",
+      "nextSteps": {
+        "title": "Próximos passos",
+        "emptyTitle": "Tudo certo",
+        "resolve": "Resolver agora",
+        "open": "Abrir",
+        "later": "Depois"
+      },
+      "deepLink": {
+        "open": "Abrir"
+      },
+      "ats": {
+        "title": "Score ATS",
+        "before": "Antes",
+        "after": "Depois",
+        "missing": "Keywords faltantes",
+        "generateCv": "Gerar CV ajustado"
+      },
+      "cvDiff": {
+        "title": "Ajuste de CV — {track}",
+        "approve": "Aprovar",
+        "reject": "Recusar",
+        "approved": "Aprovado",
+        "rejected": "Recusado",
+        "failed": "Não foi possível registrar."
+      },
+      "application": {
+        "open": "Abrir em Candidaturas"
+      },
+      "factClass": {
+        "title": "Onde salvar esta resposta?",
+        "applicationOnly": "Só esta candidatura",
+        "saveFact": "Salvar fato reutilizável",
+        "updateCvs": "Atualizar CVs",
+        "registerGap": "Registrar lacuna"
+      },
+      "profileTracking": {
+        "title": "Perfis em plataformas",
+        "outdated": "Desatualizado",
+        "ok": "Atualizado"
+      }
     }
   },
   "ChatTools": {
@@ -1549,6 +1622,21 @@
     "emailApproval": "Pedido de envio registrado. Confirme no cartão de aprovação.",
     "emailSent": "E-mail enviado pela sua conta Gmail.",
     "exportTracker": "Use o link para baixar o controle em {format}.",
+    "deepLink": "Abrir {screen}",
+    "deepLinkSummary": "Use o botão para ir à tela correspondente.",
+    "atsScore": "Score ATS calculado.",
+    "cvProposed": "Ajuste de CV proposto — confirme no cartão.",
+    "cvApplied": "Nova versão de CV criada.",
+    "hybridReady": "Trilha Híbrido disponível.",
+    "tracksListed": "{count, plural, one {# trilha listada.} other {# trilhas listadas.}}",
+    "applicationCreated": "Candidatura registrada.",
+    "needsSubmitApproval": "Status “enviada” exige confirmação no cartão.",
+    "statusUpdated": "Status atualizado.",
+    "gmailRead": "{count, plural, one {# thread resumida.} other {# threads resumidas.}}",
+    "profileTracking": "Status dos perfis em plataformas.",
+    "profileUpdated": "Perfil marcado como atualizado.",
+    "factClassified": "Classificação do fato salva.",
+    "missingInfoSuggest": "Escolha onde salvar esta resposta.",
     "settings": {
       "applied": {
         "create_saved_search": "Busca salva criada: {subject}.",

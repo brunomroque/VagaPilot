@@ -14,6 +14,12 @@ import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { startNewConversationAction } from "@/app/app/chat/actions"
+import {
+  captureChatMessageSent,
+  captureChatOpened,
+} from "@/lib/analytics/chat-events"
+import type { NextStepsPayload } from "@/lib/chat/next-steps"
+import type { ChatScreenContext } from "@/lib/chat/screens"
 import type { ChatToolOutput } from "@/lib/chat/types"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -24,6 +30,7 @@ import {
   PendingQuestionsPanel,
   type PendingQuestionView,
 } from "./pending-questions-panel"
+import { NextStepsView } from "./next-steps-view"
 import { ToolOutputView } from "./tool-output-view"
 
 const MAX_CHARS = 8000
@@ -44,12 +51,20 @@ export function ChatView({
   cvOptions,
   initialPrompt,
   pendingQuestions = [],
+  nextSteps = null,
+  screenContext,
+  variant = "page",
+  hideHeader = false,
 }: {
   conversationId: string
   initialMessages: UIMessage[]
   cvOptions: CvOption[]
   initialPrompt: string | null
   pendingQuestions?: PendingQuestionView[]
+  nextSteps?: NextStepsPayload | null
+  screenContext?: ChatScreenContext
+  variant?: "page" | "home" | "sheet"
+  hideHeader?: boolean
 }) {
   const t = useTranslations("Chat")
   const [input, setInput] = useState("")
@@ -57,13 +72,19 @@ export function ChatView({
   const endRef = useRef<HTMLDivElement>(null)
   const sentInitial = useRef(false)
 
+  const [dismissedNextSteps, setDismissedNextSteps] = useState(false)
+
   const { messages, sendMessage, status } = useChat({
     id: conversationId,
     messages: initialMessages,
     transport: new DefaultChatTransport({
       api: "/api/chat",
       prepareSendMessagesRequest: ({ messages: all, id }) => ({
-        body: { id, message: all[all.length - 1] },
+        body: {
+          id,
+          message: all[all.length - 1],
+          context: screenContext ?? undefined,
+        },
       }),
     }),
     onError: (error) => {
@@ -74,6 +95,11 @@ export function ChatView({
   })
 
   const busy = status === "submitted" || status === "streaming"
+
+  useEffect(() => {
+    if (variant === "home") captureChatOpened("home")
+    else if (variant === "page") captureChatOpened("page")
+  }, [variant])
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })
@@ -98,21 +124,34 @@ export function ChatView({
       return
     }
     setNotice(null)
+    captureChatMessageSent()
     void sendMessage({ text: trimmed })
     setInput("")
   }
 
+  const showNextSteps =
+    nextSteps && !dismissedNextSteps && messages.length === 0 && !initialPrompt
+
+  const minHeight =
+    variant === "sheet"
+      ? "min-h-[min(70svh,40rem)]"
+      : "min-h-[calc(100svh-11rem)]"
+
   return (
-    <div className="flex min-h-[calc(100svh-11rem)] flex-col gap-4">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-bold">{t("title")}</h2>
-        <form action={startNewConversationAction}>
-          <Button type="submit" variant="outline" size="sm">
-            <PlusIcon data-icon="inline-start" />
-            {t("newConversation")}
-          </Button>
-        </form>
-      </div>
+    <div className={`flex ${minHeight} flex-col gap-4`}>
+      {!hideHeader ? (
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-lg font-bold">
+            {variant === "home" ? t("homeTitle") : t("title")}
+          </h2>
+          <form action={startNewConversationAction}>
+            <Button type="submit" variant="outline" size="sm">
+              <PlusIcon data-icon="inline-start" />
+              {t("newConversation")}
+            </Button>
+          </form>
+        </div>
+      ) : null}
 
       <PendingQuestionsPanel initialQuestions={pendingQuestions} />
 
@@ -124,7 +163,16 @@ export function ChatView({
         className="flex flex-1 flex-col gap-4"
         data-testid="chat-log"
       >
-        {messages.length === 0 ? (
+        {showNextSteps ? (
+          <NextStepsView
+            output={nextSteps}
+            onResolve={(item) => {
+              if (item.prompt) send(item.prompt)
+              else if (item.href) window.location.href = item.href
+            }}
+            onLater={() => setDismissedNextSteps(true)}
+          />
+        ) : messages.length === 0 ? (
           <div className="flex flex-col items-start gap-3 rounded-xl border bg-card p-4">
             <span className="flex size-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
               <SparklesIcon className="size-5" aria-hidden="true" />

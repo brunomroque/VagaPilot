@@ -11,7 +11,9 @@ import { screenshotDir, settle, signInAsDevUser } from "./support"
  */
 
 test.describe("app shell", () => {
-  test("renders the overview without hydration errors", async ({ page }) => {
+  test("renders the chat-first home without hydration errors", async ({
+    page,
+  }) => {
     const hydrationErrors: string[] = []
     page.on("console", (message) => {
       if (message.type() === "error" && /hydrat/i.test(message.text())) {
@@ -20,22 +22,13 @@ test.describe("app shell", () => {
     })
 
     await signInAsDevUser(page)
+    await expect(page.getByTestId("chat-log")).toBeVisible()
+    await expect(page.getByLabel("Mensagem")).toBeVisible()
+    await page.goto("/app/visao-geral")
     await page.locator("[id^=DndLiveRegion]").waitFor({ state: "attached" })
     await expect(
       page.getByRole("region", { name: "Resumo de desempenho" })
     ).toBeVisible()
-    for (const name of [
-      "Descobertas",
-      "Candidatadas",
-      "Em processo",
-      "Decisão",
-    ]) {
-      await expect(page.getByRole("heading", { level: 3, name })).toBeVisible()
-    }
-    await expect(
-      page.getByRole("heading", { name: "Próximas ações" })
-    ).toBeVisible()
-    await expect(page.getByText("Gmail conectado")).toBeVisible()
 
     await page.screenshot({
       path: join(screenshotDir, "01-overview-desktop.png"),
@@ -53,7 +46,8 @@ test.describe("app shell", () => {
       ["Currículos", "/app/cvs", null],
       ["Conversar", "/app/chat", null],
       ["Buscas salvas", "/app/buscas", null],
-      ["Visão geral", "/app", "Pipeline de candidaturas"],
+      ["Início (chat)", "/app", "VagaPilot"],
+      ["Painel", "/app/visao-geral", "Pipeline de candidaturas"],
     ] as const
 
     for (const [label, path, heading] of routes) {
