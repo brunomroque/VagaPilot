@@ -119,6 +119,14 @@ export async function decideApproval(
     .eq("id", row.id)
     .eq("user_id", ctx.user.id)
 
+  if (input.approve && row.kind === "cv_change") {
+    const conversationId = String(row.subject_ref.conversation_id ?? "")
+    if (conversationId) {
+      const { toolApplyCvAdjustment } = await import("@/lib/cvs/chat-cv")
+      await toolApplyCvAdjustment(ctx, row.id, conversationId, "CV ajustado.")
+    }
+  }
+
   await audit({
     userId: ctx.user.id,
     actor: "usuario",

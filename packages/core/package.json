@@ -34,7 +34,11 @@
     "./ext-auth": "./src/ext-auth.ts",
     "./apply-url": "./src/apply-url.ts",
     "./entitlements": "./src/entitlements.ts",
-    "./application-email": "./src/application-email.ts"
+    "./app-url": "./src/app-url.ts",
+    "./postgres": "./src/postgres.ts",
+    "./application-email": "./src/application-email.ts",
+    "./ats-score": "./src/ats-score.ts",
+    "./cv-structure": "./src/cv-structure.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

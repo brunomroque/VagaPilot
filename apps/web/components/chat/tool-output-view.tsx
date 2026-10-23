@@ -13,6 +13,15 @@ import { StatusChangeCard } from "@workspace/ui/components/status-change-card"
 import { IngestBatch } from "./ingest-batch"
 import { JobCardsById } from "./job-cards-by-id"
 import type { CvOption } from "./job-card-view"
+import {
+  ApplicationCardView,
+  AtsScoreView,
+  CvDiffApprovalView,
+  FactClassificationView,
+  OptionsView,
+  ProfileTrackingView,
+} from "./chat-widgets-extra"
+import { DeepLinkView } from "./deep-link-view"
 import { ClarificationView, SettingsChangeView } from "./settings-change-view"
 import { useJobFormat } from "./use-job-format"
 
@@ -77,13 +86,30 @@ export function ToolOutputView({
         />
       )
     case "clarification":
-      return (
+    case "options":
+      return output.kind === "options" ? (
+        <OptionsView output={output} onSelect={onAnswer} />
+      ) : (
         <ClarificationView
           question={output.question}
           options={output.options}
           onSelect={onAnswer}
         />
       )
+    case "deep_link":
+      return <DeepLinkView output={output} />
+    case "ats_score":
+      return <AtsScoreView output={output} onAction={onAnswer} />
+    case "cv_diff":
+      return <CvDiffApprovalView output={output} />
+    case "application_card":
+      return <ApplicationCardView output={output} />
+    case "fact_classification":
+      return <FactClassificationView output={output} onSelect={onAnswer} />
+    case "profile_tracking":
+      return <ProfileTrackingView output={output} />
+    case "next_steps":
+      return null
     case "fact_approval":
       return <FactApproval output={output} />
     case "settings_change":

@@ -17,6 +17,7 @@ import {
   ORCHESTRATOR_SYSTEM_V1,
   resolveChatModel,
 } from "@vagapilot/ai"
+import { looksLikeJobPosting } from "@vagapilot/core/job-text"
 import {
   CHAT_MESSAGES_PER_MINUTE,
   extractUrls,
@@ -45,6 +46,16 @@ import { checkUpstashRateLimit } from "@/lib/server/upstash-ratelimit"
 /** POST /api/chat (spec 8.4, 8.5, 10.2, F7, F14 guardrails). */
 export const maxDuration = 60
 
+const screenContextSchema = z
+  .object({
+    screen: z.string().max(40),
+    pathname: z.string().max(200),
+    applicationId: z.uuid().nullish(),
+    jobPostingId: z.uuid().nullish(),
+    cvVersionId: z.uuid().nullish(),
+  })
+  .optional()
+
 const bodySchema = z.object({
   id: z.uuid(),
   message: z.object({
@@ -52,19 +63,37 @@ const bodySchema = z.object({
     role: z.literal("user"),
     parts: z
       .array(
-        z.object({
-          type: z.literal("text"),
-          text: z.string().max(MAX_CHAT_INPUT_CHARS * 2),
-        })
+        z.union([
+          z.object({
+            type: z.literal("text"),
+            text: z.string().max(MAX_CHAT_INPUT_CHARS * 2),
+          }),
+          z.object({
+            type: z.literal("data-action"),
+            data: z.object({
+              action: z.string().max(80),
+              approvalId: z.uuid().optional(),
+              choice: z.string().max(200).optional(),
+            }),
+          }),
+        ])
       )
       .min(1)
       .max(4),
   }),
+  context: screenContextSchema,
 })
 
 function textOf(message: Pick<UIMessage, "parts">): string {
   return message.parts
-    .map((part) => (part.type === "text" ? part.text : ""))
+    .map((part) => {
+      if (part.type === "text") return part.text
+      if (part.type === "data-action") {
+        const payload = part as { data?: { action?: string; choice?: string } }
+        return payload.data?.choice ?? payload.data?.action ?? ""
+      }
+      return ""
+    })
     .join("\n")
     .trim()
 }
@@ -221,11 +250,20 @@ export async function POST(request: Request) {
     role: "user",
     parts: [{ type: "text", text }],
   }
-  await saveMessage(ctx, conversation.id, userMessage)
+  await saveMessage(ctx, conversation.id, {
+    role: userMessage.role,
+    parts: userMessage.parts as UIMessage["parts"],
+  })
   const originalMessages = [...history, userMessage]
 
   const topic = await classifyTopic(text)
-  if (isRefusedVerdict(topic.verdict)) {
+  const jobPaste = urls.length === 0 && looksLikeJobPosting(text)
+  const hardRefusal =
+    topic.verdict === "injection" ||
+    topic.verdict === "prompt_leak" ||
+    topic.verdict === "fraud" ||
+    topic.verdict === "discriminatory"
+  if (isRefusedVerdict(topic.verdict) && (hardRefusal || !jobPaste)) {
     await audit({
       userId: ctx.user.id,
       actor: "sistema",
@@ -302,10 +340,65 @@ export async function POST(request: Request) {
     )
   }
 
+  if (jobPaste) {
+    const tTools = await getTranslations("ChatTools")
+    return directResponse(
+      ctx,
+      conversation.id,
+      originalMessages,
+      async (writer) => {
+        const toolCallId = `ingest-${crypto.randomUUID()}`
+        writer.write({
+          type: "tool-input-available",
+          toolCallId,
+          toolName: "ingest_job_postings",
+          input: { text },
+        })
+        try {
+          const batch = await startIngestion(ctx, {
+            text,
+            conversationId: conversation.id,
+          })
+          const output: ChatToolOutput = {
+            kind: "ingest_batch",
+            ...batch,
+            summary: tTools("ingest", { count: batch.items.length }),
+          }
+          writer.write({ type: "tool-output-available", toolCallId, output })
+          writer.write({ type: "text-start", id: "ingest" })
+          writer.write({
+            type: "text-delta",
+            id: "ingest",
+            delta: output.summary,
+          })
+          writer.write({ type: "text-end", id: "ingest" })
+        } catch (error) {
+          console.error("pasted job ingestion failed", {
+            reason: error instanceof Error ? error.message : "unknown",
+          })
+          writer.write({
+            type: "tool-output-error",
+            toolCallId,
+            errorText: tTools("ingestFailed"),
+          })
+        }
+      }
+    )
+  }
+
+  if (parsed.data.context) {
+    void ctx.supabase
+      .from("conversations")
+      .update({ context: parsed.data.context })
+      .eq("id", conversation.id)
+      .eq("user_id", ctx.user.id)
+  }
+
   const state: ChatTurnState = {
     conversationId: conversation.id,
     utterance: text,
-    untrustedSeen: false,
+    untrustedSeen: looksLikeJobPosting(text),
+    screenContext: parsed.data.context,
   }
   const tools = buildChatTools(ctx, state)
   let messages: ModelMessage[]
@@ -339,7 +432,7 @@ export async function POST(request: Request) {
     maxOutputTokens: 1200,
     temperature: 0.2,
     experimental_transform: outputFilterTransform(refusal),
-    ...llmTelemetryOptions("chat"),
+    ...llmTelemetryOptions("chat", conversation.id),
   })
   result.consumeStream()
   return createUIMessageStreamResponse({

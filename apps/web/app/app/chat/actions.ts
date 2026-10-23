@@ -246,6 +246,12 @@ export async function cancelChangeAction(
  * ApprovalCard of `propose_fact`: confirms (or rejects) the proposed fact if the approval is
  * pending, not expired and its preview hash still matches the fact (10.1 principle 2).
  */
+export async function decideApprovalAction(
+  input: unknown
+): Promise<ActionResult<{ status: "aprovada" | "rejeitada" }>> {
+  return decideFactAction(input)
+}
+
 export async function decideFactAction(
   input: unknown
 ): Promise<ActionResult<{ status: "aprovada" | "rejeitada" }>> {
@@ -315,9 +321,39 @@ export async function answerPendingQuestionAction(
 }
 
 /** Form action, so "Nova conversa" also works before the page hydrates. */
+export async function loadChatProvenanceAction(
+  input: unknown
+): Promise<ActionResult<{ conversationId: string } | null>> {
+  const parsed = z
+    .object({ tableName: z.string().min(1).max(80), recordId: uuid })
+    .safeParse(input)
+  if (!parsed.success) return fail("invalid_request", "Invalid record.")
+  const auth = await session()
+  if ("error" in auth) return auth.error
+  const { findChatProvenance } = await import("@/lib/chat/record-links")
+  const link = await findChatProvenance(
+    auth.ctx,
+    parsed.data.tableName,
+    parsed.data.recordId
+  )
+  return ok(link ? { conversationId: link.conversationId } : null)
+}
+
 export async function startNewConversationAction(): Promise<void> {
   const auth = await session()
   if ("error" in auth) redirect("/entrar?next=/app/chat")
   const conversation = await createConversation(auth.ctx)
   redirect(`/app/chat?c=${conversation.id}`)
+}
+
+export async function archiveConversationAction(
+  formData: FormData
+): Promise<void> {
+  const auth = await session()
+  if ("error" in auth) redirect("/entrar?next=/app/chat")
+  const id = String(formData.get("conversationId") ?? "")
+  if (!/^[0-9a-f-]{36}$/i.test(id)) redirect("/app/chat")
+  const { archiveConversation } = await import("@/lib/chat/conversations")
+  await archiveConversation(auth.ctx, id)
+  redirect("/app/chat")
 }

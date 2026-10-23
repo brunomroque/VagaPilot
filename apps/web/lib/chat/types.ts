@@ -206,4 +206,76 @@ export type ChatToolOutput =
       summary: string
     }
   | { kind: "error"; code: string; summary: string }
+  | {
+      kind: "next_steps"
+      items: {
+        id: string
+        title: string
+        description?: string
+        href?: string
+        prompt?: string
+      }[]
+      summary: string
+    }
+  | {
+      kind: "deep_link"
+      href: string
+      label: string
+      summary: string
+    }
+  | {
+      kind: "options"
+      question: string
+      options: string[]
+      allowFreeText?: boolean
+      summary: string
+    }
+  | {
+      kind: "ats_score"
+      jobMatchId: string
+      before: number
+      after: number | null
+      covered: string[]
+      missing: string[]
+      summary: string
+    }
+  | {
+      kind: "cv_diff"
+      approvalId: string
+      trackLabel: string
+      additions: string[]
+      beforeScore: number
+      afterScore: number
+      summary: string
+    }
+  | {
+      kind: "fact_classification"
+      approvalId?: string
+      factId?: string
+      statement: string
+      suggestedUsage: "cv_relevant" | "form_only"
+      destinations: (
+        "application_only" | "save_fact" | "update_cvs" | "register_gap"
+      )[]
+      summary: string
+    }
+  | {
+      kind: "application_card"
+      applicationId: string
+      company: string
+      roleTitle: string
+      status: string
+      summary: string
+    }
+  | {
+      kind: "profile_tracking"
+      platforms: {
+        id: string
+        platform: string
+        outdated: boolean
+        outdatedReason: string | null
+        url: string | null
+      }[]
+      summary: string
+    }
   | SettingsChangeOutput
