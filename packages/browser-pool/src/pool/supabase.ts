@@ -1,16 +1,31 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 import { createAdapter, secretsFromEnv } from "./adapters.js"
-import { concurrencyStoreFromEnv, type ConcurrencyStore } from "./concurrency.js"
+import {
+  concurrencyStoreFromEnv,
+  type ConcurrencyStore,
+} from "./concurrency.js"
 import { PROVIDER_COLUMNS, providerFromRow } from "./db.js"
 import { scrub } from "./http.js"
 import { quotaPeriod, roundUnits, unitsForDuration } from "./quota.js"
-import { acquireBrowser, type AcquireOptions, type AcquiredBrowser, type PoolDeps } from "./selector.js"
-import { ProviderError, type BrowserProviderAdapter, type FetchLike, type ProviderConfig } from "./types.js"
+import {
+  acquireBrowser,
+  type AcquireOptions,
+  type AcquiredBrowser,
+  type PoolDeps,
+} from "./selector.js"
+import {
+  ProviderError,
+  type BrowserProviderAdapter,
+  type FetchLike,
+  type ProviderConfig,
+} from "./types.js"
 
 type Env = Record<string, string | undefined>
 
-export async function loadProviders(admin: SupabaseClient): Promise<ProviderConfig[]> {
+export async function loadProviders(
+  admin: SupabaseClient
+): Promise<ProviderConfig[]> {
   const { data, error } = await admin
     .from("browser_providers")
     .select(PROVIDER_COLUMNS)
@@ -34,7 +49,10 @@ export async function usedUnitsFromDb(
     .limit(10_000)
   if (error) throw new Error(`browser_sessions: ${error.message}`)
   return roundUnits(
-    ((data ?? []) as { units_used: number | string }[]).reduce((sum, row) => sum + Number(row.units_used ?? 0), 0)
+    ((data ?? []) as { units_used: number | string }[]).reduce(
+      (sum, row) => sum + Number(row.units_used ?? 0),
+      0
+    )
   )
 }
 
@@ -64,7 +82,9 @@ export async function buildPoolDeps(runtime: PoolRuntime): Promise<PoolDeps> {
         const secrets = secretsFromEnv(config, env)
         if (!secrets) return null
         try {
-          return createAdapter(config.provider, secrets, { fetch: runtime.fetch })
+          return createAdapter(config.provider, secrets, {
+            fetch: runtime.fetch,
+          })
         } catch {
           return null
         }
@@ -81,7 +101,11 @@ export type TrackedBrowser = AcquiredBrowser & {
 /** acquireBrowser + browser_sessions bookkeeping. */
 export async function acquireTrackedBrowser(
   runtime: PoolRuntime,
-  options: AcquireOptions & { userId: string | null; applyRunId?: string | null; purpose?: "apply" | "test" }
+  options: AcquireOptions & {
+    userId: string | null
+    applyRunId?: string | null
+    purpose?: "apply" | "test" | "login"
+  }
 ): Promise<TrackedBrowser> {
   const deps = await buildPoolDeps(runtime)
   deps.onFailure = async (config, error) => {
@@ -96,7 +120,8 @@ export async function acquireTrackedBrowser(
       duration_seconds: 0,
       units_used: 0,
       error_code: error instanceof ProviderError ? error.code : "error",
-      error_message: error instanceof Error ? scrub(error.message).slice(0, 300) : null,
+      error_message:
+        error instanceof Error ? scrub(error.message).slice(0, 300) : null,
     })
   }
   const acquired = await acquireBrowser(deps, options)
@@ -125,13 +150,19 @@ export async function acquireTrackedBrowser(
       finished = true
       await acquired.release()
       const endedAt = new Date()
-      let durationSeconds = Math.round((endedAt.getTime() - startedAt.getTime()) / 1000)
+      let durationSeconds = Math.round(
+        (endedAt.getTime() - startedAt.getTime()) / 1000
+      )
       let units = unitsForDuration(acquired.config, durationSeconds)
       try {
-        const usage = await acquired.adapter.sessionUsage?.(acquired.session.externalId)
-        if (usage?.durationSeconds != null && usage.durationSeconds > 0) durationSeconds = usage.durationSeconds
+        const usage = await acquired.adapter.sessionUsage?.(
+          acquired.session.externalId
+        )
+        if (usage?.durationSeconds != null && usage.durationSeconds > 0)
+          durationSeconds = usage.durationSeconds
         if (usage?.units != null && usage.units > 0) units = usage.units
-        else if (usage?.durationSeconds) units = unitsForDuration(acquired.config, durationSeconds)
+        else if (usage?.durationSeconds)
+          units = unitsForDuration(acquired.config, durationSeconds)
       } catch {
         // Estimated from wall-clock time.
       }
@@ -151,7 +182,12 @@ export async function acquireTrackedBrowser(
   }
 }
 
-export type ProviderTestResult = { ok: boolean; latencyMs: number; message: string; liveView: boolean }
+export type ProviderTestResult = {
+  ok: boolean
+  latencyMs: number
+  message: string
+  liveView: boolean
+}
 
 /** "Testar conexão": opens and closes a short headless session on ONE provider. */
 export async function testProviderConnection(
@@ -163,14 +199,21 @@ export async function testProviderConnection(
   const secrets = secretsFromEnv(config, env)
   const started = Date.now()
   if (!secrets) {
-    return { ok: false, latencyMs: 0, message: `Env var ${config.secretEnvVar} vazia neste ambiente.`, liveView: false }
+    return {
+      ok: false,
+      latencyMs: 0,
+      message: `Env var ${config.secretEnvVar} vazia neste ambiente.`,
+      liveView: false,
+    }
   }
   let result: ProviderTestResult
   const startedAt = new Date()
   let externalId: string | null = null
   let adapter: BrowserProviderAdapter | null = null
   try {
-    adapter = runtime.adapterFor?.(config) ?? createAdapter(config.provider, secrets, { fetch: runtime.fetch })
+    adapter =
+      runtime.adapterFor?.(config) ??
+      createAdapter(config.provider, secrets, { fetch: runtime.fetch })
     const session = await adapter.createSession({ timeoutSeconds: 60 })
     externalId = session.externalId
     if (connect) await connect(session.cdpUrl)
@@ -178,17 +221,20 @@ export async function testProviderConnection(
       ok: true,
       latencyMs: Date.now() - started,
       message: connect ? "Sessão criada e CDP conectado." : "Sessão criada.",
-      liveView: Boolean(session.liveViewUrl) || Boolean(adapter.liveViewFromCdp),
+      liveView:
+        Boolean(session.liveViewUrl) || Boolean(adapter.liveViewFromCdp),
     }
   } catch (error) {
     result = {
       ok: false,
       latencyMs: Date.now() - started,
-      message: error instanceof Error ? scrub(error.message).slice(0, 300) : "Falhou.",
+      message:
+        error instanceof Error ? scrub(error.message).slice(0, 300) : "Falhou.",
       liveView: false,
     }
   } finally {
-    if (adapter && externalId) await adapter.closeSession(externalId).catch(() => undefined)
+    if (adapter && externalId)
+      await adapter.closeSession(externalId).catch(() => undefined)
   }
   const durationSeconds = Math.round((Date.now() - startedAt.getTime()) / 1000)
   await runtime.admin.from("browser_sessions").insert({

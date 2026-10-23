@@ -882,10 +882,43 @@ export const browserAuthStates = pgTable(
   {
     userId: ownerId(),
     site: text("site").notNull(),
+    provider: text("provider").notNull().default("legacy"),
     storageEnc: bytea("storage_enc").notNull(),
+    nativeRef: text("native_ref"),
+    status: text("status").notNull().default("active"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.userId, t.site] })]
+  (t) => [primaryKey({ columns: [t.userId, t.site, t.provider] })]
 )
+
+export const browserLoginSessions = pgTable("browser_login_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: ownerId(),
+  site: text("site").notNull(),
+  loginUrl: text("login_url").notNull(),
+  applyRunId: uuid("apply_run_id").references(() => applyRuns.id, {
+    onDelete: "set null",
+  }),
+  status: text("status").notNull().default("starting"),
+  provider: text("provider"),
+  providerId: uuid("provider_id").references(() => browserProviders.id, {
+    onDelete: "set null",
+  }),
+  externalId: text("external_id"),
+  liveViewUrl: text("live_view_url"),
+  nativeRef: text("native_ref"),
+  lastError: text("last_error"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})

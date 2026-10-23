@@ -66,6 +66,7 @@ export const serverOnlyTables = [
   "app_admins",
   "apply_runs",
   "browser_auth_states",
+  "browser_login_sessions",
 ] as const
 
 /** Readable/writable only by app admins (public.is_app_admin()); service_role writes sessions. */

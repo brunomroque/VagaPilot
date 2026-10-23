@@ -12,6 +12,7 @@ import {
   resumeApplyRunAction,
   startCloudApplyAction,
 } from "@/app/app/chat/actions"
+import { SiteLoginCard } from "@/components/settings/site-login-card"
 import type { ApplyRunView } from "@/lib/apply/server"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -194,6 +195,14 @@ export function CloudApplyPanel({
             </>
           ) : null}
         </div>
+      ) : null}
+      {phase === "login_required" && run ? (
+        // Saved login missing/expired: connect the site once, the run resumes by itself.
+        <SiteLoginCard
+          url={run.targetUrl}
+          applyRunId={run.id}
+          onDone={() => void refresh()}
+        />
       ) : null}
       {(phase === "login_required" || phase === "captcha") &&
       !run?.liveViewUrl ? (
