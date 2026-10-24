@@ -11,9 +11,11 @@ import {
   type AuditSink,
 } from "@vagapilot/core/audit"
 import { normalizeCompanyName } from "@vagapilot/core/blocklist"
+import { detectTextLanguage } from "@vagapilot/core/job-text"
 
 import { CvFileError, cvFileTypeFromPath } from "./cv-files.js"
 import { extractCvTextOrOcr } from "./cv-ocr.js"
+import { parseAndStoreCv, type CvParseDeps } from "./cv-parsed.js"
 
 export type CvProcessingDeps = {
   /** service_role client: the job runs without a user session, so every query filters user_id. */
@@ -91,6 +93,10 @@ export async function extractAndStoreCvText(
       extracted_text:
         result.status === "ok" ? result.text : EXTRACTION_FAILED_TEXT,
       extraction_error: result.status === "failed" ? result.code : null,
+      detected_language:
+        result.status === "ok" && result.text.trim()
+          ? detectTextLanguage(result.text)
+          : null,
     })
     .eq("id", input.cvVersionId)
     .eq("user_id", input.userId)
@@ -217,10 +223,25 @@ export async function proposeFactsFromCv(
 
 /** Synchronous fallback used when no Inngest server is configured (local dev, e2e). */
 export async function processCvUpload(
-  deps: CvProcessingDeps,
+  deps: CvParseDeps,
   input: CvJobInput
-): Promise<{ text: CvTextResult; facts: CvFactsResult | null }> {
+): Promise<{
+  text: CvTextResult
+  parsed: { items: number; diff: number } | null
+  facts: CvFactsResult | null
+}> {
   const text = await extractAndStoreCvText(deps, input)
-  if (text.status !== "ok") return { text, facts: null }
-  return { text, facts: await proposeFactsFromCv(deps, input, text.text) }
+  if (text.status !== "ok") return { text, parsed: null, facts: null }
+  // Best-effort: a parse failure must not lose the upload or the fact proposals.
+  let parsed: { items: number; diff: number } | null = null
+  try {
+    parsed = await parseAndStoreCv(deps, input, text.text)
+  } catch (error) {
+    console.error("processCvUpload: structured parse failed", error)
+  }
+  return {
+    text,
+    parsed,
+    facts: await proposeFactsFromCv(deps, input, text.text),
+  }
 }

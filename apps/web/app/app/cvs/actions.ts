@@ -7,10 +7,12 @@ import {
   inngest,
   isInngestConfigured,
   processCvUpload,
+  type CvProfileDiffItem,
 } from "@vagapilot/jobs"
 import { refresh } from "next/cache"
 import { z } from "zod"
 
+import { applyDiffItemToProfile } from "@/lib/cvs/apply-diff"
 import { ownsTrack } from "@/lib/cvs/server"
 import { splitList } from "@/lib/profile/schemas"
 import { getAdminClient } from "@/lib/server/admin"
@@ -258,4 +260,89 @@ export async function reprocessCvVersion(id: string) {
     )
     return ok(undefined)
   })
+}
+
+const diffSchema = z.object({
+  versionId: z.uuid(),
+  key: z.string().min(1).max(400),
+})
+
+async function loadDiff(ctx: UserContext, versionId: string) {
+  const row = await ctx.supabase
+    .from("cv_parsed")
+    .select("profile_diff, dismissed")
+    .eq("cv_version_id", versionId)
+    .eq("user_id", ctx.user.id)
+    .maybeSingle<{ profile_diff: CvProfileDiffItem[]; dismissed: string[] }>()
+  if (row.error) throw new Error(row.error.message)
+  return row.data
+}
+
+async function markHandled(
+  ctx: UserContext,
+  versionId: string,
+  dismissed: string[],
+  key: string
+) {
+  const update = await ctx.supabase
+    .from("cv_parsed")
+    .update({
+      dismissed: [...new Set([...dismissed, key])],
+      updated_at: new Date().toISOString(),
+    })
+    .eq("cv_version_id", versionId)
+    .eq("user_id", ctx.user.id)
+  if (update.error) throw new Error(update.error.message)
+}
+
+/** "Ignorar" on a CV-vs-profile approval card. */
+export async function dismissCvDiffItem(input: unknown) {
+  return run("diff-dismiss", async (ctx) => {
+    const data = diffSchema.safeParse(input)
+    if (!data.success) return fail("invalid_request", "Invalid item.")
+    const row = await loadDiff(ctx, data.data.versionId)
+    if (!row) return fail("not_found", "Parsed CV not found.")
+    await markHandled(
+      ctx,
+      data.data.versionId,
+      row.dismissed ?? [],
+      data.data.key
+    )
+    return ok(undefined)
+  })
+}
+
+/**
+ * "Adicionar ao perfil" on a CV-vs-profile approval card. The value comes from the stored
+ * parse (never from the client) and goes through the same profile actions/validation.
+ */
+export async function applyCvDiffItem(input: unknown) {
+  const context = await getUserContext()
+  if (!context.ok) return { ok: false as const, error: context.error }
+  const ctx = context.ctx
+  const data = diffSchema.safeParse(input)
+  if (!data.success) return fail("invalid_request", "Invalid item.")
+  const row = await loadDiff(ctx, data.data.versionId).catch(() => null)
+  const item = row?.profile_diff?.find((i) => i.key === data.data.key)
+  if (!row || !item) return fail("not_found", "Item not found.")
+  const result = await applyDiffItemToProfile(item)
+  if (!result.ok) return result
+  try {
+    await markHandled(ctx, data.data.versionId, row.dismissed ?? [], item.key)
+  } catch (error) {
+    console.error(
+      "[cvs:diff-apply]",
+      error instanceof Error ? error.message : error
+    )
+  }
+  await audit({
+    userId: ctx.user.id,
+    actor: "usuario",
+    action: "cv.parsed",
+    targetType: "cv_version",
+    targetId: data.data.versionId,
+    details: { event: "profile_diff_applied", kind: item.kind },
+  })
+  refresh()
+  return ok(undefined)
 }

@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest"
 
 import { cvUploadedEvent, inngest } from "../client.js"
 import { createCvProcessingDeps } from "../deps.js"
+import { parseAndStoreCv } from "../cv-parsed.js"
 import { extractAndStoreCvText, proposeFactsFromCv } from "../process-cv.js"
 
 /** `cv/uploaded`: text extraction, then grounded fact proposals (P1.2, P1.3). */
@@ -23,9 +24,18 @@ export const cvUploadedFunction = inngest.createFunction(
       throw new NonRetriableError(`CV text extraction failed: ${text.code}`)
     }
 
+    const parsed = await step.run("parse-structured", async () => {
+      try {
+        return await parseAndStoreCv(deps, input, text.text)
+      } catch (error) {
+        console.error("cv-uploaded: structured parse failed", error)
+        return null
+      }
+    })
+
     const facts = await step.run("propose-facts", () =>
       proposeFactsFromCv(deps, input, text.text)
     )
-    return { pages: text.pages, ...facts }
+    return { pages: text.pages, parsed, ...facts }
   }
 )

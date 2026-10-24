@@ -4,10 +4,12 @@ import { createHash, randomUUID } from "node:crypto"
 
 import { assertCvAppendOnly } from "@vagapilot/core/cv-structure"
 import { computeAtsScore } from "@vagapilot/core/ats-score"
+import { detectTextLanguage } from "@vagapilot/core/job-text"
 import { cvFactsOnly } from "@vagapilot/core/facts"
 
 import { linkChatRecord } from "@/lib/chat/record-links"
 import type { ChatToolOutput } from "@/lib/chat/types"
+import { getAdminClient } from "@/lib/server/admin"
 import { audit } from "@/lib/server/audit"
 import type { UserContext } from "@/lib/server/context"
 
@@ -231,8 +233,26 @@ export async function toolApplyCvAdjustment(
     origin: "chat",
     parent_version_id: preview.parentVersionId,
     extracted_text: preview.nextText,
+    detected_language: detectTextLanguage(preview.nextText),
     fact_ids: preview.factIds,
   })
+  // The derived version reuses the parent's structured parse instead of re-reading a file.
+  const parentParsed = await ctx.supabase
+    .from("cv_parsed")
+    .select("data, model, prompt_version")
+    .eq("cv_version_id", preview.parentVersionId)
+    .eq("user_id", ctx.user.id)
+    .maybeSingle()
+  if (parentParsed.data) {
+    const copy = await getAdminClient()?.from("cv_parsed").insert({
+      cv_version_id: id,
+      user_id: ctx.user.id,
+      data: parentParsed.data.data,
+      model: parentParsed.data.model,
+      prompt_version: parentParsed.data.prompt_version,
+    })
+    if (copy?.error) console.error("cv_parsed copy failed", copy.error.message)
+  }
   await linkChatRecord(ctx, {
     conversationId,
     tableName: "cv_versions",

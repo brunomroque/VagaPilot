@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { withDeadline } from "../src/start-ingestion"
+import { withDeadline } from "../src/start-ingestion.js"
 
 describe("withDeadline (link stuck in 'Analisando…')", () => {
   it("closes the row and rejects when the work never ends", async () => {

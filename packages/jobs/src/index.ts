@@ -93,3 +93,10 @@ export {
 } from "./process-cv.js"
 
 export { extractCvTextOrOcr } from "./cv-ocr.js"
+export {
+  computeProfileDiff,
+  loadCvParsed,
+  parseAndStoreCv,
+  type CvProfileDiffItem,
+  type ProfileSnapshot,
+} from "./cv-parsed.js"

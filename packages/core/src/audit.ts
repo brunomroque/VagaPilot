@@ -19,6 +19,7 @@ export const AUDIT_ACTIONS = [
   "fact.rejected",
   "cv.uploaded",
   "cv.generated",
+  "cv.parsed",
   "job.ingested",
   "match.created",
   "decision.recorded",

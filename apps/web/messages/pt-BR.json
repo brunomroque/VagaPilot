@@ -1078,6 +1078,22 @@
       "descriptionField": "Descrição",
       "keywords": "Palavras-chave",
       "keywordsHint": "Separe por vírgulas. Ajudam a recomendar a trilha certa para cada vaga."
+    },
+    "diff": {
+      "title": "{count, plural, one {# item do CV não está no seu perfil} other {# itens do CV não estão no seu perfil}}",
+      "kinds": {
+        "experience": "Experiência",
+        "education": "Formação",
+        "language": "Idioma",
+        "skill": "Competência",
+        "certification": "Certificação"
+      },
+      "apply": "Adicionar ao perfil",
+      "complete": "Completar no perfil",
+      "dismiss": "Ignorar",
+      "applied": "Adicionado ao perfil.",
+      "dismissed": "Item ignorado.",
+      "more": "+ {count} itens"
     }
   },
   "Facts": {

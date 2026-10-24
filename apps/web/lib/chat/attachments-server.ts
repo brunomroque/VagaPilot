@@ -1,6 +1,6 @@
 import "server-only"
 
-import { randomUUID } from "node:crypto"
+import { createHash, randomUUID } from "node:crypto"
 
 import {
   isAiUnavailable,
@@ -95,6 +95,22 @@ async function extractText(
   return { text: "", error: null }
 }
 
+async function storedCvText(
+  ctx: UserContext,
+  bytes: Uint8Array
+): Promise<string | null> {
+  const sha = createHash("sha256").update(bytes).digest("hex")
+  const { data } = await ctx.supabase
+    .from("cv_versions")
+    .select("extracted_text")
+    .eq("user_id", ctx.user.id)
+    .eq("file_sha256", sha)
+    .not("extracted_text", "is", null)
+    .limit(1)
+    .maybeSingle<{ extracted_text: string | null }>()
+  return data?.extracted_text?.trim() ? data.extracted_text : null
+}
+
 /** A screenshot of a CV is a CV, not a "print de vaga" (QA: pasted CV image was mislabeled). */
 export function imageKind(
   reading: JobImageReading,
@@ -157,7 +173,11 @@ export async function uploadChatAttachment(
       extractionError = "ai_unavailable"
     }
   } else {
-    const extracted = await extractText(bytes, type)
+    // A file already saved as a CV version was read once at upload: reuse that text.
+    const stored = await storedCvText(ctx, bytes)
+    const extracted = stored
+      ? { text: stored, error: null }
+      : await extractText(bytes, type)
     text = extracted.text
     extractionError = extracted.error
     kind = classifyDocumentText(text, name)

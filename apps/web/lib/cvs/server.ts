@@ -18,6 +18,7 @@ import {
   processCvUpload,
   sha256Hex,
   type CvFileErrorCode,
+  type CvProfileDiffItem,
 } from "@vagapilot/jobs"
 
 import { getAdminClient } from "@/lib/server/admin"
@@ -47,13 +48,15 @@ export type CvVersionRow = {
   processing: "pendente" | "pronto" | "falhou"
   proposedFacts: number
   extractionError: string | null
+  /** CV items missing from the profile, still awaiting approval (cv_parsed). */
+  profileDiff: CvProfileDiffItem[]
 }
 
 export type CvLibrary = { tracks: CvTrackRow[]; versions: CvVersionRow[] }
 
 type RawVersion = Omit<
   CvVersionRow,
-  "processing" | "proposedFacts" | "extractionError"
+  "processing" | "proposedFacts" | "extractionError" | "profileDiff"
 > & {
   extracted_text: string | null
   extraction_error: string | null
@@ -87,6 +90,23 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
   for (const result of [tracks, versions, facts]) {
     if (result.error) throw new Error(result.error.message)
   }
+  // Best-effort: the library must still render if the parse table is unavailable.
+  const parsed = await ctx.supabase
+    .from("cv_parsed")
+    .select("cv_version_id, profile_diff, dismissed")
+    .eq("user_id", ctx.user.id)
+  const diffs = new Map<string, CvProfileDiffItem[]>()
+  for (const row of (parsed.data ?? []) as {
+    cv_version_id: string
+    profile_diff: CvProfileDiffItem[] | null
+    dismissed: string[] | null
+  }[]) {
+    const dismissed = new Set(row.dismissed ?? [])
+    diffs.set(
+      row.cv_version_id,
+      (row.profile_diff ?? []).filter((item) => !dismissed.has(item.key))
+    )
+  }
   const proposed = new Map<string, number>()
   for (const row of (facts.data ?? []) as { cv_version_id: string | null }[]) {
     if (row.cv_version_id) {
@@ -104,6 +124,7 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
         processing: processingOf(extracted_text),
         proposedFacts: proposed.get(version.id) ?? 0,
         extractionError: extraction_error,
+        profileDiff: diffs.get(version.id) ?? [],
       })
     ),
   }

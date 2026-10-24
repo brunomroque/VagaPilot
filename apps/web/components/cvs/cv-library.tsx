@@ -23,6 +23,7 @@ import {
   TextField,
   useActionRunner,
 } from "@/components/forms/fields"
+import { CvProfileDiff } from "@/components/cvs/cv-profile-diff"
 import { FormDialog } from "@/components/profile/form-dialog"
 import { labelOf, useProfileOptions } from "@/components/profile/options"
 import { ListItem } from "@/components/profile/section"
@@ -276,6 +277,10 @@ export function CvLibrary({
                       </Link>
                     ) : null}
                   </div>
+                  <CvProfileDiff
+                    versionId={version.id}
+                    items={version.profileDiff}
+                  />
                   {!group.track ? (
                     <p className="text-sm text-muted-foreground">
                       {t("assignHint")}
