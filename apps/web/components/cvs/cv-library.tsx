@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   DownloadIcon,
@@ -156,7 +157,11 @@ export function CvLibrary({
   const t = useTranslations("Cvs")
   const format = useFormatter()
   const options = useProfileOptions()
+  const router = useRouter()
   const { pending, run } = useActionRunner()
+  const [removedVersionIds, setRemovedVersionIds] = useState<Set<string>>(
+    () => new Set()
+  )
   const [deleting, setDeleting] = useState<{
     id: string
     label: string
@@ -180,7 +185,10 @@ export function CvLibrary({
     },
   })
 
-  const groups = groupVersions(tracks, versions)
+  const visibleVersions = versions.filter(
+    (version) => !removedVersionIds.has(version.id)
+  )
+  const groups = groupVersions(tracks, visibleVersions)
   const trackOptions = [
     { value: "", label: t("upload.noTrack") },
     ...tracks.map((track) => ({ value: track.id, label: track.name })),
@@ -451,6 +459,14 @@ export function CvLibrary({
                 if (target)
                   run(() => deleteCvVersion(target.id), {
                     success: t("deleted"),
+                    onSuccess: () => {
+                      setRemovedVersionIds((prev) => {
+                        const next = new Set(prev)
+                        next.add(target.id)
+                        return next
+                      })
+                      router.refresh()
+                    },
                   })
               }}
             >

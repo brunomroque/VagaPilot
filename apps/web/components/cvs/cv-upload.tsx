@@ -82,20 +82,68 @@ export function CvUpload({
   useEffect(() => {
     if (!highlightVersionId || !uploadedAt) return
     const versionId = highlightVersionId
-    const timer = window.setTimeout(() => {
+    const startedAt = performance.now()
+    const pollMs = 3000
+    let rafId = 0
+    let removeHighlightTimer: number | undefined
+    let highlightedEl: HTMLElement | null = null
+
+    const clearHighlight = (el: HTMLElement) => {
+      el.style.outline = ""
+      el.style.outlineOffset = ""
+      el.style.transition = ""
+      delete el.dataset.highlighted
+    }
+
+    const openAncestors = (el: HTMLElement) => {
+      let parent: HTMLElement | null = el.parentElement
+      while (parent) {
+        if (parent instanceof HTMLDetailsElement && !parent.open) {
+          parent.open = true
+        }
+        parent = parent.parentElement
+      }
+    }
+
+    const highlight = (el: HTMLElement) => {
+      openAncestors(el)
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      if (el.dataset.highlighted !== "true") {
+        el.dataset.highlighted = "true"
+        el.style.outline = "3px solid var(--primary)"
+        el.style.outlineOffset = "4px"
+        el.style.transition = "outline-color 0.3s"
+      }
+      highlightedEl = el
+      removeHighlightTimer = window.setTimeout(() => {
+        clearHighlight(el)
+        highlightedEl = null
+        setHighlightVersionId(null)
+      }, 3000)
+    }
+
+    const poll = () => {
       const el = document.getElementById(`cv-version-${versionId}`)
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" })
-        el.classList.add("ring-2", "ring-primary", "rounded-lg")
-        window.setTimeout(() => {
-          el.classList.remove("ring-2", "ring-primary", "rounded-lg")
-          setHighlightVersionId(null)
-        }, 2500)
+        highlight(el)
+        return
+      }
+      if (performance.now() - startedAt < pollMs) {
+        rafId = requestAnimationFrame(poll)
       } else {
         setHighlightVersionId(null)
       }
-    }, 400)
-    return () => window.clearTimeout(timer)
+    }
+
+    rafId = requestAnimationFrame(poll)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      if (removeHighlightTimer !== undefined) {
+        window.clearTimeout(removeHighlightTimer)
+      }
+      if (highlightedEl) clearHighlight(highlightedEl)
+    }
   }, [uploadedAt, highlightVersionId])
   const inputRef = useRef<HTMLInputElement>(null)
   const languageRef = useRef<HTMLSelectElement>(null)

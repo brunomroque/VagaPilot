@@ -9,7 +9,7 @@ import {
   processCvUpload,
   type CvProfileDiffItem,
 } from "@vagapilot/jobs"
-import { refresh } from "next/cache"
+import { revalidatePath, refresh } from "next/cache"
 import { z } from "zod"
 
 import { applyDiffItemToProfile } from "@/lib/cvs/apply-diff"
@@ -33,7 +33,14 @@ async function run<T>(
   if (!context.ok) return { ok: false, error: context.error }
   try {
     const result = await work(context.ctx)
-    if (result.ok) refresh()
+    if (result.ok) {
+      refresh()
+      try {
+        revalidatePath("/app", "layout")
+      } catch {
+        // Revalidation must not turn a successful mutation into a failure.
+      }
+    }
     return result
   } catch (error) {
     console.error(
