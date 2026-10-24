@@ -209,20 +209,27 @@ export const experienceSchema = z
     company: requiredText(160),
     title: requiredText(160),
     employmentType: z.enum(EMPLOYMENT_TYPES),
-    startMonth: month,
+    // Optional: a CV may list an experience without dates. It is saved and shown as a
+    // pending item until the user fills in the start month.
+    startMonth: optionalMonth,
     endMonth: optionalMonth,
     isCurrent: z.boolean(),
     location: text(120),
     description: text(2000),
   })
-  .refine((value) => value.isCurrent || value.endMonth !== "", {
-    message: "endRequired",
-    path: ["endMonth"],
-  })
+  .refine(
+    (value) =>
+      value.isCurrent || value.startMonth === "" || value.endMonth !== "",
+    {
+      message: "endRequired",
+      path: ["endMonth"],
+    }
+  )
   .refine(
     (value) =>
       value.isCurrent ||
       value.endMonth === "" ||
+      value.startMonth === "" ||
       value.endMonth >= value.startMonth,
     { message: "endBeforeStart", path: ["endMonth"] }
   )

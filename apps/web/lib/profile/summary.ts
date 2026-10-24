@@ -25,7 +25,7 @@ export type ProfileSummary = {
     company: string
     title: string
     employmentType: string
-    start: string
+    start: string | null
     end: string | null
     isCurrent: boolean
   }[]
@@ -143,7 +143,7 @@ export async function getProfileSummary(
         company: string
         title: string
         employment_type: string
-        start_date: string
+        start_date: string | null
         end_date: string | null
         is_current: boolean | null
       }[]

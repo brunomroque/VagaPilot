@@ -152,3 +152,69 @@ export function spellingFromSource(name: string, source: string): string {
   }
   return near.size === 1 ? [...near][0]! : name
 }
+
+const STOPWORDS = new Set(
+  "a o as os um uma de da do das dos em no na nos nas com por para e ou que ao aos se sua seu suas seus como mais cerca aprox aproximadamente ate".split(
+    " "
+  )
+)
+/** Light synonyms so "Gerenciou"/"Liderou"/"Gerenciamento" and "equipe"/"time" meet. */
+const STEM_SYNONYMS: Record<string, string> = {
+  lider: "lead",
+  gerenc: "lead",
+  geren: "lead",
+  coord: "lead",
+  chefi: "lead",
+  gesta: "lead",
+  geriu: "lead",
+  manag: "lead",
+  time: "equip",
+  times: "equip",
+  team: "equip",
+  pesso: "pesso",
+  profi: "pesso",
+  colab: "pesso",
+}
+
+function factStems(statement: string): {
+  stems: Set<string>
+  numbers: Set<string>
+} {
+  const words = factCanonicalKey(statement).split(" ").filter(Boolean)
+  const stems = new Set<string>()
+  const numbers = new Set<string>()
+  for (const word of words) {
+    if (/^\d+$/.test(word)) {
+      numbers.add(word)
+      continue
+    }
+    if (STOPWORDS.has(word) || word.length < 3) continue
+    const stem = word.slice(0, 5)
+    stems.add(STEM_SYNONYMS[stem] ?? STEM_SYNONYMS[word] ?? stem)
+  }
+  return { stems, numbers }
+}
+
+/**
+ * Near-duplicate facts (QA 02:50): "Gerenciou equipe de ~40 pessoas", "Liderou 40 pessoas em
+ * Operações" and "Gerenciamento de equipe de 40 pessoas". Same canonical key, or the same
+ * numbers plus at least 60% of the shorter fact's words (light stems and synonyms). Facts
+ * without numbers need 3+ shared words and 3/4 overlap in both directions.
+ */
+export function factsSimilar(a: string, b: string): boolean {
+  const ka = factCanonicalKey(a)
+  const kb = factCanonicalKey(b)
+  if (ka === kb) return true
+  const x = factStems(a)
+  const y = factStems(b)
+  const shared = [...x.stems].filter((s) => y.stems.has(s)).length
+  const sameNumbers =
+    x.numbers.size === y.numbers.size &&
+    [...x.numbers].every((n) => y.numbers.has(n))
+  if (!sameNumbers) return false
+  const small = Math.min(x.stems.size, y.stems.size)
+  const large = Math.max(x.stems.size, y.stems.size)
+  if (small === 0) return false
+  if (x.numbers.size > 0) return shared >= 2 && shared / small >= 0.6
+  return shared >= 3 && shared / large >= 0.75
+}

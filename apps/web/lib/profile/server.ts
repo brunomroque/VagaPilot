@@ -41,7 +41,8 @@ export type ExperienceRow = {
   company: string
   title: string
   employment_type: string
-  start_date: string
+  /** Null when imported from a CV without dates (pending item for the user). */
+  start_date: string | null
   end_date: string | null
   is_current: boolean | null
   location: string | null

@@ -6,6 +6,7 @@ import { NotConfigured } from "@/components/app/not-configured"
 import { FactReview } from "@/components/facts/fact-review"
 import { FactStatusTabs } from "@/components/facts/fact-status-tabs"
 import { loadFactReview } from "@/lib/facts/server"
+import { PendingStartDates } from "@/components/profile/pending-start-dates"
 import { getUserContext } from "@/lib/server/context"
 import { FACT_STATUSES, type FactStatus } from "@vagapilot/core/facts"
 import { buttonVariants } from "@workspace/ui/components/button"
@@ -38,6 +39,7 @@ export default async function FactsPage({
         <h2 className="text-xl font-bold tracking-tight">{t("title")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
+      <PendingStartDates ctx={context.ctx} />
       <FactStatusTabs
         basePath="/app/fatos"
         current={status}

@@ -93,7 +93,7 @@ export const experiences = pgTable(
     company: text("company").notNull(),
     title: text("title").notNull(),
     employmentType: employmentType("employment_type").notNull(),
-    startDate: date("start_date").notNull(),
+    startDate: date("start_date"),
     endDate: date("end_date"),
     isCurrent: boolean("is_current").default(false),
     location: text("location"),

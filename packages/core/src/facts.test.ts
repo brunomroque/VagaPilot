@@ -72,3 +72,35 @@ describe("spellingFromSource", () => {
     expect(spellingFromSource("Acme", "nada aqui")).toBe("Acme")
   })
 })
+
+import { factsSimilar } from "./facts.js"
+
+describe("factsSimilar", () => {
+  it("joins the 40-people variants", () => {
+    const a = "Gerenciou equipe de ~40 pessoas"
+    expect(factsSimilar(a, "Gerenciamento de equipe de 40 pessoas")).toBe(true)
+    expect(factsSimilar(a, "Liderou 40 pessoas em Operações")).toBe(true)
+    expect(factsSimilar("Liderou 40 pessoas em Operações de TI", a)).toBe(true)
+  })
+  it("keeps distinct facts apart", () => {
+    expect(
+      factsSimilar(
+        "Gerenciou equipe de 40 pessoas",
+        "Gerenciou equipe de 12 pessoas"
+      )
+    ).toBe(false)
+    expect(
+      factsSimilar(
+        "Reduziu custos de cloud em 40%",
+        "Gerenciou equipe de 40 pessoas"
+      )
+    ).toBe(false)
+    expect(factsSimilar("Kubernetes", "Terraform")).toBe(false)
+    expect(
+      factsSimilar(
+        "Implantou observabilidade com Datadog",
+        "Implantou CI/CD com GitHub Actions"
+      )
+    ).toBe(false)
+  })
+})

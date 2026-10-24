@@ -69,8 +69,7 @@ export function CvProfileDiff({
       </span>
       <ul className="flex flex-col gap-1 text-sm">
         {items.slice(0, VISIBLE).map((item) => {
-          const needsDetails =
-            item.kind === "experience" && !item.value.startMonth
+          const needsDetails = false as boolean
           return (
             <li
               key={item.key}

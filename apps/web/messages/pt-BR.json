@@ -900,7 +900,8 @@
       "currentShort": "atual",
       "empty": "Nenhuma experiência cadastrada",
       "emptyDescription": "Adicione manualmente ou envie um CV e confirme as experiências detectadas.",
-      "deleted": "Experiência removida"
+      "deleted": "Experiência removida",
+      "startPending": "Data de início pendente"
     },
     "educations": {
       "title": "Formação",
@@ -1163,7 +1164,7 @@
       }
     },
     "ignoreGroup": "Ignorar todos",
-    "noDatesHint": "O CV não informa as datas desta experiência: ao adicionar, informe ao menos o mês de início (pode ser aproximado)."
+    "noDatesHint": "O CV não informa as datas desta experiência. Você pode adicioná-la sem datas e informar o mês de início depois (fica como pendência no perfil)."
   },
   "Onboarding": {
     "title": "Configure seu VagaPilot",
@@ -2062,5 +2063,10 @@
     "failed": "Não foi possível concluir.",
     "approvalConfirmTitle": "Mudar o modo de aprovação?",
     "approvalConfirmDescription": "O novo modo será “{mode}”. No MVP o clique final de envio continua sempre seu."
+  },
+  "PendingStartDates": {
+    "title": "{count, plural, one {Falta a data de início de # experiência} other {Falta a data de início de # experiências}}",
+    "description": "Estas experiências vieram de um CV sem datas. Informe ao menos o mês de início para usá-las nos seus CVs.",
+    "action": "Informar datas"
   }
 }

@@ -92,8 +92,24 @@ function groupVersions(
 ): VersionGroup[] {
   const trackById = new Map(tracks.map((track) => [track.id, track]))
   const groups = new Map<string, CvVersionRow[]>()
+  const byId = new Map(versions.map((version) => [version.id, version]))
+  // Without a track, separate uploads are separate CVs (QA 02:50: a new upload showed up as a
+  // "version" of the 23/10 CV). Only real derivations (parent_version_id) share a card.
+  const rootOf = (version: CvVersionRow): string => {
+    let current = version
+    for (let hops = 0; hops < 20; hops += 1) {
+      const parent = current.parent_version_id
+        ? byId.get(current.parent_version_id)
+        : undefined
+      if (!parent || parent.track_id !== version.track_id) break
+      current = parent
+    }
+    return current.id
+  }
   for (const version of versions) {
-    const key = `${version.track_id ?? "none"}:${version.language}`
+    const key = version.track_id
+      ? `${version.track_id}:${version.language}`
+      : `none:${rootOf(version)}`
     groups.set(key, [...(groups.get(key) ?? []), version])
   }
   return [...groups.entries()]

@@ -8,11 +8,11 @@ import {
   saveExperience,
   saveLanguage,
 } from "@/app/app/perfil/actions"
-import { fail, type ActionResult } from "@/lib/server/context"
+import type { ActionResult } from "@/lib/server/context"
 
-/** Experiences need a start month to be valid profile rows; otherwise the user completes them. */
-export function diffItemNeedsDetails(item: CvProfileDiffItem): boolean {
-  return item.kind === "experience" && !item.value.startMonth
+/** Experiences without dates are saved as is; the profile then shows a pending start date. */
+export function diffItemNeedsDetails(_item: CvProfileDiffItem): boolean {
+  return false
 }
 
 /** Writes one approved CV item to the profile through the regular, validated profile actions. */
@@ -22,14 +22,13 @@ export async function applyDiffItemToProfile(
   switch (item.kind) {
     case "experience": {
       const e = item.value
-      if (!e.startMonth) return fail("invalid_request", "Start month missing.")
-      const isCurrent = e.isCurrent || !e.endMonth
+      const isCurrent = e.startMonth ? e.isCurrent || !e.endMonth : e.isCurrent
       return saveExperience({
         company: e.company,
         title: e.title,
         employmentType: "outro",
-        startMonth: e.startMonth,
-        endMonth: isCurrent ? "" : e.endMonth,
+        startMonth: e.startMonth ?? "",
+        endMonth: isCurrent ? "" : (e.endMonth ?? ""),
         isCurrent,
         location: "",
         description: e.description ?? "",

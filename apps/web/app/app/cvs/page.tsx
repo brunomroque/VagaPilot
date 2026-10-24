@@ -7,6 +7,7 @@ import { CvLibrary } from "@/components/cvs/cv-library"
 import { CvUpload } from "@/components/cvs/cv-upload"
 import { loadCvLibrary } from "@/lib/cvs/server"
 import { loadFactCounts } from "@/lib/facts/server"
+import { PendingStartDates } from "@/components/profile/pending-start-dates"
 import { getUserContext } from "@/lib/server/context"
 import { buttonVariants } from "@workspace/ui/components/button"
 import {
@@ -53,6 +54,7 @@ export default async function ResumesPage() {
         ) : null}
       </div>
 
+      <PendingStartDates ctx={context.ctx} />
       <Card>
         <CardHeader>
           <CardTitle>

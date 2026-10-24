@@ -22,6 +22,7 @@ import {
 } from "@/components/profile/skills-diversity"
 import { ProfileTabs } from "@/components/profile/profile-tabs"
 import { loadProfileBundle } from "@/lib/profile/server"
+import { PendingStartDates } from "@/components/profile/pending-start-dates"
 import { getUserContext } from "@/lib/server/context"
 
 const SECTIONS = [
@@ -55,6 +56,7 @@ export default async function ProfilePage({
         <h2 className="text-xl font-bold tracking-tight">{t("title")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
+      <PendingStartDates ctx={context.ctx} />
       <ProfileTabs
         defaultValue={section}
         tabs={SECTIONS.map((value) => ({ value, label: t(`tabs.${value}`) }))}

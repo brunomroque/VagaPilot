@@ -10,7 +10,11 @@ import {
   type AuditActor,
   type AuditSink,
 } from "@vagapilot/core/audit"
-import { factCanonicalKey, spellingFromSource } from "@vagapilot/core/facts"
+import {
+  factCanonicalKey,
+  factsSimilar,
+  spellingFromSource,
+} from "@vagapilot/core/facts"
 import { normalizeCompanyName } from "@vagapilot/core/blocklist"
 import { detectTextLanguage } from "@vagapilot/core/job-text"
 
@@ -147,15 +151,13 @@ export async function proposeFactsFromCv(
     .from("confirmed_facts")
     .select("statement")
     .eq("user_id", input.userId)
-  const seen = new Set(
-    ((known.data ?? []) as { statement: string }[]).map((row) =>
-      factCanonicalKey(row.statement)
-    )
+  const kept: string[] = ((known.data ?? []) as { statement: string }[]).map(
+    (row) => row.statement
   )
   const unique = extracted.facts.filter((fact) => {
-    const key = factCanonicalKey(fact.statement)
-    if (!key || seen.has(key)) return false
-    seen.add(key)
+    if (!factCanonicalKey(fact.statement)) return false
+    if (kept.some((other) => factsSimilar(other, fact.statement))) return false
+    kept.push(fact.statement)
     return true
   })
   const extraction = {

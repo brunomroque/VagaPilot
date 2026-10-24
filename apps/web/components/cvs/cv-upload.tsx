@@ -58,6 +58,8 @@ export function CvUpload({
   const options = useProfileOptions()
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
+  const languageRef = useRef<HTMLSelectElement>(null)
+  const trackRef = useRef<HTMLSelectElement>(null)
   const fileId = useId()
   const trackId = useId()
   const languageId = useId()
@@ -104,8 +106,11 @@ export function CvUpload({
       for (const file of files) {
         const body = new FormData()
         body.set("file", file)
-        body.set("language", language)
-        if (track) body.set("trackId", track)
+        // The select as shown wins (QA 02:50: "Inglês (EN)" picked, saved as PT).
+        const chosenLanguage = languageRef.current?.value || language
+        const chosenTrack = trackRef.current?.value ?? track
+        body.set("language", chosenLanguage)
+        if (chosenTrack) body.set("trackId", chosenTrack)
         const response = await fetch("/api/cv-versions", {
           method: "POST",
           body,
@@ -175,6 +180,7 @@ export function CvUpload({
             id={trackId}
             className="w-full"
             value={track}
+            ref={trackRef}
             onChange={(event) => setTrack(event.currentTarget.value)}
           >
             <NativeSelectOption value="">{t("noTrack")}</NativeSelectOption>
@@ -189,6 +195,7 @@ export function CvUpload({
           <FieldLabel htmlFor={languageId}>{t("language")}</FieldLabel>
           <NativeSelect
             id={languageId}
+            ref={languageRef}
             className="w-full"
             value={language}
             onChange={(event) => setLanguage(event.currentTarget.value)}

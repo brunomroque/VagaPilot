@@ -196,12 +196,16 @@ export function ExperiencesEditor({ items }: { items: ExperienceRow[] }) {
                   <Badge variant="outline">
                     {labelOf(options.employmentTypes, item.employment_type)}
                   </Badge>
-                  <span>
-                    {monthLabel(item.start_date)} –{" "}
-                    {item.is_current
-                      ? t("currentShort")
-                      : monthLabel(item.end_date)}
-                  </span>
+                  {item.start_date ? (
+                    <span>
+                      {monthLabel(item.start_date)} –{" "}
+                      {item.is_current
+                        ? t("currentShort")
+                        : monthLabel(item.end_date)}
+                    </span>
+                  ) : (
+                    <Badge variant="destructive">{t("startPending")}</Badge>
+                  )}
                   {item.location ? <span>{item.location}</span> : null}
                 </>
               }

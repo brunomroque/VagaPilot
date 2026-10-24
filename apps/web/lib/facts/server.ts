@@ -5,6 +5,7 @@ import { normalizeCompanyName } from "@vagapilot/core/blocklist"
 import {
   FACT_KINDS,
   factCanonicalKey,
+  factsSimilar,
   type FactKind,
   type FactStatus,
 } from "@vagapilot/core/facts"
@@ -117,19 +118,26 @@ export function visibleFactIds(rows: FactKeyRow[]): {
     .sort(
       (a, b) => rank[a.row.status] - rank[b.row.status] || a.index - b.index
     )
-  const seen = new Map<string, FactStatus>()
   const ids = new Set<string>()
   const counts: Record<FactStatus, number> = {
     proposto: 0,
     confirmado: 0,
     rejeitado: 0,
   }
+  const kept: { key: string; statement: string }[] = []
   for (const { row } of sorted) {
-    const key = `${factCanonicalKey(row.statement)}`
-    const prior = seen.get(key)
-    // Confirmed/rejected history is kept as is; only proposals are collapsed.
-    if (row.status === "proposto" && prior !== undefined) continue
-    if (prior === undefined) seen.set(key, row.status)
+    const key = factCanonicalKey(row.statement)
+    // Confirmed/rejected history is kept as is; only proposals that repeat (or nearly repeat,
+    // see factsSimilar) an earlier fact are collapsed.
+    if (
+      row.status === "proposto" &&
+      kept.some(
+        (other) =>
+          other.key === key || factsSimilar(other.statement, row.statement)
+      )
+    )
+      continue
+    kept.push({ key, statement: row.statement })
     ids.add(row.id)
     counts[row.status] += 1
   }
