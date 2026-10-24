@@ -48,6 +48,7 @@ import {
   attachmentTools,
   turnAttachmentRefs,
 } from "@/lib/chat/attachment-turn"
+import { cvQualityText } from "@/lib/chat/cv-quality"
 import { cvVsJobReport } from "@/lib/chat/cv-vs-job"
 import {
   loadChatAttachments,
@@ -717,15 +718,44 @@ async function handleChat(request: Request) {
     ...llmTelemetryOptions("chat", conversation.id),
   })
   result.consumeStream()
+  const onError = (error: unknown) => {
+    console.error("chat stream failed", error)
+    return isQuotaError(error) ? t("aiBusy") : t("failed")
+  }
+  // QA 02:18: "Avalie" on a CV gave suggestions with no score. The review always opens with a
+  // deterministic quality / ATS-readiness score and a short assessment, written by the server.
+  const reviewedCv =
+    attachmentIntent === "cv_review"
+      ? attachments.find((a) => a.kind === "cv" && a.text.trim())
+      : undefined
+  if (reviewedCv) {
+    const quality = cvQualityText(reviewedCv.name, reviewedCv.text)
+    const stream = createUIMessageStream({
+      originalMessages,
+      execute: async ({ writer }) => {
+        writer.write({ type: "start" })
+        writer.write({ type: "text-start", id: "cv-quality" })
+        writer.write({ type: "text-delta", id: "cv-quality", delta: quality })
+        writer.write({ type: "text-end", id: "cv-quality" })
+        writer.merge(
+          toUIMessageStream({
+            stream: result.stream,
+            sendStart: false,
+            onError,
+          })
+        )
+      },
+      onError,
+      onEnd: persistOnEnd(ctx, conversation.id),
+    })
+    return createUIMessageStreamResponse({ stream })
+  }
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
       stream: result.stream,
       originalMessages,
       onEnd: persistOnEnd(ctx, conversation.id),
-      onError: (error) => {
-        console.error("chat stream failed", error)
-        return isQuotaError(error) ? t("aiBusy") : t("failed")
-      },
+      onError,
     }),
   })
 }

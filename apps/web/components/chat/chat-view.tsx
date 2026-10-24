@@ -658,10 +658,35 @@ export function hiddenAssistantParts(parts: UIMessage["parts"]): Set<number> {
   const optionSets: string[][] = []
   let pendingShown = false
   const hasText = parts.some((p) => p.type === "text" && p.text.trim())
+  const squash = (text: string) =>
+    text.replace(/\s+/g, " ").trim().toLowerCase()
+  // QA 02:18: "O que você gostaria de fazer com esta vaga?" appeared as text AND as the card.
+  const questions: string[] = []
+  const seenQuestions = new Set<string>()
+  for (const part of parts) {
+    if (!isToolUIPart(part) || part.state !== "output-available") continue
+    const output = part.output as { kind?: string; question?: unknown }
+    if (
+      (output.kind === "clarification" || output.kind === "options") &&
+      typeof output.question === "string" &&
+      output.question.trim()
+    ) {
+      questions.push(squash(output.question))
+    }
+  }
   parts.forEach((part, index) => {
     if (part.type === "text") {
-      const norm = part.text.replace(/\s+/g, " ").trim().toLowerCase()
+      const norm = squash(part.text)
       if (!norm) return
+      if (
+        questions.some(
+          (q) =>
+            norm === q || (norm.includes(q) && norm.length <= q.length + 60)
+        )
+      ) {
+        hidden.add(index)
+        return
+      }
       const repeatsOptions = optionSets.some(
         (opts) =>
           opts.length > 1 &&
@@ -673,7 +698,22 @@ export function hiddenAssistantParts(parts: UIMessage["parts"]): Set<number> {
     }
     if (!isToolUIPart(part)) return
     if (part.state === "output-available") {
-      const output = part.output as { kind?: string; options?: unknown }
+      const output = part.output as {
+        kind?: string
+        options?: unknown
+        question?: unknown
+      }
+      if (
+        (output.kind === "clarification" || output.kind === "options") &&
+        typeof output.question === "string"
+      ) {
+        const q = squash(output.question)
+        if (seenQuestions.has(q)) {
+          hidden.add(index)
+          return
+        }
+        seenQuestions.add(q)
+      }
       if (
         (output.kind === "clarification" || output.kind === "options") &&
         Array.isArray(output.options)

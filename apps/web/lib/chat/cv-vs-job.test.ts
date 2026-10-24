@@ -20,9 +20,17 @@ describe("cvVsJobReport (CV + vaga sem texto digitado)", () => {
     const report = cvVsJobReport([cv, job])
     expect(report).not.toBeNull()
     expect(report!.scores).toHaveLength(1)
-    expect(report!.text).toMatch(/Score ATS: \d+%/)
+    // Score and keyword lists appear once, in the ATS card; never repeated in the text.
+    expect(report!.text).not.toMatch(/Score ATS|Palavras-chave/)
+    const out = report!.scores[0]!.output
+    expect(out.before).toBeGreaterThanOrEqual(0)
+    for (const noise of ["vaga", "empresa", "exemplo", "tech", "requisitos"]) {
+      expect(out.missing).not.toContain(noise)
+      expect(out.covered).not.toContain(noise)
+    }
     const items = report!.text.split("\n").filter((l) => l.startsWith("- "))
     expect(items.length).toBeGreaterThan(0)
+    expect(items.length).toBeLessThanOrEqual(6)
     expect(report!.text).toContain("kubernetes")
     expect(report!.text).not.toMatch(/sugiro os seguintes ajustes\s*$/)
     expect(report!.options).toEqual([

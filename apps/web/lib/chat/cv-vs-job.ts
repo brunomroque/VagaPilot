@@ -43,14 +43,21 @@ export function attachmentAtsScore(cvText: string, jobText: string) {
     cvText,
     requirements: requirementLines(jobText),
   })
+  // QA 02:18: the card listed ad words ("vaga", "empresa", "exemplo") as missing keywords.
+  // Score and lists come from the same filtered keywords so they always agree.
+  const covered = skillGaps(result.covered)
+  const missing = skillGaps(result.missing)
+  const total = covered.length + missing.length
+  const score =
+    total > 0 ? Math.round((covered.length / total) * 100) : result.score
   return {
     kind: "ats_score" as const,
     jobMatchId: "",
-    before: result.score,
+    before: score,
     after: null,
-    covered: result.covered.slice(0, 40),
-    missing: result.missing.slice(0, 40),
-    summary: `Score ATS do CV anexado: ${result.score}% (${result.covered.length} de ${result.covered.length + result.missing.length} palavras-chave da vaga).`,
+    covered: covered.slice(0, 40),
+    missing: missing.slice(0, 40),
+    summary: `Score ATS do CV anexado: ${score}% (${covered.length} de ${total} palavras-chave da vaga).`,
   }
 }
 
@@ -109,6 +116,62 @@ const NOT_A_SKILL = new Set(
     "fluente",
     "intermediario",
     "basico",
+    "exemplos",
+    "tecnologia",
+    "tecnologias",
+    "requirement",
+    "qualificacoes",
+    "qualificacao",
+    "responsabilidades",
+    "atividades",
+    "oportunidade",
+    "candidato",
+    "candidata",
+    "pessoa",
+    "profissional",
+    "profissionais",
+    "cliente",
+    "clientes",
+    "projeto",
+    "projetos",
+    "forte",
+    "bom",
+    "boa",
+    "ser",
+    "ter",
+    "como",
+    "para",
+    "com",
+    "sua",
+    "seu",
+    "nos",
+    "voce",
+    "junior",
+    "pleno",
+    "senior",
+    "clt",
+    "pj",
+    "salario",
+    "beneficio",
+    "horario",
+    "contratacao",
+    "regime",
+    "etc",
+    "the",
+    "and",
+    "with",
+    "skills",
+    "knowledge",
+    "work",
+    "working",
+    "strong",
+    "ability",
+    "nice",
+    "have",
+    "must",
+    "you",
+    "our",
+    "will",
   ].map(fold)
 )
 
@@ -187,17 +250,7 @@ export function cvVsJobReport(
     }))
   )
   const lines: string[] = []
-  for (const s of scores) {
-    const covered = skillGaps(s.output.covered)
-    const gaps = skillGaps(s.output.missing)
-    lines.push(
-      `**Score ATS: ${s.output.before}%** (CV "${s.cvName}" × vaga "${s.jobName}")`,
-      "",
-      `**Palavras-chave presentes:** ${covered.slice(0, 15).join(", ") || "nenhuma"}`,
-      `**Palavras-chave ausentes:** ${gaps.slice(0, 15).join(", ") || "nenhuma"}`,
-      ""
-    )
-  }
+  // QA 02:18: score and keyword lists live only in the ATS card above (shown once).
   if (cvs.length > 1) {
     const best = [...scores].sort(
       (a, b) => b.output.before - a.output.before
@@ -208,7 +261,8 @@ export function cvVsJobReport(
     )
   }
   const best = [...scores].sort((a, b) => b.output.before - a.output.before)[0]!
-  const gaps = skillGaps(best.output.missing).slice(0, 6)
+  // At most 6 suggestions in total: up to 5 keyword gaps + 1 general tip.
+  const gaps = best.output.missing.slice(0, 5)
   lines.push("**Ajustes sugeridos** (só inclua o que for verdade):")
   if (gaps.length > 0) {
     for (const gap of gaps) {
