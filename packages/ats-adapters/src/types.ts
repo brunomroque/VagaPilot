@@ -66,6 +66,10 @@ export type FetchCtx = {
   cache?: JobCache
   userAgent?: string
   timeoutMs?: number
+  /** Third-party fallbacks when the direct read is blocked (see providers.ts). */
+  providers?: import("./providers.js").FetchProvider[]
+  /** Total time for the provider chain, so ingestion stays inside its 50 s deadline. */
+  providerBudgetMs?: number
 }
 
 export interface JobSourceAdapter {

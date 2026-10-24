@@ -7,6 +7,7 @@ import {
   postingFromJsonLd,
 } from "../html.js"
 import { fetchPublic } from "../http.js"
+import { fetchViaProviders } from "../providers.js"
 import type { JobSource, JobSourceAdapter, RawJobPosting } from "../types.js"
 import { hostMatches, parseUrl } from "../url.js"
 
@@ -97,6 +98,32 @@ export function createLinkedInAdapter(
         if (page.ok) {
           fetched = page
           html = page.response.body
+          $ = loadHtml(html)
+        }
+      }
+      if (!fetched.ok || !pageTitle($)) {
+        // Both direct reads blocked (429/999/authwall/empty): try configured SaaS fetchers.
+        const viaProvider = await fetchViaProviders(
+          ctx,
+          canonicalUrl,
+          (body) => {
+            const page$ = loadHtml(body)
+            return (
+              Boolean(
+                pageTitle(page$) ||
+                findJsonLdJobPosting(page$) ||
+                page$('meta[property="og:title"]').attr("content")
+              ) && !/authwall|uas\/login/i.test(page$("title").text())
+            )
+          }
+        )
+        if (viaProvider) {
+          fetched = {
+            ok: true,
+            response: viaProvider.response,
+            fromCache: false,
+          }
+          html = viaProvider.response.body
           $ = loadHtml(html)
         } else if (!fetched.ok) {
           return fetched.result

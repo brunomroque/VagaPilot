@@ -1,7 +1,11 @@
 import process from "node:process"
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
-import { MemoryJobCache, type FetchCtx } from "@vagapilot/ats-adapters"
+import {
+  MemoryJobCache,
+  providersFromEnv,
+  type FetchCtx,
+} from "@vagapilot/ats-adapters"
 import { createFixtureFetch } from "@vagapilot/ats-adapters/fixtures"
 import { SupabaseAuditSink } from "@vagapilot/db/server"
 
@@ -46,7 +50,15 @@ const sharedCache = new MemoryJobCache()
 export function createJobFetchCtx(env: Env = process.env): FetchCtx {
   return useAtsFixtures(env)
     ? { fetch: createFixtureFetch({ delayMs: 150 }), cache: sharedCache }
-    : { fetch: globalThis.fetch.bind(globalThis), cache: sharedCache }
+    : {
+        fetch: globalThis.fetch.bind(globalThis),
+        cache: sharedCache,
+        // Direct reads get 8 s each; the SaaS chain gets 20 s in total, leaving the rest of
+        // the 50 s inline deadline (INLINE_DEADLINE_MS) for analysis.
+        timeoutMs: 8_000,
+        providers: providersFromEnv(env),
+        providerBudgetMs: 20_000,
+      }
 }
 
 export function createIngestDeps(

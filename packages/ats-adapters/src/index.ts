@@ -13,6 +13,11 @@ export {
   MemoryJobCache,
   VAGAPILOT_USER_AGENT,
 } from "./http.js"
+export {
+  fetchViaProviders,
+  providersFromEnv,
+  type FetchProvider,
+} from "./providers.js"
 export { formAdapterFor, isLinkedInApplyPage } from "./form/index.js"
 export { linkedInGuestUrl } from "./adapters/linkedin.js"
 export { genericCanonical, parseUrl } from "./url.js"
