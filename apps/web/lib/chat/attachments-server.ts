@@ -139,7 +139,11 @@ export async function uploadChatAttachment(
     if (!isAiUnavailable()) {
       try {
         image = (
-          await readJobImage({ bytes, mediaType: ATTACHMENT_MIME[type] })
+          await readJobImage(
+            { bytes, mediaType: ATTACHMENT_MIME[type] },
+            // QA: a pasted image failed at ~60 s (Netlify limit); fail fast and keep the file.
+            { abortSignal: AbortSignal.timeout(25_000) }
+          )
         ).reading
         text = image.text
         kind = imageKind(image, text, name)

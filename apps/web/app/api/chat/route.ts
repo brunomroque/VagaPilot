@@ -33,6 +33,7 @@ import {
 
 import {
   ensureConversation,
+  titleConversation,
   loadUIMessages,
   recentUserMessageCount,
   saveMessage,
@@ -307,6 +308,9 @@ async function handleChat(request: Request) {
     role: userMessage.role,
     parts: userMessage.parts as UIMessage["parts"],
   })
+  if (history.length === 0) {
+    await titleConversation(ctx, conversation.id, userMessage.parts)
+  }
   const originalMessages = [...history, userMessage]
 
   if (dataActionPart && dataActionPart.type === "data-action") {
@@ -638,7 +642,9 @@ async function handleChat(request: Request) {
     tools,
     // Netlify functions stop at ~60 s: keep the tool loop short.
     stopWhen: isStepCount(6),
-    maxOutputTokens: 1200,
+    maxOutputTokens: 3000,
+    // Stay under the 60 s function limit so the user gets an error, not a hang.
+    abortSignal: AbortSignal.timeout(52_000),
     temperature: 0.2,
     experimental_transform: outputFilterTransform(refusal),
     ...llmTelemetryOptions("chat", conversation.id),

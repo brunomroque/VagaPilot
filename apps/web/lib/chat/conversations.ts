@@ -170,3 +170,34 @@ export async function recentUserMessageCount(
   if (error) throw new Error(`messages count failed: ${error.message}`)
   return count ?? 0
 }
+
+/** Names a conversation after its first message (QA: every chat was "Busca de emprego"). */
+export async function titleConversation(
+  ctx: UserContext,
+  conversationId: string,
+  parts: UIMessage["parts"]
+): Promise<void> {
+  let title = ""
+  for (const part of parts as {
+    type: string
+    text?: string
+    data?: unknown
+  }[]) {
+    if (part.type === "text" && part.text?.trim()) {
+      title = part.text.trim()
+      break
+    }
+  }
+  if (!title || title === "Segue anexo.") {
+    const names = JSON.stringify(parts).match(/"name":"([^"]{1,80})"/)
+    title = names?.[1] ?? title
+  }
+  title = title.replace(/\s+/g, " ").slice(0, 60).trim()
+  if (!title) return
+  await ctx.supabase
+    .from("conversations")
+    .update({ title })
+    .eq("id", conversationId)
+    .eq("user_id", ctx.user.id)
+    .eq("title", DEFAULT_CONVERSATION_TITLE)
+}

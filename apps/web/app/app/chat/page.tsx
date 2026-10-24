@@ -29,10 +29,14 @@ export default async function ChatPage({
   const { ctx } = context
 
   const onboarding = await loadOnboardingState(ctx)
+  const requestedId =
+    params.c && /^[0-9a-f-]{36}$/i.test(params.c) ? params.c : null
+  const found = requestedId ? await findConversation(ctx, requestedId) : null
+  // "Nova conversa" navigates to a fresh client-generated id; the row is created
+  // with that id on the first message (ensureConversation), so nothing is lost.
+  const fresh = requestedId !== null && found === null
   const requested =
-    params.c && /^[0-9a-f-]{36}$/i.test(params.c)
-      ? await findConversation(ctx, params.c)
-      : null
+    found ?? (fresh ? { id: requestedId, title: null, created_at: "" } : null)
   const bootstrap = await loadChatBootstrap(ctx)
   const conversation = requested ?? {
     id: bootstrap.conversationId,
@@ -71,11 +75,13 @@ export default async function ChatPage({
         key={conversation.id}
         conversationId={conversation.id}
         initialMessages={
-          conversation.id === bootstrap.conversationId
-            ? bootstrap.initialMessages
-            : await import("@/lib/chat/conversations").then((m) =>
-                m.loadUIMessages(ctx, conversation.id)
-              )
+          fresh
+            ? []
+            : conversation.id === bootstrap.conversationId
+              ? bootstrap.initialMessages
+              : await import("@/lib/chat/conversations").then((m) =>
+                  m.loadUIMessages(ctx, conversation.id)
+                )
         }
         cvOptions={bootstrap.cvOptions}
         initialPrompt={initialPrompt}

@@ -17,7 +17,6 @@ import {
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
-import { startNewConversationAction } from "@/app/app/chat/actions"
 import {
   captureChatMessageSent,
   captureChatOpened,
@@ -120,10 +119,11 @@ export function ChatView({
   const busy =
     status === "submitted" || status === "streaming" || uploading || switching
 
-  function addFiles(list: FileList | null) {
+  async function addFiles(list: FileList | null) {
     if (!list) return
+    const incoming = Array.from(list)
     const next = [...files]
-    for (const file of Array.from(list)) {
+    for (const file of incoming) {
       // QA: the same file picked twice showed two chips and was uploaded twice.
       if (
         next.some(
@@ -147,6 +147,11 @@ export function ChatView({
         setNotice(`${file.name}: ${t("attachments.errors.tooLarge")}`)
         continue
       }
+      // QA: a renamed .exe was only rejected at send time. Check the real bytes now.
+      if (!(await looksSupported(file))) {
+        setNotice(`${file.name}: ${t("attachments.errors.failed")}`)
+        continue
+      }
       next.push(file)
     }
     setFiles(next)
@@ -161,6 +166,8 @@ export function ChatView({
       const response = await fetch("/api/chat/attachments", {
         method: "POST",
         body: form,
+        // QA: a pasted image sometimes hung ~60 s; give up with a clear error instead.
+        signal: AbortSignal.timeout(58_000),
       })
       const body = (await response.json().catch(() => null)) as {
         attachments?: AttachmentRef[]
@@ -279,8 +286,13 @@ export function ChatView({
             {variant === "home" ? t("homeTitle") : t("title")}
           </h2>
           <form
-            action={startNewConversationAction}
-            onSubmit={() => setSwitching(true)}
+            onSubmit={(event) => {
+              event.preventDefault()
+              setSwitching(true)
+              // Full navigation to a brand-new id: no stale chat state survives,
+              // and the first message creates the conversation with this id.
+              window.location.assign(`/app/chat?c=${crypto.randomUUID()}`)
+            }}
           >
             <Button
               type="submit"
@@ -349,6 +361,7 @@ export function ChatView({
             key={message.id}
             message={message}
             isLast={index === messages.length - 1 && !busy}
+            active={index === messages.length - 1 && busy}
             cvOptions={cvOptions}
             onAnswer={send}
             onDataAction={sendDataAction}
@@ -407,7 +420,7 @@ export function ChatView({
           onPaste={(event) => {
             if (event.clipboardData.files.length > 0) {
               event.preventDefault()
-              addFiles(event.clipboardData.files)
+              void addFiles(event.clipboardData.files)
             }
           }}
         />
@@ -444,7 +457,7 @@ export function ChatView({
           className="hidden"
           data-testid="chat-file-input"
           onChange={(event) => {
-            addFiles(event.target.files)
+            void addFiles(event.target.files)
             event.target.value = ""
           }}
         />
@@ -492,12 +505,14 @@ export function ChatView({
 function ChatMessage({
   message,
   isLast,
+  active,
   cvOptions,
   onAnswer,
   onDataAction,
 }: {
   message: UIMessage
   isLast: boolean
+  active: boolean
   cvOptions: CvOption[]
   onAnswer: (text: string) => void
   onDataAction: (data: {
@@ -607,6 +622,8 @@ function ChatMessage({
               case "input-available":
               case "approval-requested":
               case "approval-responded":
+                // QA: "Estou analisando…" stayed on screen after the answer ended.
+                if (!active) return null
                 return (
                   <p
                     key={part.toolCallId}
@@ -630,4 +647,21 @@ function ChatMessage({
       </div>
     </div>
   )
+}
+
+/** Sniffs the first bytes so unsupported files never become a chip. */
+async function looksSupported(file: File): Promise<boolean> {
+  const head = new Uint8Array(await file.slice(0, 512).arrayBuffer())
+  const starts = (...bytes: number[]) => bytes.every((b, i) => head[i] === b)
+  const name = file.name.toLowerCase()
+  if (name.endsWith(".pdf")) return starts(0x25, 0x50, 0x44, 0x46)
+  if (name.endsWith(".docx")) return starts(0x50, 0x4b)
+  if (name.endsWith(".png")) return starts(0x89, 0x50, 0x4e, 0x47)
+  if (/\.jpe?g$/.test(name)) return starts(0xff, 0xd8, 0xff)
+  if (name.endsWith(".webp"))
+    return (
+      starts(0x52, 0x49, 0x46, 0x46) && head[8] === 0x57 && head[9] === 0x45
+    )
+  if (name.endsWith(".txt")) return !head.includes(0) && !starts(0x4d, 0x5a)
+  return false
 }
