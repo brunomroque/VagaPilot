@@ -76,7 +76,7 @@ describe("parseCvStructured", () => {
     const result = await parseCvStructured("cv", {
       model: fakeObjectModel(raw),
     })
-    expect(result.promptVersion).toBe("parse-cv.v1")
+    expect(result.promptVersion).toBe("parse-cv.v2")
     expect(result.data.skills).toEqual(["SQL", "Python"])
   })
 })

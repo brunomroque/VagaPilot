@@ -1093,8 +1093,13 @@
       "dismiss": "Ignorar",
       "applied": "Adicionado ao perfil.",
       "dismissed": "Item ignorado.",
-      "more": "+ {count} itens"
-    }
+      "more": "+ {count} itens",
+      "ignoreAll": "Ignorar todos"
+    },
+    "deleteConfirmTitle": "Excluir \"{label}\"?",
+    "deleteConfirmDescription": "O arquivo e as sugestões ainda não aprovadas deste CV (em Fatos e nas diferenças com o perfil) serão removidos. O que você já aprovou continua no seu perfil.",
+    "deleteConfirm": "Excluir CV",
+    "deleteCancel": "Cancelar"
   },
   "Facts": {
     "title": "Confirme seus fatos",
@@ -1102,7 +1107,7 @@
     "selectAll": "Selecionar todos",
     "selectedCount": "{count} de {total} selecionados",
     "confirmSelected": "Confirmar selecionados",
-    "rejectSelected": "Rejeitar selecionados",
+    "rejectSelected": "Ignorar selecionados",
     "otherGroup": "Outros fatos",
     "otherDescription": "Idiomas, competências e certificações.",
     "linked": "Experiência do perfil",
@@ -1118,10 +1123,10 @@
     "confirmOne": "Confirmar: {fact}",
     "edit": "Editar",
     "editOne": "Editar e confirmar: {fact}",
-    "reject": "Rejeitar",
-    "rejectOne": "Rejeitar: {fact}",
+    "reject": "Ignorar",
+    "rejectOne": "Ignorar: {fact}",
     "confirmed": "{count, plural, one {Fato confirmado} other {# fatos confirmados}}",
-    "rejected": "{count, plural, one {Fato rejeitado} other {# fatos rejeitados}}",
+    "rejected": "{count, plural, one {Fato ignorado} other {# fatos ignorados}}",
     "editTitle": "Editar e confirmar fato",
     "editDescription": "Ajuste o texto para que ele diga exatamente o que é verdade. O trecho original fica registrado.",
     "editSubmit": "Salvar e confirmar",
@@ -1156,7 +1161,9 @@
         "title": "Nenhum fato rejeitado",
         "description": "Fatos rejeitados nunca são usados pelo assistente."
       }
-    }
+    },
+    "ignoreGroup": "Ignorar todos",
+    "noDatesHint": "O CV não informa as datas desta experiência: ao adicionar, informe ao menos o mês de início (pode ser aproximado)."
   },
   "Onboarding": {
     "title": "Configure seu VagaPilot",

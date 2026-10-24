@@ -37,6 +37,16 @@ import {
 } from "@/app/app/cvs/actions"
 import type { CvTrackRow, CvVersionRow } from "@/lib/cvs/server"
 import { CV_LANGUAGE_OPTIONS } from "@/lib/profile/schemas"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import {
@@ -131,6 +141,10 @@ export function CvLibrary({
   const format = useFormatter()
   const options = useProfileOptions()
   const { pending, run } = useActionRunner()
+  const [deleting, setDeleting] = useState<{
+    id: string
+    label: string
+  } | null>(null)
   const [editingTrack, setEditingTrack] = useState<TrackValues | null>(null)
   const [editingVersion, setEditingVersion] = useState<VersionValues | null>(
     null
@@ -381,9 +395,7 @@ export function CvLibrary({
                     variant="ghost"
                     disabled={pending}
                     onClick={() =>
-                      run(() => deleteCvVersion(version.id), {
-                        success: t("deleted"),
-                      })
+                      setDeleting({ id: version.id, label: version.label })
                     }
                     aria-label={t("deleteVersion", { label: version.label })}
                   >
@@ -395,6 +407,37 @@ export function CvLibrary({
           )
         })}
       </ul>
+
+      <AlertDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("deleteConfirmTitle", { label: deleting?.label ?? "" })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteConfirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("deleteCancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const target = deleting
+                setDeleting(null)
+                if (target)
+                  run(() => deleteCvVersion(target.id), {
+                    success: t("deleted"),
+                  })
+              }}
+            >
+              {t("deleteConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <FormDialog
         open={editingTrack !== null}

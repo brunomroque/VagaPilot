@@ -6,7 +6,11 @@ import { useTranslations } from "next-intl"
 import type { CvProfileDiffItem } from "@vagapilot/jobs"
 
 import { useActionRunner } from "@/components/forms/fields"
-import { applyCvDiffItem, dismissCvDiffItem } from "@/app/app/cvs/actions"
+import {
+  applyCvDiffItem,
+  dismissAllCvDiffItems,
+  dismissCvDiffItem,
+} from "@/app/app/cvs/actions"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 
@@ -48,8 +52,20 @@ export function CvProfileDiff({
   return (
     <div className="flex flex-col gap-2" data-testid={`cv-diff-${versionId}`}>
       <Separator />
-      <span className="text-xs font-semibold text-muted-foreground">
+      <span className="flex items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
         {t("title", { count: items.length })}
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={pending}
+          onClick={() =>
+            run(() => dismissAllCvDiffItems(versionId), {
+              success: t("dismissed"),
+            })
+          }
+        >
+          {t("ignoreAll")}
+        </Button>
       </span>
       <ul className="flex flex-col gap-1 text-sm">
         {items.slice(0, VISIBLE).map((item) => {

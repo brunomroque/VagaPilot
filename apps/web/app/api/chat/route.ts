@@ -543,6 +543,63 @@ async function handleChat(request: Request) {
     )
   }
 
+  // QA 02:30: a screenshot with a link left a stuck "Aguarde um momento…" text and a card for a
+  // different job (the link's canonical URL matched another posting). Analyse the job from the
+  // screenshot itself (OCR title first), deterministically, with the link only in the text.
+  const linkImage =
+    attachmentIntent === "job_link" && turnRefs.refs.length > 0
+      ? attachments.find((a) => a.kind === "job_image" && a.text.trim())
+      : undefined
+  if (linkImage) {
+    const tTools = await getTranslations("ChatTools")
+    const reading = linkImage.image
+    const heading = [reading?.title, reading?.company]
+      .filter((part): part is string => Boolean(part?.trim()))
+      .join(" — ")
+    const jobText = [
+      heading,
+      linkImage.text.trim(),
+      reading?.url ? `Link: ${reading.url}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n")
+    return directResponse(
+      ctx,
+      conversation.id,
+      originalMessages,
+      async (writer) => {
+        const toolCallId = `ingest-${crypto.randomUUID()}`
+        writer.write({
+          type: "tool-input-available",
+          toolCallId,
+          toolName: "ingest_job_postings",
+          input: { text: jobText },
+        })
+        try {
+          const batch = await startIngestion(ctx, {
+            text: jobText,
+            conversationId: conversation.id,
+          })
+          const output: ChatToolOutput = {
+            kind: "ingest_batch",
+            ...batch,
+            summary: tTools("ingest", { count: batch.items.length }),
+          }
+          writer.write({ type: "tool-output-available", toolCallId, output })
+        } catch (error) {
+          console.error("screenshot job ingestion failed", {
+            reason: error instanceof Error ? error.message : "unknown",
+          })
+          writer.write({
+            type: "tool-output-error",
+            toolCallId,
+            errorText: tTools("ingestFailed"),
+          })
+        }
+      }
+    )
+  }
+
   if (urls.length > 0 && !hasAttachments) {
     const tTools = await getTranslations("ChatTools")
     return directResponse(

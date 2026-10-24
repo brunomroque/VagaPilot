@@ -189,6 +189,11 @@ export function FactReview({
                   t("otherDescription")
                 )}
                 <span>{t("factCount", { count: group.facts.length })}</span>
+                {group.hint &&
+                !group.experienceId &&
+                !group.hint.start_month ? (
+                  <span className="basis-full text-xs">{t("noDatesHint")}</span>
+                ) : null}
               </CardDescription>
               <CardAction className="flex flex-wrap gap-2">
                 {group.hint && !group.experienceId ? (
@@ -209,6 +214,17 @@ export function FactReview({
                     onClick={() => confirm(ids)}
                   >
                     {t("confirmGroup")}
+                  </Button>
+                ) : null}
+                {status === "proposto" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={pending}
+                    onClick={() => reject(ids)}
+                  >
+                    <XIcon data-icon="inline-start" />
+                    {t("ignoreGroup")}
                   </Button>
                 ) : null}
               </CardAction>

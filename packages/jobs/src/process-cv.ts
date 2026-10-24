@@ -104,6 +104,16 @@ export async function extractAndStoreCvText(
   return result
 }
 
+/** Accent-, case-, punctuation- and whitespace-insensitive key for duplicate facts. */
+export function factKey(statement: string): string {
+  return statement
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9+#]+/g, " ")
+    .trim()
+}
+
 /**
  * Step 2 of `cv/uploaded`: extract grounded facts, embed them and store them as `proposto`.
  * Idempotent per CV version (retries do not duplicate proposals).
@@ -125,7 +135,31 @@ export async function proposeFactsFromCv(
   if ((existing.count ?? 0) > 0)
     return { proposed: 0, dropped: 0, skipped: true }
 
-  const extraction = await (deps.extractFacts ?? extractFactsFromCv)(text)
+  const extracted = await (deps.extractFacts ?? extractFactsFromCv)(text)
+  // QA 02:30: "ingles avancado" vs "inglês avançado", Kubernetes 3x. Drop facts that repeat
+  // one already proposed/confirmed for the user, or another one in this same CV.
+  const known = await deps.admin
+    .from("confirmed_facts")
+    .select("statement")
+    .eq("user_id", input.userId)
+    .in("status", ["proposto", "confirmado"])
+  const seen = new Set(
+    ((known.data ?? []) as { statement: string }[]).map((row) =>
+      factKey(row.statement)
+    )
+  )
+  const unique = extracted.facts.filter((fact) => {
+    const key = factKey(fact.statement)
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+  const extraction = {
+    ...extracted,
+    facts: unique,
+    droppedFacts:
+      extracted.droppedFacts + (extracted.facts.length - unique.length),
+  }
   if (extraction.facts.length === 0) {
     return { proposed: 0, dropped: extraction.droppedFacts, skipped: false }
   }

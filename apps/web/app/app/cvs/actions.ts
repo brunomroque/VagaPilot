@@ -228,6 +228,21 @@ export async function deleteCvVersion(id: string) {
       .eq("id", id)
       .eq("user_id", ctx.user.id)
     if (removed.error) throw new Error(removed.error.message)
+    // QA 02:30: facts proposed from this CV and not approved yet leave with it; facts the
+    // user already confirmed stay in the profile.
+    const facts = (getAdminClient() ?? ctx.supabase)
+      .from("confirmed_facts")
+      .delete()
+      .eq("user_id", ctx.user.id)
+      .eq("source", "cv_upload")
+      .eq("source_ref->>cv_version_id", id)
+      .neq("status", "confirmado")
+    const factsRemoved = await facts
+    if (factsRemoved.error) {
+      console.error("[cvs:delete] pending facts cleanup failed", {
+        reason: factsRemoved.error.message,
+      })
+    }
     await ctx.supabase.storage.from("cvs").remove([version.data.storage_path])
     return ok(undefined)
   })
@@ -282,12 +297,12 @@ async function markHandled(
   ctx: UserContext,
   versionId: string,
   dismissed: string[],
-  key: string
+  key: string | string[]
 ) {
   const update = await ctx.supabase
     .from("cv_parsed")
     .update({
-      dismissed: [...new Set([...dismissed, key])],
+      dismissed: [...new Set([...dismissed, ...[key].flat()])],
       updated_at: new Date().toISOString(),
     })
     .eq("cv_version_id", versionId)
@@ -307,6 +322,23 @@ export async function dismissCvDiffItem(input: unknown) {
       data.data.versionId,
       row.dismissed ?? [],
       data.data.key
+    )
+    return ok(undefined)
+  })
+}
+
+/** "Ignorar todos" on the CV-vs-profile approval cards of one CV version. */
+export async function dismissAllCvDiffItems(versionId: string) {
+  return run("diff-dismiss-all", async (ctx) => {
+    if (!z.uuid().safeParse(versionId).success)
+      return fail("invalid_request", "Invalid id.")
+    const row = await loadDiff(ctx, versionId)
+    if (!row) return fail("not_found", "Parsed CV not found.")
+    await markHandled(
+      ctx,
+      versionId,
+      row.dismissed ?? [],
+      (row.profile_diff ?? []).map((item) => item.key)
     )
     return ok(undefined)
   })
