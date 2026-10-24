@@ -139,6 +139,10 @@ export function ChatView({
         setNotice(t("attachments.errors.tooMany", { max: MAX_FILES }))
         break
       }
+      if (!/\.(pdf|docx|txt|png|jpe?g|webp)$/i.test(file.name)) {
+        setNotice(`${file.name}: ${t("attachments.errors.failed")}`)
+        continue
+      }
       if (file.size > MAX_FILE_BYTES) {
         setNotice(`${file.name}: ${t("attachments.errors.tooLarge")}`)
         continue
@@ -166,6 +170,8 @@ export function ChatView({
         const message = body?.error?.message ?? t("attachments.errors.failed")
         setNotice(message)
         toast.error(message)
+        // QA: the rejected chip stayed in the composer after a 415.
+        if (response.status === 415 || response.status === 413) setFiles([])
         return null
       }
       return body.attachments.map(({ id, path, name, kind, type }) => ({
