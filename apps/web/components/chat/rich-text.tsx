@@ -63,6 +63,8 @@ export function RichText({ text }: { text: string }) {
   }
   for (const raw of text.split("\n")) {
     const line = raw.trimEnd()
+    // QA: a reply ended in a bare "1." (empty list item); never render an empty marker.
+    if (/^\s*(?:\d+[.)]|[-*•])\s*$/.test(line)) continue
     const bullet = /^\s*[-*•]\s+(.*)$/.exec(line)
     const numbered = /^\s*\d+[.)]\s+(.*)$/.exec(line)
     const heading = /^#{1,6}\s+(.*)$/.exec(line)

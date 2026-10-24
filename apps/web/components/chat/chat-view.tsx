@@ -15,7 +15,6 @@ import {
   SparklesIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { toast } from "sonner"
 
 import {
   captureChatMessageSent,
@@ -112,7 +111,6 @@ export function ChatView({
     onError: (error) => {
       const message = errorMessage(error, t("errors.generic"))
       setNotice(message)
-      toast.error(message)
     },
   })
 
@@ -176,7 +174,6 @@ export function ChatView({
       if (!response.ok || !body?.attachments) {
         const message = body?.error?.message ?? t("attachments.errors.failed")
         setNotice(message)
-        toast.error(message)
         // QA: the rejected chip stayed in the composer after a 415.
         if (response.status === 415 || response.status === 413) setFiles([])
         return null

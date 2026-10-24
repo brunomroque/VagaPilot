@@ -1956,7 +1956,7 @@
         "blocked": "O site limitou o acesso agora. Cole o texto da vaga abaixo que eu analiso.",
         "not_found": "A página não foi encontrada ou saiu do ar. Se ainda tiver a descrição, cole abaixo.",
         "timeout": "O site demorou demais para responder. Cole o texto da vaga abaixo.",
-        "generic": "Não consegui extrair a vaga. Cole o texto da vaga abaixo.",
+        "generic": "A página pública da vaga não trouxe o conteúdo (o site pode exigir login, ter limitado o acesso ou mudado o formato). Cole o texto da vaga abaixo que eu analiso.",
         "ai_unavailable": "Fit indisponível: a IA não está configurada neste ambiente. Avise o administrador.",
         "pasteTooShort": "Cole pelo menos algumas linhas da descrição."
       },

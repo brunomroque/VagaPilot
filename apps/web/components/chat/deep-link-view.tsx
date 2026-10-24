@@ -28,7 +28,9 @@ export function DeepLinkView({
     <Card data-testid="deep-link">
       <CardHeader>
         <CardTitle>{output.label}</CardTitle>
-        <CardDescription>{output.summary}</CardDescription>
+        {output.summary && output.summary !== output.label ? (
+          <CardDescription>{output.summary}</CardDescription>
+        ) : null}
       </CardHeader>
       <CardContent>
         <Button render={<Link href={output.href} />}>

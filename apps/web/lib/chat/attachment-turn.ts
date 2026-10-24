@@ -66,6 +66,28 @@ export function turnAttachmentRefs(
   return { refs: [], fromPrompt: false }
 }
 
+/**
+ * Attachments sent earlier in the conversation (newest first, deduped), so a follow-up
+ * like "Avalie" still sees the CV's extracted text (QA: the AI said it had no access).
+ */
+export function priorAttachmentRefs(
+  history: UIMessage[],
+  max = 4
+): ChatAttachmentRef[] {
+  const seen = new Set<string>()
+  const refs: ChatAttachmentRef[] = []
+  for (const message of [...history].reverse().slice(0, 30)) {
+    if (message.role !== "user") continue
+    for (const ref of refsFromParts(message.parts as PartLike[])) {
+      if (seen.has(ref.id)) continue
+      seen.add(ref.id)
+      refs.push(ref)
+      if (refs.length >= max) return refs
+    }
+  }
+  return refs
+}
+
 const INTENT_INSTRUCTIONS: Record<Exclude<AttachmentIntent, "ask">, string> = {
   cv_review: `Revise o CV anexado: compare com as versões de CV salvas (list_cv_tracks) e com os fatos confirmados (search_facts, get_profile_summary). Aponte o que falta ou diverge (título/headline, idiomas e nível, certificações, formação, palavras-chave da área) e o que você NÃO consegue confirmar. Proponha edições concretas, só com fatos verdadeiros. Não aplique nada: pergunte se o usuário quer salvar como nova versão (save_attachment_as_cv_version) ou atualizar os dados.`,
   cv_update_profile: `O usuário quer atualizar os dados do perfil com o CV anexado. Compare com o perfil e fatos confirmados (search_facts, get_profile_summary). Para CADA item novo ou diferente chame propose_fact AGORA, nesta resposta: cada chamada gera um card de aprovação na tela, que é a confirmação. NÃO peça confirmação em texto ("posso atualizar?") e não diga que atualizou: os itens só entram depois que o usuário aprovar os cards. Resuma em uma lista curta o que foi proposto e o que já estava igual. Não invente nada que não esteja no CV.`,

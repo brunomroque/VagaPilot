@@ -40,6 +40,7 @@ import {
 } from "@/lib/chat/conversations"
 import { startIngestion } from "@/lib/chat/jobs-server"
 import {
+  priorAttachmentRefs,
   ATTACHMENT_PROMPT_TOOL,
   attachmentPromptBlock,
   attachmentsPartSchema,
@@ -387,9 +388,12 @@ async function handleChat(request: Request) {
     topic.verdict === "prompt_leak" ||
     topic.verdict === "fraud" ||
     topic.verdict === "discriminatory"
+  // QA: short follow-ups ("Diga o quê?", "Por que não?") got the canned off-topic reply.
+  // Inside an ongoing conversation only hard refusals short-circuit; the model (with the
+  // full history and its own scope rules) answers everything else.
   if (
     isRefusedVerdict(topic.verdict) &&
-    (hardRefusal || (!jobPaste && !willHaveAttachments))
+    (hardRefusal || (!jobPaste && !willHaveAttachments && history.length === 0))
   ) {
     await audit({
       userId: ctx.user.id,
@@ -459,6 +463,26 @@ async function handleChat(request: Request) {
       )
     }
     if (decision.intent === "ask") attachmentIntent = "cv_review"
+  } else if (urls.length === 0) {
+    const prior = priorAttachmentRefs(history)
+    if (prior.length > 0) {
+      attachments = await loadChatAttachments(ctx, prior)
+      if (attachments.length > 0) {
+        const decision = detectAttachmentIntent(
+          attachments.map((a) => ({ kind: a.kind, url: a.image?.url ?? null })),
+          userText
+        )
+        // Earlier files are context: never re-open the "what to do" widget, and never
+        // re-run a job-link flow just because an old screenshot is in the chat.
+        attachmentIntent =
+          decision.intent === "cv_review" ||
+          decision.intent === "cv_update_profile" ||
+          decision.intent === "cv_new_version" ||
+          decision.intent === "cv_vs_job"
+            ? decision.intent
+            : "free_text"
+      }
+    }
   }
   const hasAttachments = attachments.length > 0
 
@@ -487,13 +511,6 @@ async function handleChat(request: Request) {
             summary: tTools("ingest", { count: batch.items.length }),
           }
           writer.write({ type: "tool-output-available", toolCallId, output })
-          writer.write({ type: "text-start", id: "ingest" })
-          writer.write({
-            type: "text-delta",
-            id: "ingest",
-            delta: output.summary,
-          })
-          writer.write({ type: "text-end", id: "ingest" })
         } catch (error) {
           console.error("ingestion start failed", {
             reason: error instanceof Error ? error.message : "unknown",
@@ -533,13 +550,6 @@ async function handleChat(request: Request) {
             summary: tTools("ingest", { count: batch.items.length }),
           }
           writer.write({ type: "tool-output-available", toolCallId, output })
-          writer.write({ type: "text-start", id: "ingest" })
-          writer.write({
-            type: "text-delta",
-            id: "ingest",
-            delta: output.summary,
-          })
-          writer.write({ type: "text-end", id: "ingest" })
         } catch (error) {
           console.error("pasted job ingestion failed", {
             reason: error instanceof Error ? error.message : "unknown",

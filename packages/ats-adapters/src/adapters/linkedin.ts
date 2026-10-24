@@ -41,6 +41,27 @@ function externalApplyUrl(html: string): string | null {
     : (outer?.toString() ?? null)
 }
 
+function pageTitle($: ReturnType<typeof loadHtml>): string {
+  return $(".top-card-layout__title, .topcard__title").first().text().trim()
+}
+
+/** "Cargo at Empresa — Cidade | LinkedIn Jobs" (also "na"/"em" in pt-BR pages). */
+export function ogTitleParts(raw: string): {
+  title: string | null
+  company: string | null
+  location: string | null
+} {
+  const clean = raw.replace(/\s*\|\s*LinkedIn.*$/i, "").trim()
+  if (!clean) return { title: null, company: null, location: null }
+  const [head, location] = clean.split(/\s+[—–-]\s+/, 2)
+  const match = /^(.*?)\s+(?:at|na|no|em)\s+(.+)$/.exec(head ?? "")
+  return {
+    title: (match?.[1] ?? head ?? "").trim() || null,
+    company: match?.[2]?.trim() || null,
+    location: location?.trim() || null,
+  }
+}
+
 export type SourceDetector = (url: URL) => JobSource
 
 /** LinkedIn guest page (11.1): one request per link, 24 h cache, 429/999 → blocked. */
@@ -61,12 +82,31 @@ export function createLinkedInAdapter(
       const id = jobId(url)
       if (!id) return { status: "failed", code: "unsupported" }
       const canonicalUrl = `https://www.linkedin.com/jobs/view/${id}`
-      const fetched = await fetchPublic(ctx, linkedInGuestUrl(id), {
+      // Guest API first; it is often rate-limited (429) from datacenter IPs, so fall back
+      // to the public /jobs/view page (same markup + JSON-LD + og:* tags). QA: a plain
+      // linkedin.com/jobs/view link failed to read.
+      let fetched = await fetchPublic(ctx, linkedInGuestUrl(id), {
         forbiddenIsBlocked: true,
       })
-      if (!fetched.ok) return fetched.result
-      const html = fetched.response.body
-      const $ = loadHtml(html)
+      let html = fetched.ok ? fetched.response.body : ""
+      let $ = loadHtml(html)
+      if (!fetched.ok || !pageTitle($)) {
+        const page = await fetchPublic(ctx, canonicalUrl, {
+          forbiddenIsBlocked: true,
+        })
+        if (page.ok) {
+          fetched = page
+          html = page.response.body
+          $ = loadHtml(html)
+        } else if (!fetched.ok) {
+          return fetched.result
+        }
+      }
+      const og = ogTitleParts(
+        $('meta[property="og:title"]').attr("content") ?? ""
+      )
+      const ogDescription =
+        $('meta[property="og:description"]').attr("content")?.trim() ?? ""
 
       const external = externalApplyUrl(html)
       const externalApply =
@@ -83,10 +123,7 @@ export function createLinkedInAdapter(
           })
         : null
 
-      const title =
-        $(".top-card-layout__title, .topcard__title").first().text().trim() ||
-        fromLd?.title ||
-        ""
+      const title = pageTitle($) || fromLd?.title || og.title || ""
       if (!title) return { status: "failed", code: "parse_error" }
       const descriptionText =
         htmlToText(
@@ -95,7 +132,7 @@ export function createLinkedInAdapter(
             .html() ?? ""
         ) ||
         fromLd?.descriptionText ||
-        ""
+        ogDescription
       const criteria = new Map<string, string>()
       $(".description__job-criteria-item").each((_, element) => {
         const key = $(element)
@@ -117,6 +154,7 @@ export function createLinkedInAdapter(
       const location =
         $(".topcard__flavor--bullet").first().text().trim() ||
         fromLd?.location ||
+        og.location ||
         null
       const workplace = $(".topcard__flavor--metadata, .workplace-type")
         .text()
@@ -145,6 +183,7 @@ export function createLinkedInAdapter(
               .text()
               .trim() ||
             fromLd?.company ||
+            og.company ||
             null,
           companyDomain: fromLd?.companyDomain ?? null,
           location,
