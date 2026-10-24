@@ -262,7 +262,11 @@ export function CvLibrary({
           const title = group.track?.name ?? t("noTrackTitle")
           return (
             <li key={group.key}>
-              <Card className="h-full" data-testid={`cv-card-${version.id}`}>
+              <Card
+                id={`cv-version-${version.id}`}
+                className="h-full"
+                data-testid={`cv-card-${version.id}`}
+              >
                 <CardHeader>
                   <span className="flex size-12 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
                     <FileTextIcon className="size-6" aria-hidden />
@@ -325,6 +329,7 @@ export function CvLibrary({
                       <ul className="flex flex-col gap-1 text-sm">
                         {group.previous.map((older) => (
                           <li
+                            id={`cv-version-${older.id}`}
                             key={older.id}
                             className="flex flex-wrap items-center justify-between gap-2"
                           >

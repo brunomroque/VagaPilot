@@ -104,10 +104,14 @@ type FactKeyRow = {
  * A fact is shown once per canonical statement (see factCanonicalKey); a proposal that repeats
  * a confirmed or rejected fact is hidden, as is a later copy of the same proposal.
  */
-export function visibleFactIds(rows: FactKeyRow[]): {
+export function visibleFactIds(
+  rows: FactKeyRow[],
+  companies?: readonly string[]
+): {
   ids: Set<string>
   counts: Record<FactStatus, number>
 } {
+  const similarOpts = companies?.length ? { ignore: companies } : undefined
   const rank: Record<FactStatus, number> = {
     confirmado: 0,
     rejeitado: 1,
@@ -133,7 +137,8 @@ export function visibleFactIds(rows: FactKeyRow[]): {
       row.status === "proposto" &&
       kept.some(
         (other) =>
-          other.key === key || factsSimilar(other.statement, row.statement)
+          other.key === key ||
+          factsSimilar(other.statement, row.statement, similarOpts)
       )
     )
       continue
@@ -148,13 +153,23 @@ export function visibleFactIds(rows: FactKeyRow[]): {
 export async function loadFactCounts(
   ctx: UserContext
 ): Promise<Record<FactStatus, number>> {
-  const { data, error } = await ctx.supabase
-    .from("confirmed_facts")
-    .select("id, status, statement, created_at")
-    .eq("user_id", ctx.user.id)
-    .order("created_at")
-  if (error) throw new Error(error.message)
-  return visibleFactIds((data ?? []) as FactKeyRow[]).counts
+  const [facts, experiences] = await Promise.all([
+    ctx.supabase
+      .from("confirmed_facts")
+      .select("id, status, statement, created_at")
+      .eq("user_id", ctx.user.id)
+      .order("created_at"),
+    ctx.supabase
+      .from("experiences")
+      .select("company")
+      .eq("user_id", ctx.user.id),
+  ])
+  if (facts.error) throw new Error(facts.error.message)
+  if (experiences.error) throw new Error(experiences.error.message)
+  const companies = ((experiences.data ?? []) as { company: string }[]).map(
+    (row) => row.company
+  )
+  return visibleFactIds((facts.data ?? []) as FactKeyRow[], companies).counts
 }
 
 export async function loadFactReview(
@@ -197,7 +212,10 @@ export async function loadFactReview(
     ).map((row) => [row.id, row])
   )
 
-  const visible = visibleFactIds((counts.data ?? []) as FactKeyRow[])
+  const companies = ((experiences.data ?? []) as { company: string }[]).map(
+    (row) => row.company
+  )
+  const visible = visibleFactIds((counts.data ?? []) as FactKeyRow[], companies)
   const groups = new Map<string, FactGroup>()
   for (const row of (facts.data ?? []) as FactRow[]) {
     if (!visible.ids.has(row.id)) continue

@@ -151,12 +151,30 @@ export async function proposeFactsFromCv(
     .from("confirmed_facts")
     .select("statement")
     .eq("user_id", input.userId)
+  const experiences = await deps.admin
+    .from("experiences")
+    .select("id, company")
+    .eq("user_id", input.userId)
+  if (experiences.error) {
+    throw new Error(`experiences read failed: ${experiences.error.message}`)
+  }
+  const ignoreCompanies = [
+    ...(experiences.data as { id: string; company: string }[]).map(
+      (row) => row.company
+    ),
+    ...extracted.experiences.map((experience) => experience.company),
+  ]
+  const similarOpts = ignoreCompanies.length
+    ? { ignore: ignoreCompanies }
+    : undefined
+
   const kept: string[] = ((known.data ?? []) as { statement: string }[]).map(
     (row) => row.statement
   )
   const unique = extracted.facts.filter((fact) => {
     if (!factCanonicalKey(fact.statement)) return false
-    if (kept.some((other) => factsSimilar(other, fact.statement))) return false
+    if (kept.some((other) => factsSimilar(other, fact.statement, similarOpts)))
+      return false
     kept.push(fact.statement)
     return true
   })
@@ -168,14 +186,6 @@ export async function proposeFactsFromCv(
   }
   if (extraction.facts.length === 0) {
     return { proposed: 0, dropped: extraction.droppedFacts, skipped: false }
-  }
-
-  const experiences = await deps.admin
-    .from("experiences")
-    .select("id, company")
-    .eq("user_id", input.userId)
-  if (experiences.error) {
-    throw new Error(`experiences read failed: ${experiences.error.message}`)
   }
   const experienceByCompany = new Map(
     (experiences.data as { id: string; company: string }[]).map((row) => [

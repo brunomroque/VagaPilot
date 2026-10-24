@@ -96,6 +96,21 @@ describe("factsSimilar", () => {
       )
     ).toBe(false)
   })
+  it("merges jornada facts when company names are ignored", () => {
+    expect(
+      factsSimilar(
+        "Possui experiencia com jornadas de usuario",
+        "Experiência com jornadas de usuário na Accenture",
+        { ignore: ["Accenture"] }
+      )
+    ).toBe(true)
+    expect(
+      factsSimilar(
+        "Possui experiencia com jornadas de usuario",
+        "Experiência com jornadas de usuário na Accenture"
+      )
+    ).toBe(false)
+  })
   it("keeps distinct facts apart", () => {
     expect(
       factsSimilar(

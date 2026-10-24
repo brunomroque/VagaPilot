@@ -2,12 +2,17 @@
 
 import { useEffect, useId, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { UploadIcon } from "lucide-react"
+import { CircleCheckIcon, TriangleAlertIcon, UploadIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { useProfileOptions } from "@/components/profile/options"
 import type { CvTrackRow } from "@/lib/cvs/server"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import {
   Field,
@@ -43,6 +48,14 @@ type UploadResponse = {
   proposedFacts: number
   extractionError?: string | null
   duplicate?: boolean
+  label?: string
+}
+
+type UploadFeedback = {
+  variant: "success" | "warning" | "destructive"
+  title: string
+  description?: string
+  highlightVersionId?: string
 }
 
 /** P1.2 upload: PDF/DOCX ≤ 10 MB, up to `maxFiles` at a time, processed by `cv/uploaded`. */
@@ -59,9 +72,31 @@ export function CvUpload({
   const options = useProfileOptions()
   const router = useRouter()
   const [uploadedAt, setUploadedAt] = useState(0)
+  const [highlightVersionId, setHighlightVersionId] = useState<string | null>(
+    null
+  )
+  const [feedback, setFeedback] = useState<UploadFeedback | null>(null)
   useEffect(() => {
     if (uploadedAt) router.refresh()
   }, [uploadedAt, router])
+  useEffect(() => {
+    if (!highlightVersionId || !uploadedAt) return
+    const versionId = highlightVersionId
+    const timer = window.setTimeout(() => {
+      const el = document.getElementById(`cv-version-${versionId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        el.classList.add("ring-2", "ring-primary", "rounded-lg")
+        window.setTimeout(() => {
+          el.classList.remove("ring-2", "ring-primary", "rounded-lg")
+          setHighlightVersionId(null)
+        }, 2500)
+      } else {
+        setHighlightVersionId(null)
+      }
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [uploadedAt, highlightVersionId])
   const inputRef = useRef<HTMLInputElement>(null)
   const languageRef = useRef<HTMLSelectElement>(null)
   const trackRef = useRef<HTMLSelectElement>(null)
@@ -80,8 +115,15 @@ export function CvUpload({
       : t("errors.unknown")
   }
 
+  function duplicateMessage(result: UploadResponse): string {
+    return result.label
+      ? t("duplicateWithLabel", { label: result.label })
+      : t("duplicateFile")
+  }
+
   function pick(list: FileList | null) {
     setError(undefined)
+    setFeedback(null)
     const chosen = [...(list ?? [])]
     if (chosen.length > maxFiles) {
       setError(t("errors.tooMany", { max: maxFiles }))
@@ -108,10 +150,10 @@ export function CvUpload({
     }
     startTransition(async () => {
       const results: UploadResponse[] = []
+      const failures: { fileName: string; message: string }[] = []
       for (const file of files) {
         const body = new FormData()
         body.set("file", file)
-        // The select as shown wins (QA 02:50: "Inglês (EN)" picked, saved as PT).
         const chosenLanguage = languageRef.current?.value || language
         const chosenTrack = trackRef.current?.value ?? track
         body.set("language", chosenLanguage)
@@ -121,47 +163,119 @@ export function CvUpload({
           body,
         }).catch(() => null)
         if (!response) {
-          setError(`${file.name}: ${t("errors.unknown")}`)
-          break
+          const message = t("errors.unknown")
+          failures.push({ fileName: file.name, message })
+          toast.error(`${file.name}: ${message}`)
+          continue
         }
         const payload = (await response.json().catch(() => null)) as
           UploadResponse | { error?: { code?: string } } | null
-        if (!response.ok || !payload || !("id" in payload)) {
+        if (response.status !== 201 || !payload || !("id" in payload)) {
           const code =
             payload && "error" in payload ? payload.error?.code : undefined
-          setError(`${file.name}: ${errorMessage(code)}`)
-          break
+          const message = errorMessage(code)
+          failures.push({ fileName: file.name, message })
+          toast.error(`${file.name}: ${message}`)
+          continue
         }
         results.push(payload)
-      }
-      if (results.length > 0) {
-        const failed = results.find((result) => result.status === "falhou")
-        const duplicates = results.filter((result) => result.duplicate)
-        if (failed) {
+        if (payload.duplicate) {
+          toast.warning(duplicateMessage(payload))
+        } else if (payload.status === "falhou") {
           toast.error(
-            `${files[0]?.name ?? ""}: ${errorMessage(failed.extractionError ?? "no_text")}`.trim()
+            `${file.name}: ${errorMessage(payload.extractionError ?? "no_text")}`
           )
-        } else if (duplicates.length === results.length) {
-          toast.info(t("duplicateFile"))
         } else {
-          const facts = results.reduce(
-            (sum, result) => sum + result.proposedFacts,
-            0
+          toast.success(
+            t("done", {
+              count: 1,
+              facts: payload.proposedFacts,
+            })
           )
-          toast.success(t("done", { count: results.length, facts }))
-          if (duplicates.length > 0) toast.info(t("duplicateFile"))
         }
+      }
+
+      const successes = results.filter((result) => !result.duplicate)
+      const duplicates = results.filter((result) => result.duplicate)
+      const failedExtraction = successes.filter(
+        (result) => result.status === "falhou"
+      )
+
+      if (failures.length > 0 && results.length === 0) {
+        const last = failures[failures.length - 1]!
+        setFeedback({
+          variant: "destructive",
+          title: last.fileName,
+          description: last.message,
+        })
+        setError(`${last.fileName}: ${last.message}`)
+      } else if (duplicates.length > 0 && successes.length === 0) {
+        const last = duplicates[duplicates.length - 1]!
+        const message = duplicateMessage(last)
+        setFeedback({
+          variant: "warning",
+          title: message,
+          highlightVersionId: last.id,
+        })
+        setHighlightVersionId(last.id)
+        setError(undefined)
+      } else if (failedExtraction.length > 0) {
+        const last = failedExtraction[failedExtraction.length - 1]!
+        const message = errorMessage(last.extractionError ?? "no_text")
+        setFeedback({
+          variant: "destructive",
+          title: t("errors.unknown"),
+          description: message,
+        })
+        setError(message)
+      } else if (successes.length > 0) {
+        const facts = successes.reduce(
+          (sum, result) => sum + result.proposedFacts,
+          0
+        )
+        setFeedback({
+          variant: "success",
+          title: t("done", { count: successes.length, facts }),
+        })
+        setError(undefined)
+        if (duplicates.length > 0) {
+          const last = duplicates[duplicates.length - 1]!
+          setFeedback({
+            variant: "warning",
+            title: duplicateMessage(last),
+            highlightVersionId: last.id,
+          })
+          setHighlightVersionId(last.id)
+        }
+      }
+
+      if (results.length > 0 || failures.length > 0) {
         setFiles([])
         if (inputRef.current) inputRef.current.value = ""
         onUploaded?.(results)
-        // Refresh outside the async transition (QA 06:11: the new card only showed after a reload).
-        setUploadedAt(Date.now())
+        if (results.length > 0) setUploadedAt(Date.now())
       }
     })
   }
 
+  const FeedbackIcon =
+    feedback?.variant === "success" ? CircleCheckIcon : TriangleAlertIcon
+
   return (
     <FieldGroup>
+      {feedback ? (
+        <Alert
+          variant={
+            feedback.variant === "destructive" ? "destructive" : "default"
+          }
+        >
+          <FeedbackIcon aria-hidden />
+          <AlertTitle>{feedback.title}</AlertTitle>
+          {feedback.description ? (
+            <AlertDescription>{feedback.description}</AlertDescription>
+          ) : null}
+        </Alert>
+      ) : null}
       <Field data-invalid={error ? true : undefined}>
         <FieldLabel htmlFor={fileId}>{t("file")}</FieldLabel>
         <Input

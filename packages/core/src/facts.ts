@@ -190,7 +190,26 @@ const STEM_SYNONYMS: Record<string, string> = {
   colab: "pesso",
 }
 
-function factStems(statement: string): {
+function ignoredStemsFromNames(names: readonly string[]): Set<string> {
+  const ignored = new Set<string>()
+  for (const name of names) {
+    const words = fold(name)
+      .replace(/[^a-z0-9+#]+/g, " ")
+      .trim()
+      .split(" ")
+      .filter(Boolean)
+    for (const word of words) {
+      if (STOPWORDS.has(word) || word.length < 3) continue
+      ignored.add(word.slice(0, 5))
+    }
+  }
+  return ignored
+}
+
+function factStems(
+  statement: string,
+  ignoreStems?: Set<string>
+): {
   stems: Set<string>
   numbers: Set<string>
 } {
@@ -204,6 +223,7 @@ function factStems(statement: string): {
     }
     if (STOPWORDS.has(word) || word.length < 3) continue
     const stem = word.slice(0, 5)
+    if (ignoreStems?.has(stem)) continue
     if (FACT_STEM_FILLERS.has(stem)) continue
     stems.add(STEM_SYNONYMS[stem] ?? STEM_SYNONYMS[word] ?? stem)
   }
@@ -216,12 +236,20 @@ function factStems(statement: string): {
  * numbers plus at least 60% of the shorter fact's words (light stems and synonyms). Facts
  * without numbers need 3+ shared words and 3/4 overlap in both directions.
  */
-export function factsSimilar(a: string, b: string): boolean {
+export function factsSimilar(
+  a: string,
+  b: string,
+  options?: { ignore?: readonly string[] }
+): boolean {
+  const ignoreStems =
+    options?.ignore && options.ignore.length > 0
+      ? ignoredStemsFromNames(options.ignore)
+      : undefined
   const ka = factCanonicalKey(a)
   const kb = factCanonicalKey(b)
   if (ka === kb) return true
-  const x = factStems(a)
-  const y = factStems(b)
+  const x = factStems(a, ignoreStems)
+  const y = factStems(b, ignoreStems)
   const shared = [...x.stems].filter((s) => y.stems.has(s)).length
   const sameNumbers =
     x.numbers.size === y.numbers.size &&

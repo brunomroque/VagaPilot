@@ -71,7 +71,7 @@ function processingOf(text: string | null): CvVersionRow["processing"] {
 }
 
 export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
-  const [tracks, versions, facts] = await Promise.all([
+  const [tracks, versions, facts, experiences] = await Promise.all([
     ctx.supabase
       .from("cv_tracks")
       .select("id, name, description, keywords")
@@ -91,10 +91,17 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
       )
       .eq("user_id", ctx.user.id)
       .order("created_at"),
+    ctx.supabase
+      .from("experiences")
+      .select("company")
+      .eq("user_id", ctx.user.id),
   ])
-  for (const result of [tracks, versions, facts]) {
+  for (const result of [tracks, versions, facts, experiences]) {
     if (result.error) throw new Error(result.error.message)
   }
+  const companies = ((experiences.data ?? []) as { company: string }[]).map(
+    (row) => row.company
+  )
   // Best-effort: the library must still render if the parse table is unavailable.
   const parsed = await ctx.supabase
     .from("cv_parsed")
@@ -120,7 +127,7 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
     statement: string
     cv_version_id: string | null
   }[]
-  const visible = visibleFactIds(factRows).ids
+  const visible = visibleFactIds(factRows, companies).ids
   for (const row of factRows) {
     if (row.status === "proposto" && visible.has(row.id) && row.cv_version_id) {
       proposed.set(
@@ -172,6 +179,7 @@ export type UploadCvResult = {
   proposedFacts: number
   extractionError?: string | null
   duplicate?: boolean
+  label?: string
 }
 
 export type UploadErrorCode = CvFileErrorCode | "invalid_track"
@@ -219,13 +227,14 @@ export async function uploadCv(
   const sha = sha256Hex(bytes)
   const existing = await ctx.supabase
     .from("cv_versions")
-    .select("id, extracted_text, extraction_error")
+    .select("id, label, extracted_text, extraction_error")
     .eq("user_id", userId)
     .eq("file_sha256", sha)
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle<{
       id: string
+      label: string
       extracted_text: string | null
       extraction_error: string | null
     }>()
@@ -242,7 +251,15 @@ export async function uploadCv(
       statement: string
       cv_version_id: string | null
     }[]
-    const visible = visibleFactIds(factRows).ids
+    const dupCompanies = await ctx.supabase
+      .from("experiences")
+      .select("company")
+      .eq("user_id", userId)
+    if (dupCompanies.error) throw new Error(dupCompanies.error.message)
+    const companyNames = (
+      (dupCompanies.data ?? []) as { company: string }[]
+    ).map((row) => row.company)
+    const visible = visibleFactIds(factRows, companyNames).ids
     let proposedFacts = 0
     for (const row of factRows) {
       if (
@@ -259,6 +276,7 @@ export async function uploadCv(
         id: existing.data.id,
         processing: "inline",
         duplicate: true,
+        label: existing.data.label,
         status: processingOf(existing.data.extracted_text),
         proposedFacts,
         extractionError: existing.data.extraction_error,
