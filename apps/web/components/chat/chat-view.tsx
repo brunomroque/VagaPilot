@@ -138,7 +138,7 @@ export function ChatView({
         break
       }
       if (!/\.(pdf|docx|txt|png|jpe?g|webp)$/i.test(file.name)) {
-        setNotice(`${file.name}: ${t("attachments.errors.failed")}`)
+        setNotice(t("attachments.errors.unsupportedFile", { name: file.name }))
         continue
       }
       if (file.size > MAX_FILE_BYTES) {
@@ -147,7 +147,7 @@ export function ChatView({
       }
       // QA: a renamed .exe was only rejected at send time. Check the real bytes now.
       if (!(await looksSupported(file))) {
-        setNotice(`${file.name}: ${t("attachments.errors.failed")}`)
+        setNotice(t("attachments.errors.unsupportedFile", { name: file.name }))
         continue
       }
       next.push(file)
@@ -563,6 +563,7 @@ function ChatMessage({
       </div>
     )
   }
+  const hidden = hiddenAssistantParts(message.parts)
   return (
     <div className="flex gap-3" data-testid="chat-message-assistant">
       <span
@@ -574,6 +575,7 @@ function ChatMessage({
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <span className="sr-only">{t("assistantLabel")}</span>
         {message.parts.map((part, index) => {
+          if (hidden.has(index)) return null
           if (part.type === "text") {
             return part.text ? <RichText key={index} text={part.text} /> : null
           }
@@ -644,6 +646,58 @@ function ChatMessage({
       </div>
     </div>
   )
+}
+
+/**
+ * QA round 3: "Trabalhando nisso…" twice, a paragraph + its options repeated after the
+ * clarification card, and one error shown as two messages. Returns part indexes to skip.
+ */
+export function hiddenAssistantParts(parts: UIMessage["parts"]): Set<number> {
+  const hidden = new Set<number>()
+  const seenText = new Set<string>()
+  const optionSets: string[][] = []
+  let pendingShown = false
+  const hasText = parts.some((p) => p.type === "text" && p.text.trim())
+  parts.forEach((part, index) => {
+    if (part.type === "text") {
+      const norm = part.text.replace(/\s+/g, " ").trim().toLowerCase()
+      if (!norm) return
+      const repeatsOptions = optionSets.some(
+        (opts) =>
+          opts.length > 1 &&
+          opts.filter((o) => norm.includes(o.toLowerCase())).length >= 2
+      )
+      if (seenText.has(norm) || repeatsOptions) hidden.add(index)
+      seenText.add(norm)
+      return
+    }
+    if (!isToolUIPart(part)) return
+    if (part.state === "output-available") {
+      const output = part.output as { kind?: string; options?: unknown }
+      if (
+        (output.kind === "clarification" || output.kind === "options") &&
+        Array.isArray(output.options)
+      ) {
+        optionSets.push(
+          output.options.map((o) =>
+            typeof o === "string"
+              ? o
+              : String((o as { label?: unknown }).label ?? "")
+          )
+        )
+      }
+      return
+    }
+    if (part.state === "output-error") {
+      // The model's own text already explains the failure: show one message, not two.
+      if (hasText) hidden.add(index)
+      return
+    }
+    if (part.state === "output-denied") return
+    if (pendingShown) hidden.add(index)
+    pendingShown = true
+  })
+  return hidden
 }
 
 /** Sniffs the first bytes so unsupported files never become a chip. */

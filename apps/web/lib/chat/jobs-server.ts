@@ -111,18 +111,29 @@ export async function startIngestionFromJobAlert(input: {
   })
 }
 
+const STALE_MS = 90_000
+
 export async function loadBatch(
   ctx: UserContext,
   batchId: string
 ): Promise<IngestItem[]> {
   const { data, error } = await ctx.supabase
     .from("job_ingestions")
-    .select("id, input_url, status, error_code, job_match_id")
+    .select("id, input_url, status, error_code, job_match_id, updated_at")
     .eq("user_id", ctx.user.id)
     .eq("batch_id", batchId)
     .order("created_at", { ascending: true })
   if (error) throw new Error(`job_ingestions read failed: ${error.message}`)
-  return (data as IngestionRow[]).map(toItem)
+  // Bruno 24/10: a row left running (function cut off) kept the spinner forever. Anything
+  // still running after STALE_MS is shown as a timeout with the paste-text fallback.
+  const now = Date.now()
+  return (data as (IngestionRow & { updated_at?: string })[]).map((row) =>
+    (row.status === "pendente" || row.status === "processando") &&
+    row.updated_at &&
+    now - new Date(row.updated_at).getTime() > STALE_MS
+      ? toItem({ ...row, status: "falhou", error_code: "timeout" })
+      : toItem(row)
+  )
 }
 
 type MatchRow = {

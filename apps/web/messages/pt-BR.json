@@ -1726,7 +1726,8 @@
         "tooMany": "Envie até {max} arquivos por vez.",
         "unsupported": "formato não aceito (use PDF, DOCX, TXT, PNG, JPG ou WEBP).",
         "rateLimited": "Muitos anexos em pouco tempo. Aguarde um minuto.",
-        "failed": "Não consegui enviar o anexo. Tente de novo."
+        "failed": "Não consegui enviar o anexo. Tente de novo.",
+        "unsupportedFile": "{name}: tipo de arquivo não permitido. Envie PDF, DOCX, TXT, PNG, JPG ou WEBP."
       }
     }
   },

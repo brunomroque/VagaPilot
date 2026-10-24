@@ -2,6 +2,7 @@ import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  hasToolCall,
   isStepCount,
   streamText,
   toUIMessageStream,
@@ -47,6 +48,7 @@ import {
   attachmentTools,
   turnAttachmentRefs,
 } from "@/lib/chat/attachment-turn"
+import { cvVsJobReport } from "@/lib/chat/cv-vs-job"
 import {
   loadChatAttachments,
   type ChatAttachment,
@@ -486,6 +488,60 @@ async function handleChat(request: Request) {
   }
   const hasAttachments = attachments.length > 0
 
+  // QA: CV + job with no typed text ended at "sugiro os seguintes ajustes" with no items and no
+  // approval card. The comparison is deterministic: write it here, never via the model.
+  const report =
+    attachmentIntent === "cv_vs_job" && turnRefs.refs.length > 0
+      ? cvVsJobReport(attachments)
+      : null
+  if (report) {
+    return directResponse(
+      ctx,
+      conversation.id,
+      originalMessages,
+      async (writer) => {
+        for (const score of report.scores) {
+          const toolCallId = `ats-${crypto.randomUUID()}`
+          writer.write({
+            type: "tool-input-available",
+            toolCallId,
+            toolName: "ats_score_attachment",
+            input: {
+              cvAttachmentId: score.cvAttachmentId,
+              jobAttachmentId: score.jobAttachmentId,
+            },
+          })
+          writer.write({
+            type: "tool-output-available",
+            toolCallId,
+            output: score.output,
+          })
+        }
+        writer.write({ type: "text-start", id: "cv-vs-job" })
+        writer.write({
+          type: "text-delta",
+          id: "cv-vs-job",
+          delta: report.text,
+        })
+        writer.write({ type: "text-end", id: "cv-vs-job" })
+        const toolCallId = `approve-${crypto.randomUUID()}`
+        const output: ChatToolOutput = {
+          kind: "clarification",
+          question: report.question,
+          options: report.options,
+          summary: report.question,
+        }
+        writer.write({
+          type: "tool-input-available",
+          toolCallId,
+          toolName: "ask_clarification",
+          input: { question: report.question, options: report.options },
+        })
+        writer.write({ type: "tool-output-available", toolCallId, output })
+      }
+    )
+  }
+
   if (urls.length > 0 && !hasAttachments) {
     const tTools = await getTranslations("ChatTools")
     return directResponse(
@@ -651,7 +707,8 @@ async function handleChat(request: Request) {
     messages,
     tools,
     // Netlify functions stop at ~60 s: keep the tool loop short.
-    stopWhen: isStepCount(6),
+    // QA: after ask_clarification the model wrote the same paragraph and options again.
+    stopWhen: [isStepCount(6), hasToolCall("ask_clarification")],
     maxOutputTokens: 3000,
     // Stay under the 60 s function limit so the user gets an error, not a hang.
     abortSignal: AbortSignal.timeout(52_000),

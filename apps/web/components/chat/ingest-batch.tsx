@@ -21,7 +21,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { JobCardView, type CvOption } from "./job-card-view"
 
 const POLL_MS = 1200
-const MAX_POLLS = 150
+const MAX_POLLS = 100
 
 function isRunning(item: IngestItem) {
   return item.status === "pendente" || item.status === "processando"
@@ -92,6 +92,14 @@ export function IngestBatch({
       polls.current += 1
       if (polls.current > MAX_POLLS) {
         clearInterval(timer)
+        // Never an endless spinner: whatever is still running ends as a timeout.
+        setItems((current) =>
+          current.map((item) =>
+            isRunning(item)
+              ? { ...item, status: "falhou", errorCode: "timeout" }
+              : item
+          )
+        )
         return
       }
       void refresh()

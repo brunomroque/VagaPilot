@@ -1,11 +1,13 @@
 import "server-only"
 
+export { attachmentAtsScore, requirementLines } from "@/lib/chat/cv-vs-job"
+
 import { tool, type ToolSet, type UIMessage } from "ai"
 import { z } from "zod"
 
 import { CV_LANGUAGES } from "@vagapilot/core/cv-filename"
-import { computeAtsScore } from "@vagapilot/core/ats-score"
 import type { AttachmentIntent } from "@vagapilot/core/chat-attachments"
+import { detectTextLanguage } from "@vagapilot/core/job-text"
 
 import {
   attachmentRefSchema,
@@ -13,6 +15,7 @@ import {
   type ChatAttachment,
   type ChatAttachmentRef,
 } from "@/lib/chat/attachments-server"
+import { attachmentAtsScore } from "@/lib/chat/cv-vs-job"
 import { uploadCv } from "@/lib/cvs/server"
 import type { UserContext } from "@/lib/server/context"
 
@@ -106,7 +109,10 @@ export function attachmentPromptBlock(
   intent: Exclude<AttachmentIntent, "ask">
 ): string {
   const blocks = attachments.map((a) => {
-    const header = `id=${a.id} nome="${a.name}" tipo=${a.kind}`
+    // Bruno 24/10: the model named the language from the filename ("..._EN.pdf"). Give it the
+    // language detected from the text and tell it to trust that.
+    const lang = a.text.trim().length >= 200 ? detectTextLanguage(a.text) : null
+    const header = `id=${a.id} nome="${a.name}" tipo=${a.kind}${lang ? ` idioma_detectado_no_texto=${lang} (use este, nunca o nome do arquivo)` : ""}`
     const image = a.image
       ? `\nempresa: ${a.image.company ?? "?"}\ncargo: ${a.image.title ?? "?"}\nlocal: ${a.image.location ?? "?"}\nmodelo: ${a.image.workModel ?? "?"}\nlink: ${a.image.url ?? "(nenhum)"}`
       : ""
@@ -138,60 +144,6 @@ export function attachmentPromptBlock(
     `[TAREFA] ${INTENT_INSTRUCTIONS[intent]}`,
     "Regras: responda no idioma do usuário (pt-BR por padrão). Nunca invente experiência, números, empresas ou tecnologias; se algo não estiver nos fatos confirmados, pergunte e salve a resposta confirmada (propose_fact). Nada é enviado ou submetido sem OK explícito. Nunca peça senha no chat. Documentos pessoais só com aprovação.",
   ].join("\n\n")
-}
-
-const REQUIREMENT_HEADER =
-  /^(requisitos|requirements|qualifica|diferenciais|nice to have|o que (buscamos|esperamos)|what we.re looking for|must have|desejavel|conhecimentos|skills|competencias)/
-const OTHER_HEADER =
-  /^(responsabilidades|responsibilities|atribuicoes|beneficios|benefits|sobre (a empresa|nos|a vaga)|about (us|the company)|como (sera|e) o processo|etapas)/
-
-function foldLine(line: string): string {
-  return line
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .replace(/^[\s•*\-–#:]+/, "")
-    .trim()
-}
-
-/** Requirement lines of a job description (falls back to the whole text). */
-export function requirementLines(jobText: string): string[] {
-  const lines = jobText
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-  const picked: string[] = []
-  let inside = false
-  for (const line of lines) {
-    const folded = foldLine(line)
-    if (REQUIREMENT_HEADER.test(folded)) {
-      inside = true
-      continue
-    }
-    if (OTHER_HEADER.test(folded)) {
-      inside = false
-      continue
-    }
-    if (inside && line.length <= 300) picked.push(line)
-  }
-  return picked.length > 0 ? picked : lines.filter((line) => line.length <= 300)
-}
-
-/** Deterministic ATS score of an attached CV against an attached (or pasted) job description. */
-export function attachmentAtsScore(cvText: string, jobText: string) {
-  const result = computeAtsScore({
-    cvText,
-    requirements: requirementLines(jobText),
-  })
-  return {
-    kind: "ats_score" as const,
-    jobMatchId: "",
-    before: result.score,
-    after: null,
-    covered: result.covered.slice(0, 40),
-    missing: result.missing.slice(0, 40),
-    summary: `Score ATS do CV anexado: ${result.score}% (${result.covered.length} de ${result.covered.length + result.missing.length} palavras-chave da vaga).`,
-  }
 }
 
 /** Tool: save an attached CV as a new CV version (previous one stays as backup). */
@@ -240,7 +192,12 @@ export function attachmentTools(
           .string()
           .nullish()
           .describe("id da trilha (list_cv_tracks) ou null"),
-        language: z.enum(CV_LANGUAGES),
+        language: z
+          .enum(CV_LANGUAGES)
+          .nullish()
+          .describe(
+            "só se a pessoa pediu outro idioma; o padrão é o detectado no texto"
+          ),
         label: z.string().max(80).nullish(),
       }),
       execute: async (input) => {
@@ -262,7 +219,11 @@ export function attachmentTools(
         const outcome = await uploadCv(ctx, {
           file,
           trackId: input.trackId ?? null,
-          language: input.language,
+          // The text decides; the model's guess only counts when there is no usable text.
+          language:
+            attachment.text.trim().length >= 200
+              ? detectTextLanguage(attachment.text)
+              : (input.language ?? "pt-BR"),
           label: input.label ?? null,
         })
         if (!outcome.ok) {

@@ -72,3 +72,29 @@ export const fitAssessmentSchema = z.object({
   recommendedLanguage: z.enum(JOB_LANGUAGES),
 })
 export type FitAssessment = z.infer<typeof fitAssessmentSchema>
+
+/**
+ * What the model is asked for: same shape without bounds/formats. Production (24/10): with a
+ * real profile the strict schema (uuid factIds, max lengths) failed validation and every link
+ * ended as `falhou/internal`. `assessFit` clamps and re-validates after the call.
+ */
+export const fitAssessmentModelSchema = z.object({
+  fit: z.enum(["alto", "medio", "baixo"]),
+  score: z.number(),
+  reasons: z.array(
+    z.object({
+      text: z.string(),
+      requirement: z.string().nullish(),
+      factIds: z.array(z.string()),
+    })
+  ),
+  gaps: z.array(
+    z.object({
+      requirement: z.string(),
+      severity: z.enum(["obrigatorio", "desejavel"]),
+      note: z.string(),
+    })
+  ),
+  alerts: z.array(z.object({ code: z.string(), message: z.string() })),
+  recommendedTrackId: z.string().nullable(),
+})

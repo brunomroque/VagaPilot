@@ -9,10 +9,14 @@ import {
   EXTRACT_FACTS_SYSTEM_V1,
 } from "./prompts/extract-facts.js"
 import {
-  cvExtractionSchema,
+  cvExperienceSchema,
+  cvExtractionModelSchema,
+  cvFactSchema,
   type CvExperience,
   type CvFact,
 } from "./schemas.js"
+
+const MONTH = /^\d{4}-\d{2}$/
 
 /** Upper bound of CV characters sent to the model (≈ 15 pages). */
 export const MAX_CV_CHARS = 60_000
@@ -72,7 +76,7 @@ export async function extractFactsFromCv(
 
   const { output } = await generateText({
     model,
-    output: Output.object({ schema: cvExtractionSchema }),
+    output: Output.object({ schema: cvExtractionModelSchema }),
     system: EXTRACT_FACTS_SYSTEM_V1,
     prompt: `<untrusted source="cv">\n${source}\n</untrusted>`,
     temperature: 0,
@@ -83,7 +87,34 @@ export async function extractFactsFromCv(
   const facts: CvFact[] = []
   const seen = new Set<string>()
   let droppedFacts = 0
-  for (const fact of output.facts) {
+  const experiences = output.experiences
+    .map((raw) => {
+      const startMonth = MONTH.test(raw.startMonth ?? "")
+        ? raw.startMonth
+        : null
+      const endMonth = MONTH.test(raw.endMonth ?? "") ? raw.endMonth : null
+      const parsed = cvExperienceSchema.safeParse({
+        ...raw,
+        startMonth,
+        endMonth,
+      })
+      return parsed.success ? parsed.data : null
+    })
+    .filter((experience): experience is CvExperience => experience !== null)
+    .slice(0, 30)
+  for (const raw of output.facts.slice(0, 120)) {
+    const parsed = cvFactSchema.safeParse({
+      ...raw,
+      tags: raw.tags
+        .filter((tag) => tag.trim())
+        .slice(0, 10)
+        .map((tag) => tag.slice(0, 60)),
+    })
+    if (!parsed.success) {
+      droppedFacts += 1
+      continue
+    }
+    const fact = parsed.data
     if (!isExcerptInText(fact.excerpt, source)) {
       droppedFacts += 1
       continue
@@ -96,7 +127,7 @@ export async function extractFactsFromCv(
 
   return {
     facts,
-    experiences: output.experiences.filter((experience) =>
+    experiences: experiences.filter((experience) =>
       isExcerptInText(experience.excerpt, source)
     ),
     droppedFacts,

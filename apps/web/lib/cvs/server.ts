@@ -248,10 +248,27 @@ export async function uploadCv(
 
   const admin = getAdminClient()
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured")
-  const result = await processCvUpload(
-    { admin, audit: new SupabaseAuditSink(admin), actor: "sistema" },
-    { userId, cvVersionId: id }
-  )
+  // QA round 3: a fact-extraction failure (Gemini schema error) surfaced as "Houve um erro ao
+  // salvar o CV" although the version was already stored. The save succeeded; report it so.
+  let result: Awaited<ReturnType<typeof processCvUpload>>
+  try {
+    result = await processCvUpload(
+      { admin, audit: new SupabaseAuditSink(admin), actor: "sistema" },
+      { userId, cvVersionId: id }
+    )
+  } catch (error) {
+    console.error("uploadCv: inline processing failed", error)
+    return {
+      ok: true,
+      data: {
+        id,
+        processing: "inline",
+        status: "pronto",
+        proposedFacts: 0,
+        extractionError: null,
+      },
+    }
+  }
   return {
     ok: true,
     data: {

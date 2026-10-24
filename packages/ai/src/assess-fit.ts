@@ -10,7 +10,9 @@ import {
 } from "@vagapilot/core/job-rules"
 import { generateText, Output } from "ai"
 
-import { fitAssessmentSchema, type FitAssessment } from "./job-schemas.js"
+import { ALERT_CODES } from "@vagapilot/core/job-rules"
+
+import { fitAssessmentModelSchema, type FitAssessment } from "./job-schemas.js"
 import { fakeObjectModel, resolveModel, type ModelOptions } from "./models.js"
 import {
   ASSESS_FIT_PROMPT_VERSION,
@@ -237,9 +239,9 @@ export async function assessFit(
       palavras: track.keywords,
     })),
   }
-  const { output } = await generateText({
+  const { output: rawOutput } = await generateText({
     model,
-    output: Output.object({ schema: fitAssessmentSchema }),
+    output: Output.object({ schema: fitAssessmentModelSchema }),
     system: ASSESS_FIT_SYSTEM_V1,
     prompt: `<untrusted source="job_posting">\n${JSON.stringify(payload)}\n</untrusted>`,
     temperature: 0,
@@ -247,6 +249,36 @@ export async function assessFit(
     abortSignal: options.abortSignal,
   })
 
+  const alertCodes = new Set<string>(ALERT_CODES)
+  const cut = (text: string, max: number) => text.trim().slice(0, max)
+  const output = {
+    fit: rawOutput.fit,
+    score: Math.round(Math.min(100, Math.max(0, rawOutput.score || 0))),
+    reasons: rawOutput.reasons
+      .filter((reason) => reason.text.trim())
+      .map((reason) => ({
+        text: cut(reason.text, 400),
+        ...(reason.requirement?.trim()
+          ? { requirement: cut(reason.requirement, 300) }
+          : {}),
+        factIds: reason.factIds,
+      })),
+    gaps: rawOutput.gaps
+      .filter((gap) => gap.requirement.trim())
+      .slice(0, 25)
+      .map((gap) => ({
+        requirement: cut(gap.requirement, 300),
+        severity: gap.severity,
+        note: cut(gap.note, 300),
+      })),
+    alerts: rawOutput.alerts
+      .filter((alert) => alertCodes.has(alert.code))
+      .map((alert) => ({
+        code: alert.code as FitAssessment["alerts"][number]["code"],
+        message: cut(alert.message, 300),
+      })),
+    recommendedTrackId: rawOutput.recommendedTrackId,
+  }
   const allowed = new Set(input.facts.map((fact) => fact.id))
   const validReasons = output.reasons.filter(
     (reason) =>

@@ -37,19 +37,53 @@ function toItem(row: IngestionRow): IngestionItem {
   }
 }
 
+/** Under Netlify's 60 s function limit, so the row is always closed by us. */
+export const INLINE_DEADLINE_MS = 50_000
+
+export async function withDeadline<T>(
+  work: Promise<T>,
+  ms: number,
+  onTimeout: () => Promise<void>
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      void onTimeout().finally(() =>
+        reject(new Error(`ingestion timed out after ${ms} ms`))
+      )
+    }, ms)
+  })
+  try {
+    return await Promise.race([work, deadline])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 async function runInline(userId: string, ingestionIds: string[]) {
   const admin = createAdminClient()
   const deps = createIngestDeps({ admin, actor: "worker" })
   await Promise.all(
     ingestionIds.map((ingestionId) =>
-      processJobIngestion(deps, { userId, ingestionId }).catch(
-        (error: unknown) => {
-          console.error("job ingestion failed", {
-            ingestionId,
-            reason: error instanceof Error ? error.message : "unknown",
-          })
+      withDeadline(
+        processJobIngestion(deps, { userId, ingestionId }),
+        INLINE_DEADLINE_MS,
+        async () => {
+          // Bruno 24/10: a link stayed "Analisando…" forever. The function can be cut off
+          // (Netlify limit) mid-analysis; end the row as a timeout so the chat offers paste-text.
+          await admin
+            .from("job_ingestions")
+            .update({ status: "falhou", error_code: "timeout" })
+            .eq("id", ingestionId)
+            .eq("user_id", userId)
+            .in("status", ["pendente", "processando"])
         }
-      )
+      ).catch((error: unknown) => {
+        console.error("job ingestion failed", {
+          ingestionId,
+          reason: error instanceof Error ? error.message : "unknown",
+        })
+      })
     )
   )
 }
