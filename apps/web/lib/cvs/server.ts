@@ -171,6 +171,7 @@ export type UploadCvResult = {
   status: CvVersionRow["processing"]
   proposedFacts: number
   extractionError?: string | null
+  duplicate?: boolean
 }
 
 export type UploadErrorCode = CvFileErrorCode | "invalid_track"
@@ -215,6 +216,56 @@ export async function uploadCv(
   }
 
   const userId = ctx.user.id
+  const sha = sha256Hex(bytes)
+  const existing = await ctx.supabase
+    .from("cv_versions")
+    .select("id, extracted_text, extraction_error")
+    .eq("user_id", userId)
+    .eq("file_sha256", sha)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle<{
+      id: string
+      extracted_text: string | null
+      extraction_error: string | null
+    }>()
+  if (existing.error) throw new Error(existing.error.message)
+  if (existing.data) {
+    const facts = await ctx.supabase
+      .from("confirmed_facts")
+      .select("id, status, statement, cv_version_id:source_ref->>cv_version_id")
+      .eq("user_id", userId)
+    if (facts.error) throw new Error(facts.error.message)
+    const factRows = (facts.data ?? []) as {
+      id: string
+      status: FactStatus
+      statement: string
+      cv_version_id: string | null
+    }[]
+    const visible = visibleFactIds(factRows).ids
+    let proposedFacts = 0
+    for (const row of factRows) {
+      if (
+        row.status === "proposto" &&
+        visible.has(row.id) &&
+        row.cv_version_id === existing.data.id
+      ) {
+        proposedFacts += 1
+      }
+    }
+    return {
+      ok: true,
+      data: {
+        id: existing.data.id,
+        processing: "inline",
+        duplicate: true,
+        status: processingOf(existing.data.extracted_text),
+        proposedFacts,
+        extractionError: existing.data.extraction_error,
+      },
+    }
+  }
+
   const id = randomUUID()
   const path = `${userId}/${id}.${type}`
   const upload = await ctx.supabase.storage
@@ -238,7 +289,6 @@ export async function uploadCv(
     is_default: boolean | null
   }[]
 
-  const sha = sha256Hex(bytes)
   const insert = await ctx.supabase.from("cv_versions").insert({
     id,
     user_id: userId,

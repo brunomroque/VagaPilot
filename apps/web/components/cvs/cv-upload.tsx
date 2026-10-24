@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useRef, useState, useTransition } from "react"
+import { useEffect, useId, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { UploadIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -42,6 +42,7 @@ type UploadResponse = {
   status: string
   proposedFacts: number
   extractionError?: string | null
+  duplicate?: boolean
 }
 
 /** P1.2 upload: PDF/DOCX ≤ 10 MB, up to `maxFiles` at a time, processed by `cv/uploaded`. */
@@ -57,6 +58,10 @@ export function CvUpload({
   const t = useTranslations("Cvs.upload")
   const options = useProfileOptions()
   const router = useRouter()
+  const [uploadedAt, setUploadedAt] = useState(0)
+  useEffect(() => {
+    if (uploadedAt) router.refresh()
+  }, [uploadedAt, router])
   const inputRef = useRef<HTMLInputElement>(null)
   const languageRef = useRef<HTMLSelectElement>(null)
   const trackRef = useRef<HTMLSelectElement>(null)
@@ -131,21 +136,26 @@ export function CvUpload({
       }
       if (results.length > 0) {
         const failed = results.find((result) => result.status === "falhou")
+        const duplicates = results.filter((result) => result.duplicate)
         if (failed) {
           toast.error(
             `${files[0]?.name ?? ""}: ${errorMessage(failed.extractionError ?? "no_text")}`.trim()
           )
+        } else if (duplicates.length === results.length) {
+          toast.info(t("duplicateFile"))
         } else {
           const facts = results.reduce(
             (sum, result) => sum + result.proposedFacts,
             0
           )
           toast.success(t("done", { count: results.length, facts }))
+          if (duplicates.length > 0) toast.info(t("duplicateFile"))
         }
         setFiles([])
         if (inputRef.current) inputRef.current.value = ""
         onUploaded?.(results)
-        router.refresh()
+        // Refresh outside the async transition (QA 06:11: the new card only showed after a reload).
+        setUploadedAt(Date.now())
       }
     })
   }

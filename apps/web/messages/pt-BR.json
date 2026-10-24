@@ -1052,6 +1052,7 @@
       "submit": "Enviar e extrair fatos",
       "sending": "Enviando...",
       "done": "{count, plural, one {Currículo enviado} other {# currículos enviados}}. {facts, plural, =0 {Nenhum fato proposto.} one {# fato para revisar.} other {# fatos para revisar.}}",
+      "duplicateFile": "Este arquivo já foi enviado",
       "errors": {
         "file_too_large": "O arquivo passa de 10 MB.",
         "file_empty": "O arquivo está vazio.",

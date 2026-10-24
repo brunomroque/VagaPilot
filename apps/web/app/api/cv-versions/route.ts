@@ -1,5 +1,6 @@
 import { CV_LANGUAGES } from "@vagapilot/core/cv-filename"
 import { MAX_CV_BYTES } from "@vagapilot/jobs"
+import { revalidatePath } from "next/cache"
 import { NextResponse, type NextRequest } from "next/server"
 import { z } from "zod"
 
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
         UPLOAD_STATUS[result.error.code]
       )
     }
+    revalidatePath("/app/cvs")
     return NextResponse.json(result.data, { status: 201 })
   } catch (error) {
     console.error(

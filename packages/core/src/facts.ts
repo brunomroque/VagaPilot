@@ -84,7 +84,7 @@ function fold(text: string): string {
 
 /** Filler openings the extractor adds; "Possui competência em Kubernetes" = "Kubernetes". */
 const FACT_FILLER =
-  /^(?:(?:o candidato|candidato|ele|ela|eu)\s+)?(?:possui|tem|tenho|detem|apresenta|demonstra|conta com)?\s*(?:(?:solida|ampla|boa|forte|vasta)\s+)?(?:competencias?|experiencias?|conhecimentos?|dominio|habilidades?|proficiencia|vivencia|nocoes|familiaridade|nivel)?\s*(?:(?:solida|ampla|boa|forte|vasta|avancad[oa]|pratica|tecnica)\s+)?(?:em|com|de|no|na|nos|nas)?\s+/
+  /^(?:(?:o candidato|candidato|ele|ela|eu)\s+)?(?:possui|tem|tenho|detem|apresenta|demonstra|conta com)?\s*(?:(?:solida|ampla|boa|forte|vasta)\s+)?(?:competencias?|experiencias?|conhecimentos?|dominio|habilidades?|proficiencia|vivencia|nocoes|familiaridade|nivel|atuac(?:ao|ou))?\s*(?:(?:solida|ampla|boa|forte|vasta|avancad[oa]|pratica|tecnica)\s+)?(?:em|com|de|no|na|nos|nas)?\s+/
 
 /**
  * Canonical key for duplicate facts across uploads (QA 02:42): accents, case, punctuation,
@@ -158,6 +158,20 @@ const STOPWORDS = new Set(
     " "
   )
 )
+/** Lead-in words stripped before stem overlap (accent-insensitive, 5-char prefix). */
+const FACT_STEM_FILLERS = new Set(
+  [
+    "possui",
+    "experiencia",
+    "atuacao",
+    "atuou",
+    "conhecimento",
+    "vivencia",
+    "familiaridade",
+    "dominio",
+  ].map((word) => word.slice(0, 5))
+)
+
 /** Light synonyms so "Gerenciou"/"Liderou"/"Gerenciamento" and "equipe"/"time" meet. */
 const STEM_SYNONYMS: Record<string, string> = {
   lider: "lead",
@@ -190,6 +204,7 @@ function factStems(statement: string): {
     }
     if (STOPWORDS.has(word) || word.length < 3) continue
     const stem = word.slice(0, 5)
+    if (FACT_STEM_FILLERS.has(stem)) continue
     stems.add(STEM_SYNONYMS[stem] ?? STEM_SYNONYMS[word] ?? stem)
   }
   return { stems, numbers }
@@ -216,5 +231,8 @@ export function factsSimilar(a: string, b: string): boolean {
   const large = Math.max(x.stems.size, y.stems.size)
   if (small === 0) return false
   if (x.numbers.size > 0) return shared >= 2 && shared / small >= 0.6
+  if (x.stems.size <= 3 && y.stems.size <= 3) {
+    return shared >= 2 && shared / large >= 0.75
+  }
   return shared >= 3 && shared / large >= 0.75
 }

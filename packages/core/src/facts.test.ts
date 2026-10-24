@@ -82,6 +82,20 @@ describe("factsSimilar", () => {
     expect(factsSimilar(a, "Liderou 40 pessoas em Operações")).toBe(true)
     expect(factsSimilar("Liderou 40 pessoas em Operações de TI", a)).toBe(true)
   })
+  it("ignores filler lead-ins for short competency facts", () => {
+    expect(
+      factsSimilar(
+        "Possui experiência com jornadas de usuário",
+        "Atuação com jornadas de usuário"
+      )
+    ).toBe(true)
+    expect(
+      factsSimilar(
+        "Experiência com jornadas de usuário",
+        "Experiência com testes de usabilidade"
+      )
+    ).toBe(false)
+  })
   it("keeps distinct facts apart", () => {
     expect(
       factsSimilar(
