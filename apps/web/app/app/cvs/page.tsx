@@ -6,6 +6,7 @@ import { NotConfigured } from "@/components/app/not-configured"
 import { CvLibrary } from "@/components/cvs/cv-library"
 import { CvUpload } from "@/components/cvs/cv-upload"
 import { loadCvLibrary } from "@/lib/cvs/server"
+import { loadFactCounts } from "@/lib/facts/server"
 import { getUserContext } from "@/lib/server/context"
 import { buttonVariants } from "@workspace/ui/components/button"
 import {
@@ -28,11 +29,11 @@ export default async function ResumesPage() {
   const context = await getUserContext()
   if (!context.ok) return <NotConfigured title={t("title")} />
 
-  const library = await loadCvLibrary(context.ctx)
-  const pendingFacts = library.versions.reduce(
-    (sum, version) => sum + version.proposedFacts,
-    0
-  )
+  const [library, factCounts] = await Promise.all([
+    loadCvLibrary(context.ctx),
+    loadFactCounts(context.ctx),
+  ])
+  const pendingFacts = factCounts.proposto
 
   return (
     <section className="flex flex-col gap-4">

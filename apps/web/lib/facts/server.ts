@@ -4,6 +4,7 @@ import { createEmbedder } from "@vagapilot/ai"
 import { normalizeCompanyName } from "@vagapilot/core/blocklist"
 import {
   FACT_KINDS,
+  factCanonicalKey,
   type FactKind,
   type FactStatus,
 } from "@vagapilot/core/facts"
@@ -91,6 +92,63 @@ function toView(row: FactRow): FactView {
 }
 
 /** Facts grouped by experience for "Confirme seus fatos" (P1.3). */
+type FactKeyRow = {
+  id: string
+  status: FactStatus
+  statement: string
+}
+
+/**
+ * One definition for "facts to review" everywhere (QA 02:42: /app/cvs said 16, /app/fatos 25).
+ * A fact is shown once per canonical statement (see factCanonicalKey); a proposal that repeats
+ * a confirmed or rejected fact is hidden, as is a later copy of the same proposal.
+ */
+export function visibleFactIds(rows: FactKeyRow[]): {
+  ids: Set<string>
+  counts: Record<FactStatus, number>
+} {
+  const rank: Record<FactStatus, number> = {
+    confirmado: 0,
+    rejeitado: 1,
+    proposto: 2,
+  }
+  const sorted = rows
+    .map((row, index) => ({ row, index }))
+    .sort(
+      (a, b) => rank[a.row.status] - rank[b.row.status] || a.index - b.index
+    )
+  const seen = new Map<string, FactStatus>()
+  const ids = new Set<string>()
+  const counts: Record<FactStatus, number> = {
+    proposto: 0,
+    confirmado: 0,
+    rejeitado: 0,
+  }
+  for (const { row } of sorted) {
+    const key = `${factCanonicalKey(row.statement)}`
+    const prior = seen.get(key)
+    // Confirmed/rejected history is kept as is; only proposals are collapsed.
+    if (row.status === "proposto" && prior !== undefined) continue
+    if (prior === undefined) seen.set(key, row.status)
+    ids.add(row.id)
+    counts[row.status] += 1
+  }
+  return { ids, counts }
+}
+
+/** Fact counts per status with the same rules as the review page. */
+export async function loadFactCounts(
+  ctx: UserContext
+): Promise<Record<FactStatus, number>> {
+  const { data, error } = await ctx.supabase
+    .from("confirmed_facts")
+    .select("id, status, statement, created_at")
+    .eq("user_id", ctx.user.id)
+    .order("created_at")
+  if (error) throw new Error(error.message)
+  return visibleFactIds((data ?? []) as FactKeyRow[]).counts
+}
+
 export async function loadFactReview(
   ctx: UserContext,
   status: FactStatus
@@ -110,8 +168,9 @@ export async function loadFactReview(
       .eq("user_id", ctx.user.id),
     ctx.supabase
       .from("confirmed_facts")
-      .select("status")
-      .eq("user_id", ctx.user.id),
+      .select("id, status, statement, created_at")
+      .eq("user_id", ctx.user.id)
+      .order("created_at"),
   ])
   for (const result of [facts, experiences, counts]) {
     if (result.error) throw new Error(result.error.message)
@@ -130,8 +189,10 @@ export async function loadFactReview(
     ).map((row) => [row.id, row])
   )
 
+  const visible = visibleFactIds((counts.data ?? []) as FactKeyRow[])
   const groups = new Map<string, FactGroup>()
   for (const row of (facts.data ?? []) as FactRow[]) {
+    if (!visible.ids.has(row.id)) continue
     const experience = row.experience_id
       ? experienceById.get(row.experience_id)
       : undefined
@@ -173,21 +234,12 @@ export async function loadFactReview(
     group.facts.push(toView(row))
   }
 
-  const tally: Record<FactStatus, number> = {
-    proposto: 0,
-    confirmado: 0,
-    rejeitado: 0,
-  }
-  for (const row of (counts.data ?? []) as { status: FactStatus }[]) {
-    tally[row.status] += 1
-  }
-
   const ordered = [...groups.values()].sort((a, b) => {
     if (a.key === "other") return 1
     if (b.key === "other") return -1
     return 0
   })
-  return { groups: ordered, counts: tally }
+  return { groups: ordered, counts: visible.counts }
 }
 
 async function experienceIndex(ctx: UserContext): Promise<Map<string, string>> {

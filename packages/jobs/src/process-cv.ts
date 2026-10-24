@@ -10,6 +10,7 @@ import {
   type AuditActor,
   type AuditSink,
 } from "@vagapilot/core/audit"
+import { factCanonicalKey, spellingFromSource } from "@vagapilot/core/facts"
 import { normalizeCompanyName } from "@vagapilot/core/blocklist"
 import { detectTextLanguage } from "@vagapilot/core/job-text"
 
@@ -104,16 +105,6 @@ export async function extractAndStoreCvText(
   return result
 }
 
-/** Accent-, case-, punctuation- and whitespace-insensitive key for duplicate facts. */
-export function factKey(statement: string): string {
-  return statement
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9+#]+/g, " ")
-    .trim()
-}
-
 /**
  * Step 2 of `cv/uploaded`: extract grounded facts, embed them and store them as `proposto`.
  * Idempotent per CV version (retries do not duplicate proposals).
@@ -135,21 +126,34 @@ export async function proposeFactsFromCv(
   if ((existing.count ?? 0) > 0)
     return { proposed: 0, dropped: 0, skipped: true }
 
-  const extracted = await (deps.extractFacts ?? extractFactsFromCv)(text)
+  const raw = await (deps.extractFacts ?? extractFactsFromCv)(text)
+  // QA 02:42: keep company names as written in the CV ("V.tal", not "Vital").
+  const extracted = {
+    ...raw,
+    experiences: raw.experiences.map((e) => ({
+      ...e,
+      company: spellingFromSource(e.company, text),
+    })),
+    facts: raw.facts.map((f) => ({
+      ...f,
+      experienceHint: f.experienceHint
+        ? spellingFromSource(f.experienceHint, text)
+        : f.experienceHint,
+    })),
+  }
   // QA 02:30: "ingles avancado" vs "inglês avançado", Kubernetes 3x. Drop facts that repeat
-  // one already proposed/confirmed for the user, or another one in this same CV.
+  // one the user already has (any status, any upload), or another one in this same CV.
   const known = await deps.admin
     .from("confirmed_facts")
     .select("statement")
     .eq("user_id", input.userId)
-    .in("status", ["proposto", "confirmado"])
   const seen = new Set(
     ((known.data ?? []) as { statement: string }[]).map((row) =>
-      factKey(row.statement)
+      factCanonicalKey(row.statement)
     )
   )
   const unique = extracted.facts.filter((fact) => {
-    const key = factKey(fact.statement)
+    const key = factCanonicalKey(fact.statement)
     if (!key || seen.has(key)) return false
     seen.add(key)
     return true

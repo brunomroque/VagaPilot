@@ -1012,7 +1012,7 @@
   "Cvs": {
     "title": "Seus currículos",
     "description": "Versões por trilha e idioma. No download, o arquivo sempre recebe o nome neutro do seu perfil.",
-    "reviewFacts": "{count, plural, one {Revisar # fato} other {Revisar # fatos}}",
+    "reviewFacts": "{count, plural, one {Revisar # fato pendente} other {Revisar # fatos pendentes}}",
     "listLabel": "Versões de currículo",
     "noTrackTitle": "Sem trilha",
     "default": "Padrão",

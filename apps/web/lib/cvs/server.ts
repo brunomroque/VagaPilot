@@ -1,5 +1,8 @@
 import "server-only"
 
+import type { FactStatus } from "@vagapilot/core/facts"
+import { visibleFactIds } from "@/lib/facts/server"
+
 import { randomUUID } from "node:crypto"
 
 import {
@@ -83,9 +86,11 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
       .order("created_at", { ascending: false }),
     ctx.supabase
       .from("confirmed_facts")
-      .select("cv_version_id:source_ref->>cv_version_id")
+      .select(
+        "id, status, statement, created_at, cv_version_id:source_ref->>cv_version_id"
+      )
       .eq("user_id", ctx.user.id)
-      .eq("status", "proposto"),
+      .order("created_at"),
   ])
   for (const result of [tracks, versions, facts]) {
     if (result.error) throw new Error(result.error.message)
@@ -108,8 +113,16 @@ export async function loadCvLibrary(ctx: UserContext): Promise<CvLibrary> {
     )
   }
   const proposed = new Map<string, number>()
-  for (const row of (facts.data ?? []) as { cv_version_id: string | null }[]) {
-    if (row.cv_version_id) {
+  // Same rule as /app/fatos (visibleFactIds), so the per-CV counts add up to its tab.
+  const factRows = (facts.data ?? []) as {
+    id: string
+    status: FactStatus
+    statement: string
+    cv_version_id: string | null
+  }[]
+  const visible = visibleFactIds(factRows).ids
+  for (const row of factRows) {
+    if (row.status === "proposto" && visible.has(row.id) && row.cv_version_id) {
       proposed.set(
         row.cv_version_id,
         (proposed.get(row.cv_version_id) ?? 0) + 1

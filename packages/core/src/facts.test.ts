@@ -41,3 +41,34 @@ describe("facts rules", () => {
     expect(isExcerptInText("go", "Liderou o Google Cloud")).toBe(false)
   })
 })
+
+import { factCanonicalKey, spellingFromSource } from "./facts.js"
+
+describe("factCanonicalKey", () => {
+  it("merges filler and accent variants", () => {
+    const k = factCanonicalKey("Inglês Avançado")
+    expect(factCanonicalKey("Possui ingles avancado")).toBe(k)
+    expect(factCanonicalKey("Possui inglês avançado.")).toBe(k)
+    expect(factCanonicalKey("Possui competência em Kubernetes")).toBe(
+      "kubernetes"
+    )
+    expect(factCanonicalKey("Tem experiência com Kubernetes")).toBe(
+      "kubernetes"
+    )
+    expect(factCanonicalKey("Conhecimento em Kubernetes")).toBe("kubernetes")
+    expect(factCanonicalKey("Kubernetes")).toBe("kubernetes")
+    expect(factCanonicalKey("Liderou time de 8 pessoas")).toBe(
+      "liderou time de 8 pessoas"
+    )
+  })
+})
+
+describe("spellingFromSource", () => {
+  it("keeps the CV spelling", () => {
+    expect(spellingFromSource("Vital", "2021 – atual | V.tal — Gerente")).toBe(
+      "V.tal"
+    )
+    expect(spellingFromSource("Itau", "Itaú Unibanco")).toBe("Itaú")
+    expect(spellingFromSource("Acme", "nada aqui")).toBe("Acme")
+  })
+})
