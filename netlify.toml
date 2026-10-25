@@ -8,8 +8,9 @@
   publish = ".next"
   # Build when the app, shared packages, Supabase migrations, Netlify functions or the
   # lockfile change (the default only watched apps/web, so packages/-only commits were
-  # skipped). Paths are relative to base. Exit 0 = skip, 1 = build.
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ../../packages ../../netlify ../../netlify.toml ../../pnpm-lock.yaml ../../package.json ../../supabase"
+  # skipped). Root configs (pnpm-workspace.yaml, turbo.json, tsconfig.json) also trigger
+  # builds. Paths are relative to base. Exit 0 = skip, 1 = build.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ../../packages ../../netlify ../../netlify.toml ../../pnpm-lock.yaml ../../package.json ../../supabase ../../pnpm-workspace.yaml ../../turbo.json ../../tsconfig.json"
 
 [build.environment]
   NODE_VERSION = "22"
