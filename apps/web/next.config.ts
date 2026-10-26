@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
     "@vagapilot/browser-pool",
   ],
   experimental: {
+    agentUpgrade: "security",
     // CV uploads are up to 10 MB (spec 10.4) plus multipart overhead; proxy.ts buffers the body.
     proxyClientMaxBodySize: "12mb",
   },
