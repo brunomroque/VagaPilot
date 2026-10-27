@@ -139,6 +139,26 @@ export function SearchesView({
         </Button>
       </div>
 
+      <div
+        role="note"
+        aria-label={t("riskNoticeTitle")}
+        className="rounded-md border border-amber-500/50 bg-amber-500/5 p-3 text-xs leading-relaxed text-muted-foreground"
+      >
+        <p className="font-semibold text-amber-900 dark:text-amber-300">
+          {t("riskNoticeTitle")}
+        </p>
+        <p className="mt-1">
+          {t("riskNoticeBody")}{" "}
+          <a
+            href="/app/configuracoes/riscos#navegador_local"
+            className="underline"
+          >
+            {t("riskNoticeLink")}
+          </a>
+          .
+        </p>
+      </div>
+
       {searches.length === 0 ? (
         <Empty className="border bg-card">
           <EmptyHeader>
@@ -370,6 +390,16 @@ function SearchFormDialog({
             <DialogTitle>{search ? t("editTitle") : t("newTitle")}</DialogTitle>
             <DialogDescription>{t("formDescription")}</DialogDescription>
           </DialogHeader>
+          <p className="rounded border border-amber-500/50 bg-amber-500/5 p-2.5 text-xs leading-relaxed text-muted-foreground">
+            <strong>{t("riskNoticeTitle")}</strong> {t("riskNoticeBody")}{" "}
+            <a
+              href="/app/configuracoes/riscos#navegador_local"
+              className="underline"
+            >
+              {t("riskNoticeLink")}
+            </a>
+            .
+          </p>
           <FieldGroup className="grid gap-4 sm:grid-cols-2">
             <TextField
               control={form.control}

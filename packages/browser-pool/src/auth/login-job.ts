@@ -252,11 +252,12 @@ export async function runLoginJob(
         )
         .catch(() => null)
     }
-    if (!live) throw new Error("Este provedor não ofereceu tela ao vivo.")
+    if (!live && tracked.config.id !== "local")
+      throw new Error("Este provedor não ofereceu tela ao vivo.")
     await update(admin, loginId, {
       status: "waiting_user",
       provider: tracked.config.provider,
-      provider_id: tracked.config.id,
+      provider_id: tracked.config.id === "local" ? null : tracked.config.id,
       external_id: tracked.session.externalId,
       live_view_url: live,
       native_ref: nativeRef,
@@ -278,7 +279,9 @@ export async function runLoginJob(
           await update(admin, loginId, {
             status: "waiting_user",
             last_error:
-              "Ainda não encontrei a sessão do site. Termine o login na tela ao vivo e toque em Pronto.",
+              tracked.config.id === "local"
+                ? "Ainda não encontrei a sessão do site. Termine o login na janela do seu Chrome e toque em Pronto."
+                : "Ainda não encontrei a sessão do site. Termine o login na tela ao vivo e toque em Pronto.",
           })
         } else {
           await saveAuthState(admin, sealer, {

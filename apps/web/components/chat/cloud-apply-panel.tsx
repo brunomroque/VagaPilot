@@ -147,19 +147,48 @@ export function CloudApplyPanel({
 
   if (!runId) {
     return (
-      <div className="flex flex-col gap-1 rounded-md border p-3 text-sm">
+      <div className="flex flex-col gap-2 rounded-md border p-3 text-sm">
         <p className="text-muted-foreground">{t("intro")}</p>
-        <p className="text-xs text-muted-foreground">
-          A automação age em seu nome em sites de terceiros e pode errar ou ser bloqueada.{" "}
-          <a href="/app/configuracoes/riscos" className="underline">
-            Riscos e responsabilidades
-          </a>
-        </p>
+        <div
+          role="note"
+          aria-label="Aviso de risco da automação"
+          className="rounded border border-amber-500/50 bg-amber-500/5 p-2.5 text-xs leading-relaxed text-muted-foreground"
+        >
+          <p className="font-semibold text-amber-900 dark:text-amber-300">
+            Navegador local (primário) + Browserbase (fallback) — você assume o
+            risco:
+          </p>
+          <p className="mt-1">
+            Por padrão, a automação usa o{" "}
+            <strong>seu próprio Chrome local</strong> logado nas suas contas
+            reais (e o <strong>Browserbase na nuvem só como fallback</strong> se
+            o Chrome local não estiver disponível). Fazemos isso porque sites
+            como LinkedIn, Gupy e outros bloqueiam menos o seu navegador real do
+            que um robô na nuvem — mas{" "}
+            <strong>
+              sua conta ainda pode ser limitada, suspensa ou bloqueada
+            </strong>
+            . O VagaPilot não se responsabiliza por bloqueios: ao iniciar,{" "}
+            <strong>você assume integralmente esse risco</strong>.{" "}
+            <a
+              href="/app/configuracoes/riscos#navegador_local"
+              className="underline"
+            >
+              Riscos e responsabilidades
+            </a>
+          </p>
+        </div>
         {needsConsent ? (
-          <p role="alert" className="rounded border border-amber-500/50 bg-amber-500/5 p-2 text-xs">
-            Antes da primeira candidatura na nuvem (e quando os termos mudam), você precisa ler e
-            aceitar o Termo de Riscos e os Termos de Uso.{" "}
-            <a href="/app/configuracoes/riscos" className="font-medium underline">
+          <p
+            role="alert"
+            className="rounded border border-amber-500/50 bg-amber-500/5 p-2 text-xs"
+          >
+            Antes da primeira candidatura na nuvem (e quando os termos mudam),
+            você precisa ler e aceitar o Termo de Riscos e os Termos de Uso.{" "}
+            <a
+              href="/app/configuracoes/riscos"
+              className="font-medium underline"
+            >
               Ler e aceitar
             </a>
           </p>
@@ -267,9 +296,9 @@ export function CloudApplyPanel({
                   <strong>O site pede que você aceite:</strong> “{q.question}”
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  O VagaPilot nunca marca termos, privacidade, marketing ou consentimentos sozinho.
-                  Leia o texto do site e decida. Sua decisão vale só para esta candidatura e fica
-                  registrada.
+                  O VagaPilot nunca marca termos, privacidade, marketing ou
+                  consentimentos sozinho. Leia o texto do site e decida. Sua
+                  decisão vale só para esta candidatura e fica registrada.
                 </p>
                 {q.consent.termsUrl ? (
                   <a
@@ -282,11 +311,16 @@ export function CloudApplyPanel({
                   </a>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Link dos termos não encontrado: abra a visualização ao vivo para ler.
+                    Link dos termos não encontrado: abra a visualização ao vivo
+                    para ler.
                   </p>
                 )}
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => answer(q.id, "Aceito")} disabled={busy}>
+                  <Button
+                    size="sm"
+                    onClick={() => answer(q.id, "Aceito")}
+                    disabled={busy}
+                  >
                     Aceito
                   </Button>
                   <Button
@@ -300,63 +334,70 @@ export function CloudApplyPanel({
                 </div>
               </div>
             ) : (
-            <div key={q.id} className="flex flex-col gap-1">
-              <label className="font-medium" htmlFor={`q-${q.id}`}>
-                {q.question}
-              </label>
-              {q.options.length ? (
-                <div className="flex flex-wrap gap-1">
-                  {q.options.map((option) => (
-                    <Button
-                      key={option}
-                      size="sm"
-                      variant={answers[q.id] === option ? "default" : "outline"}
-                      onClick={() =>
-                        setAnswers((a) => ({ ...a, [q.id]: option }))
-                      }
-                    >
-                      {option}
-                    </Button>
-                  ))}
+              <div key={q.id} className="flex flex-col gap-1">
+                <label className="font-medium" htmlFor={`q-${q.id}`}>
+                  {q.question}
+                </label>
+                {q.options.length ? (
+                  <div className="flex flex-wrap gap-1">
+                    {q.options.map((option) => (
+                      <Button
+                        key={option}
+                        size="sm"
+                        variant={
+                          answers[q.id] === option ? "default" : "outline"
+                        }
+                        onClick={() =>
+                          setAnswers((a) => ({ ...a, [q.id]: option }))
+                        }
+                      >
+                        {option}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <Input
+                    id={`q-${q.id}`}
+                    value={answers[q.id] ?? ""}
+                    onChange={(e) =>
+                      setAnswers((a) => ({ ...a, [q.id]: e.target.value }))
+                    }
+                  />
+                )}
+                <label className="flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={remember[q.id] ?? false}
+                    onChange={(e) =>
+                      setRemember((r) => ({ ...r, [q.id]: e.target.checked }))
+                    }
+                  />
+                  {t("remember")}
+                </label>
+                <div>
+                  <Button
+                    size="sm"
+                    onClick={() => answer(q.id)}
+                    disabled={busy || !answers[q.id]?.trim()}
+                  >
+                    {t("answer")}
+                  </Button>
                 </div>
-              ) : (
-                <Input
-                  id={`q-${q.id}`}
-                  value={answers[q.id] ?? ""}
-                  onChange={(e) =>
-                    setAnswers((a) => ({ ...a, [q.id]: e.target.value }))
-                  }
-                />
-              )}
-              <label className="flex items-center gap-2 text-xs">
-                <input
-                  type="checkbox"
-                  checked={remember[q.id] ?? false}
-                  onChange={(e) =>
-                    setRemember((r) => ({ ...r, [q.id]: e.target.checked }))
-                  }
-                />
-                {t("remember")}
-              </label>
-              <div>
-                <Button
-                  size="sm"
-                  onClick={() => answer(q.id)}
-                  disabled={busy || !answers[q.id]?.trim()}
-                >
-                  {t("answer")}
-                </Button>
               </div>
-            </div>
             )
           )}
         </div>
       ) : null}
 
-      {(phase === "review_ready" || phase === "submitted") && run?.sensitiveReport ? (
+      {(phase === "review_ready" || phase === "submitted") &&
+      run?.sensitiveReport ? (
         <SensitiveReportView
           report={run.sensitiveReport}
-          title={phase === "submitted" ? "Dados sensíveis enviados" : "Dados sensíveis que serão enviados"}
+          title={
+            phase === "submitted"
+              ? "Dados sensíveis enviados"
+              : "Dados sensíveis que serão enviados"
+          }
         />
       ) : null}
       {phase === "review_ready" && run ? (
@@ -369,7 +410,7 @@ export function CloudApplyPanel({
                 <dd
                   className={
                     run.lowConfidence.includes(field.label)
-                      ? "break-words rounded bg-amber-500/10 px-1 outline outline-1 outline-amber-500/60"
+                      ? "rounded bg-amber-500/10 px-1 break-words outline outline-1 outline-amber-500/60"
                       : "break-words"
                   }
                 >
@@ -392,8 +433,9 @@ export function CloudApplyPanel({
             />
           ) : null}
           <p className="text-xs">
-            <strong>Você é responsável pelo envio.</strong> Confira cada resposta: o envio só
-            acontece depois da sua aprovação e não pode ser desfeito pelo VagaPilot.
+            <strong>Você é responsável pelo envio.</strong> Confira cada
+            resposta: o envio só acontece depois da sua aprovação e não pode ser
+            desfeito pelo VagaPilot.
           </p>
           <div className="flex gap-2">
             <Button

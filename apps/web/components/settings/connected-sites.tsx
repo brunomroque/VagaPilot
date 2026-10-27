@@ -72,12 +72,44 @@ export function ConnectedSites({
           Sites conectados
         </CardTitle>
         <CardDescription>
-          Logins salvos para o navegador na nuvem se candidatar por você (Gupy,
-          InHire, SuccessFactors, Cornerstone, SmartRecruiters…). Nos logins que
-          você faz, a senha nunca passa pelo VagaPilot.
+          Sessões salvas para o VagaPilot agir por você (Gupy, InHire,
+          SuccessFactors, Cornerstone, SmartRecruiters…). Por padrão usamos o
+          seu próprio Chrome local e o Browserbase (nuvem) apenas como fallback.
+          Nos logins que você faz, a senha nunca passa pelo VagaPilot.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        <div
+          role="note"
+          aria-label="Aviso de risco ao conectar contas"
+          className="rounded-md border border-amber-500/50 bg-amber-500/5 p-3 text-xs leading-relaxed"
+        >
+          <p className="font-semibold text-amber-900 dark:text-amber-300">
+            Importante antes de conectar sua conta (você assume o risco de
+            bloqueio):
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            Por padrão, a automação roda no{" "}
+            <strong>seu próprio navegador Chrome local</strong> (e usa o{" "}
+            <strong>Browserbase na nuvem só como alternativa/fallback</strong>{" "}
+            se o navegador local não estiver acessível). Fazemos isso porque
+            plataformas como LinkedIn, Gupy e outros ATS bloqueiam com
+            frequência robôs em servidores na nuvem. Mesmo no seu navegador,
+            usar automação na sua conta real pode gerar{" "}
+            <strong>
+              limitação, suspensão ou bloqueio permanente da conta
+            </strong>
+            . O VagaPilot não garante nenhuma conta sua: ao conectar um site,{" "}
+            <strong>você assume esse risco</strong>.{" "}
+            <a
+              href="/app/configuracoes/riscos#navegador_local"
+              className="underline"
+            >
+              Ver detalhes em Riscos e responsabilidades
+            </a>
+            .
+          </p>
+        </div>
         {sites.length ? (
           <ul className="flex flex-col divide-y rounded-md border text-sm">
             {sites.map((s) => (
