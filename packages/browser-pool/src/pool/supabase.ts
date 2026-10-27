@@ -7,6 +7,14 @@ import {
 } from "./concurrency.js"
 import { PROVIDER_COLUMNS, providerFromRow } from "./db.js"
 import { scrub } from "./http.js"
+import {
+  acquireLocalBrowser,
+  browserProviderFromEnv,
+  cloudFallbackEnabled,
+  LOCAL_PROVIDER_ID,
+  localCdpUrlFromEnv,
+  probeLocalBrowser,
+} from "./local.js"
 import { quotaPeriod, roundUnits, unitsForDuration } from "./quota.js"
 import {
   acquireBrowser,
@@ -107,6 +115,34 @@ export async function acquireTrackedBrowser(
     purpose?: "apply" | "test" | "login"
   }
 ): Promise<TrackedBrowser> {
+  // Primary: the user's own Chrome (remote debugging). Fallback: cloud pool, Browserbase first.
+  const env = runtime.env ?? process.env
+  if (browserProviderFromEnv(env) === "local") {
+    const canProbeLocal =
+      !options.exclude?.includes(LOCAL_PROVIDER_ID) &&
+      (!runtime.adapterFor ||
+        Boolean(runtime.fetch) ||
+        Boolean(env.LOCAL_BROWSER_CDP_URL))
+    if (canProbeLocal) {
+      const ws = await probeLocalBrowser(localCdpUrlFromEnv(env), runtime.fetch)
+      if (ws) {
+        const local = acquireLocalBrowser(ws, options.timeoutSeconds)
+        return {
+          ...local,
+          sessionRowId: null,
+          async finish() {
+            await local.release()
+          },
+        }
+      }
+    }
+    if (!cloudFallbackEnabled(env))
+      throw new ProviderError(
+        "unavailable",
+        "Navegador local indisponivel: abra o Chrome com --remote-debugging-port (BROWSER_FALLBACK=none)."
+      )
+  }
+  options = { ...options, prefer: options.prefer ?? ["browserbase"] }
   const deps = await buildPoolDeps(runtime)
   deps.onFailure = async (config, error) => {
     await runtime.admin.from("browser_sessions").insert({
