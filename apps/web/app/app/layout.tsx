@@ -9,6 +9,8 @@ import { loadChatBootstrap } from "@/lib/chat/bootstrap"
 import { getPlanSnapshot } from "@/lib/entitlements/server"
 import { getUserContext } from "@/lib/server/context"
 import { isAppAdmin } from "@/lib/admin/server"
+import { profileCompletionPercent } from "@/lib/onboarding/completion"
+import { loadOnboardingState } from "@/lib/onboarding/server"
 import { loadTrackerData } from "@/lib/tracker/load"
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -51,12 +53,18 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       }
 
   const isAdmin = await isAppAdmin()
+  const profileCompletion = userContext.ok
+    ? profileCompletionPercent(
+        (await loadOnboardingState(userContext.ctx)).requirements
+      )
+    : null
 
   return (
     <AppShell
       isAdmin={isAdmin}
       displayName={user.displayName}
       firstName={firstName}
+      profileCompletionPercent={profileCompletion}
       today={today}
       tracker={tracker}
       nowIso={new Date().toISOString()}

@@ -23,7 +23,6 @@ import { useTranslations } from "next-intl"
 import { signOut } from "@/app/(auth)/actions"
 import { Brand } from "@/components/brand"
 import { useWorkspace } from "@/components/app/workspace-context"
-import { demoProfile } from "@/lib/demo-data"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
   Card,
@@ -142,10 +141,12 @@ function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
 export function AppSidebar({
   displayName,
   plan,
+  profileCompletionPercent,
   isAdmin = false,
 }: {
   isAdmin?: boolean
   displayName: string
+  profileCompletionPercent?: number | null
   plan: {
     name: string
     used: number
@@ -177,7 +178,9 @@ export function AppSidebar({
       <SidebarContent>
         <NavGroup label={t("Nav.workspace")} items={workspaceItems} />
         <NavGroup label={t("Nav.assistant")} items={assistantItems} />
-        {isAdmin ? <NavGroup label={t("Nav.admin")} items={adminItems} /> : null}
+        {isAdmin ? (
+          <NavGroup label={t("Nav.admin")} items={adminItems} />
+        ) : null}
       </SidebarContent>
       <SidebarFooter className="gap-3 p-3">
         <Card size="sm">
@@ -210,11 +213,13 @@ export function AppSidebar({
                 </Avatar>
                 <span className="flex min-w-0 flex-1 flex-col text-left">
                   <span className="truncate font-semibold">{displayName}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {t("Profile.completion", {
-                      percent: demoProfile.completion,
-                    })}
-                  </span>
+                  {profileCompletionPercent != null ? (
+                    <span className="truncate text-xs text-muted-foreground">
+                      {t("Profile.completion", {
+                        percent: profileCompletionPercent,
+                      })}
+                    </span>
+                  ) : null}
                 </span>
                 <MoreHorizontalIcon />
               </DropdownMenuTrigger>
