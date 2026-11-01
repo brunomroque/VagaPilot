@@ -391,7 +391,18 @@ export function ChatView({
           event.preventDefault()
           send(input)
         }}
+        aria-describedby={notice ? "chat-composer-error" : undefined}
       >
+        {notice ? (
+          <Alert
+            id="chat-composer-error"
+            variant="destructive"
+            role="alert"
+            aria-live="assertive"
+          >
+            <AlertDescription>{notice}</AlertDescription>
+          </Alert>
+        ) : null}
         <label htmlFor="chat-input" className="sr-only">
           {t("inputLabel")}
         </label>
