@@ -21,7 +21,7 @@ Referências no código:
 | ---------------------- | --------------------------- |
 | Nome no Dashboard      | **VagaPilot**               |
 | Modo                   | **Test** (`livemode=false`) |
-| `stripe_context` (MCP) | `acct_1UTUOMEMPqsIYuI6`     |
+| `stripe_context` (MCP) | `acct_1UTUPHCqQzfkmAnI`     |
 
 Headers padrão no `.cursor/mcp.json` (conta test VagaPilot): `Stripe-Context` + `Stripe-Livemode: false`. Recarregue o Cursor após alterar o JSON.
 
@@ -31,9 +31,9 @@ Não há outros produtos ativos nesta conta além dos listados abaixo — evita 
 
 | Produto               | ID                    | Metadata                                |
 | --------------------- | --------------------- | --------------------------------------- |
-| VagaPilot Pro         | `prod_VUTOfWVDQ6hDn4` | `project=vagapilot`, `plan=pro`         |
-| VagaPilot Executive   | `prod_VUTOm0yrMCoFfy` | `project=vagapilot`, `plan=executive`   |
-| VagaPilot Search Pass | `prod_VUTOI2CLmmrMLk` | `project=vagapilot`, `plan=search_pass` |
+| VagaPilot Pro         | `prod_VXsiYcESfiaLCh` | `project=vagapilot`, `plan=pro`         |
+| VagaPilot Executive   | `prod_VXsidIEfz9N6gX` | `project=vagapilot`, `plan=executive`   |
+| VagaPilot Search Pass | `prod_VXsiATybC9JOwc` | `project=vagapilot`, `plan=search_pass` |
 
 ### Preços criados (BRL, centavos)
 
@@ -41,11 +41,11 @@ Valores alinhados à [ESPEC §14](./ESPEC.md). Assinaturas **anuais** cobram o t
 
 | Plano       | Intervalo       | Valor           | Price ID (test)                  | Variável `.env`                  |
 | ----------- | --------------- | --------------- | -------------------------------- | -------------------------------- |
-| Pro         | mensal          | R$ 49,00        | `price_1UTUS6EMPqsIYuI6af40s7Tu` | `STRIPE_PRICE_PRO_MONTHLY`       |
-| Pro         | anual           | R$ 468,00/ano   | `price_1UTUS6EMPqsIYuI6h2pbA3kY` | `STRIPE_PRICE_PRO_YEARLY`        |
-| Executive   | mensal          | R$ 129,00       | `price_1UTUS9EMPqsIYuI6VXjJ2pFq` | `STRIPE_PRICE_EXECUTIVE_MONTHLY` |
-| Executive   | anual           | R$ 1.188,00/ano | `price_1UTUSAEMPqsIYuI6yGXOqR3P` | `STRIPE_PRICE_EXECUTIVE_YEARLY`  |
-| Search Pass | pagamento único | R$ 299,00       | `price_1UTUSAEMPqsIYuI6v33p78I6` | `STRIPE_PRICE_SEARCH_PASS`       |
+| Pro         | mensal          | R$ 49,00        | `price_1UWmx3CqQzfkmAnIhacPauUM` | `STRIPE_PRICE_PRO_MONTHLY`       |
+| Pro         | anual           | R$ 468,00/ano   | `price_1UWmx3CqQzfkmAnI7Sfue83x` | `STRIPE_PRICE_PRO_YEARLY`        |
+| Executive   | mensal          | R$ 129,00       | `price_1UWmx3CqQzfkmAnIrwzNDd2z` | `STRIPE_PRICE_EXECUTIVE_MONTHLY` |
+| Executive   | anual           | R$ 1.188,00/ano | `price_1UWmx4CqQzfkmAnIvL9yMaJI` | `STRIPE_PRICE_EXECUTIVE_YEARLY`  |
+| Search Pass | pagamento único | R$ 299,00       | `price_1UWmx4CqQzfkmAnINNrzeqoG` | `STRIPE_PRICE_SEARCH_PASS`       |
 
 Trial de 7 dias do Pro: aplicado no Checkout quando `plan=pro` e modo assinatura (`checkout/route.ts`).
 
@@ -81,7 +81,7 @@ Idempotência: tabela `stripe_events` (event.id). O handler grava o evento só d
 
 #### Auditoria via Stripe MCP (2026-10-23)
 
-Conta acessível na sessão MCP: **VagaPilot** test (`acct_1UTUOMEMPqsIYuI6`, `livemode=false`). **Live/produção não está autorizada** nesta sessão — o endpoint Netlify só pode ser conferido no Dashboard em **modo Live**.
+Conta acessível na sessão MCP: **VagaPilot** test (`acct_1UTUPHCqQzfkmAnI`, `livemode=false`). **Live/produção não está autorizada** nesta sessão — o endpoint Netlify só pode ser conferido no Dashboard em **modo Live**.
 
 | Ambiente   | URL do endpoint                                                       | `checkout.session.completed`           | Observação                           |
 | ---------- | --------------------------------------------------------------------- | -------------------------------------- | ------------------------------------ |
@@ -204,11 +204,11 @@ STRIPE_SECRET_KEY=sk_test_…
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_…
 STRIPE_WEBHOOK_SECRET=whsec_…
 
-STRIPE_PRICE_PRO_MONTHLY=price_1UTUS6EMPqsIYuI6af40s7Tu
-STRIPE_PRICE_PRO_YEARLY=price_1UTUS6EMPqsIYuI6h2pbA3kY
-STRIPE_PRICE_EXECUTIVE_MONTHLY=price_1UTUS9EMPqsIYuI6VXjJ2pFq
-STRIPE_PRICE_EXECUTIVE_YEARLY=price_1UTUSAEMPqsIYuI6yGXOqR3P
-STRIPE_PRICE_SEARCH_PASS=price_1UTUSAEMPqsIYuI6v33p78I6
+STRIPE_PRICE_PRO_MONTHLY=price_1UWmx3CqQzfkmAnIhacPauUM
+STRIPE_PRICE_PRO_YEARLY=price_1UWmx3CqQzfkmAnI7Sfue83x
+STRIPE_PRICE_EXECUTIVE_MONTHLY=price_1UWmx3CqQzfkmAnIrwzNDd2z
+STRIPE_PRICE_EXECUTIVE_YEARLY=price_1UWmx4CqQzfkmAnIvL9yMaJI
+STRIPE_PRICE_SEARCH_PASS=price_1UWmx4CqQzfkmAnINNrzeqoG
 
 # Resend
 RESEND_API_KEY=re_…
@@ -243,6 +243,8 @@ Não foi executado automaticamente nesta configuração.
 ---
 
 ## Histórico
+
+- **2026-10-31:** Precos recriados na conta `acct_1UTUPHCqQzfkmAnI` (Area restrita de VagaPilot). A conta antiga `acct_1UTUOMEMPqsIYuI6` tinha os price IDs do doc, mas a `STRIPE_SECRET_KEY` em uso (local/Netlify) apontava para UTUPH sem produtos (checkout 500 No such price). Netlify env alinhada; rebuild producao.
 
 - **2026-10-23:** Tabela de eventos do webhook alinhada ao código; auditoria MCP (test) do endpoint placeholder; checklist Live para `https://vagapilot.netlify.app/api/stripe/webhook` incluindo `checkout.session.completed`.
 - **2026-10-22:** Produtos/preços test VagaPilot criados via Stripe MCP; chave Resend `VagaPilot (dev)` criada; documento inicial.
