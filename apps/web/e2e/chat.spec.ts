@@ -411,7 +411,7 @@ test.describe("chat with widgets (P2.4)", () => {
 test.describe("chat that configures the app (P2.5, F14)", () => {
   test.describe.configure({ mode: "serial" })
 
-  test("CA14.2 a low-risk preference set by chat is undone to the exact previous state", async ({
+  test("CA14.2 preference set by chat needs confirm then is undone to the exact previous state", async ({
     page,
   }) => {
     const db = await requireAdmin()
@@ -423,6 +423,9 @@ test.describe("chat that configures the app (P2.5, F14)", () => {
     await openNewConversation(page)
 
     await send(page, "não cite pretensão em e-mail")
+    const pending = page.getByTestId("approval-card").last()
+    await expect(pending).toContainText("Preferência")
+    await pending.getByRole("button", { name: "Confirmar" }).click()
     const card = page.getByTestId("settings-diff-card").last()
     await expect(card).toContainText("Preferência")
     await expect(card).toContainText("Aplicada")
@@ -469,6 +472,9 @@ test.describe("chat that configures the app (P2.5, F14)", () => {
       page,
       `quero vagas de ${query} em São Paulo, híbrido, toda manhã`
     )
+    const pendingSearch = page.getByTestId("approval-card").last()
+    await expect(pendingSearch).toContainText("Nova busca salva")
+    await pendingSearch.getByRole("button", { name: "Confirmar" }).click()
     await expect(page.getByTestId("settings-diff-card").last()).toContainText(
       "Nova busca salva"
     )

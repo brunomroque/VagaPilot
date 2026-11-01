@@ -169,10 +169,21 @@ describe("policy.check (10.4, CA14.3, CA14.8)", () => {
 
   it("low risk from the user's turn applies with undo", () => {
     expect(
-      policyCheck({ tool: "set_preference", origin: "user_turn" })
+      policyCheck({ tool: "add_excluded_company", origin: "user_turn" })
     ).toEqual({
       decision: "allow_with_undo",
     })
+  })
+
+  it("QA R18 P1: create_saved_search and set_preference require confirmation on user_turn", () => {
+    for (const tool of ["create_saved_search", "set_preference"] as const) {
+      const decision = policyCheck({ tool, origin: "user_turn" })
+      expect(decision.decision).toBe("require_confirmation")
+      expect(isAllowedNow(decision)).toBe(false)
+      expect(
+        isAllowedNow(policyCheck({ tool, origin: "widget", confirmed: true }))
+      ).toBe(true)
+    }
   })
 
   it("CA14.3 deleting a search or changing the approval mode never applies without confirmation", () => {

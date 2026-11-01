@@ -81,14 +81,15 @@ export function toolRisk(tool: ChatToolName): ToolRisk {
       return "baixo"
     case "record_decision":
       return "interna"
-    case "create_saved_search":
     case "update_saved_search":
     case "add_excluded_company":
     case "remove_excluded_company":
     case "set_salary_rules":
-    case "set_preference":
     case "undo_change":
       return "baixo"
+    // QA R18 P1: new saved searches + preference writes need Confirm (like language level).
+    case "create_saved_search":
+    case "set_preference":
     case "update_language_level":
     case "propose_fact":
     case "propose_cv_adjustment":
