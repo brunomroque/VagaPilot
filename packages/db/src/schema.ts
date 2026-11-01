@@ -190,6 +190,7 @@ export const cvVersions = pgTable(
     fileSha256: text("file_sha256").notNull(),
     extractedText: text("extracted_text"),
     extractionError: text("extraction_error"),
+    detectedLanguage: text("detected_language"),
     origin: text("origin").notNull(),
     parentVersionId: uuid("parent_version_id").references(
       (): AnyPgColumn => cvVersions.id

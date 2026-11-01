@@ -42,7 +42,8 @@ function sqlTables(): Map<string, string[]> {
       .map((line) => line.split(/\s+/)[0] ?? "")
     tables.set(name, columns)
   }
-  const addColumnRe = /alter table public\.(\w+) add column (\w+)/g
+  const addColumnRe =
+    /alter table public\.(\w+) add column (?:if not exists )?(\w+)/gi
   for (const [, name, column] of sql.matchAll(addColumnRe)) {
     if (name && column) tables.get(name)?.push(column)
   }
