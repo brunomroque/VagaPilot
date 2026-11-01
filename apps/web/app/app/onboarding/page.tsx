@@ -50,6 +50,14 @@ import {
 
 type RequirementKey = keyof OnboardingRequirements
 
+const REQUIREMENT_SECTION_IDS: Partial<Record<RequirementKey, string>> = {
+  hasSalaryRule: "onboarding-salary-rules",
+  hasWorkModels: "onboarding-preferences",
+  hasRegimes: "onboarding-preferences",
+  hasAvailability: "onboarding-preferences",
+  hasLanguage: "onboarding-languages",
+}
+
 const CV_EXTRACTION_MESSAGE_KEYS = {
   file_too_large: "cvs.extraction.file_too_large",
   file_empty: "cvs.extraction.file_empty",
@@ -205,40 +213,87 @@ export default async function OnboardingPage({
       content = (
         <>
           <ul className="grid gap-2 sm:grid-cols-2" aria-label={t("checklist")}>
-            {checklist.map((name) => (
-              <li key={name} className="flex items-center gap-2 text-sm">
-                {requirements[name] ? (
-                  <CheckCircle2Icon
-                    className="size-4 text-primary"
-                    aria-hidden
-                  />
-                ) : (
-                  <CircleIcon
-                    className="size-4 text-muted-foreground"
-                    aria-hidden
-                  />
-                )}
-                <span>
+            {checklist.map((name) => {
+              const sectionId = REQUIREMENT_SECTION_IDS[name]
+              const label = (
+                <>
                   {t(`requirements.${name}`)}
                   <span className="sr-only">
                     {requirements[name] ? t("done") : t("pending")}
                   </span>
-                </span>
-              </li>
-            ))}
+                </>
+              )
+              return (
+                <li key={name} className="flex items-center gap-2 text-sm">
+                  {requirements[name] ? (
+                    <CheckCircle2Icon
+                      className="size-4 shrink-0 text-primary"
+                      aria-hidden
+                    />
+                  ) : (
+                    <CircleIcon
+                      className="size-4 shrink-0 text-muted-foreground"
+                      aria-hidden
+                    />
+                  )}
+                  {!requirements[name] && sectionId ? (
+                    <a
+                      href={`#${sectionId}`}
+                      className="underline-offset-4 hover:underline"
+                    >
+                      {label}
+                    </a>
+                  ) : (
+                    <span>{label}</span>
+                  )}
+                </li>
+              )
+            })}
           </ul>
-          <PreferencesForm
-            defaults={{
-              workModels: preferences.workModels ?? [],
-              regimes: preferences.regimes ?? [],
-              cities: (preferences.cities ?? []).join(", "),
-              availability: preferences.availability ?? "30_dias",
-              travel: preferences.travel ?? "a_combinar",
-              relocation: preferences.relocation ?? "a_combinar",
-            }}
-          />
-          <SalaryRulesEditor items={bundle.salaryRules} />
-          <LanguagesEditor items={bundle.languages} />
+          <section
+            id="onboarding-preferences"
+            className="flex scroll-mt-24 flex-col gap-2"
+          >
+            {!requirements.hasWorkModels ||
+            !requirements.hasRegimes ||
+            !requirements.hasAvailability ? (
+              <p className="text-sm text-destructive" role="status">
+                {t("sectionMissing.preferences")}
+              </p>
+            ) : null}
+            <PreferencesForm
+              defaults={{
+                workModels: preferences.workModels ?? [],
+                regimes: preferences.regimes ?? [],
+                cities: (preferences.cities ?? []).join(", "),
+                availability: preferences.availability ?? "30_dias",
+                travel: preferences.travel ?? "a_combinar",
+                relocation: preferences.relocation ?? "a_combinar",
+              }}
+            />
+          </section>
+          <section
+            id="onboarding-salary-rules"
+            className="flex scroll-mt-24 flex-col gap-2"
+          >
+            {!requirements.hasSalaryRule ? (
+              <p className="text-sm text-destructive" role="status">
+                {t("sectionMissing.salary")}
+              </p>
+            ) : null}
+            <SalaryRulesEditor items={bundle.salaryRules} />
+          </section>
+          <section
+            id="onboarding-languages"
+            className="flex scroll-mt-24 flex-col gap-2"
+          >
+            {!requirements.hasLanguage ? (
+              <p className="text-sm text-destructive" role="status">
+                {t("sectionMissing.languages")}
+              </p>
+            ) : null}
+            <LanguagesEditor items={bundle.languages} />
+          </section>
           <SituationForm
             defaults={{
               situation: situation?.situation ?? "empregado",

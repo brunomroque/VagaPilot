@@ -1282,6 +1282,16 @@
     "integrations": "Integrações",
     "integrationsDescription": "Conecte o Gmail para acompanhar respostas das empresas e pareie a extensão para preencher formulários. Você decide o que ligar e pode revogar a qualquer momento.",
     "more": "Exportação de dados e preferências avançadas de privacidade ficam nesta área. Cobrança e planos estão em Planos. Preferências do assistente ficam em Memória; perfil e CVs nas rotas correspondentes.",
+    "risks": {
+      "title": "Riscos e responsabilidades",
+      "description": "O que pode dar errado quando a automação age em seu nome, os termos que você aceitou, os comprovantes do aceite e a revogação.",
+      "link": "Ver riscos e termos"
+    },
+    "permissions": {
+      "title": "Permissões do agente",
+      "description": "O que o agente pode fazer sem perguntar, em quais sites e com quais dados.",
+      "link": "Gerenciar permissões"
+    },
     "extension": {
       "title": "Extensão Chrome",
       "description": "Pareie a extensão com um código de 8 caracteres (válido por 10 minutos). O token fica só neste navegador.",

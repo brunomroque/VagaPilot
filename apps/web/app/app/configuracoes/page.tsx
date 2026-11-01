@@ -65,30 +65,41 @@ export default async function SettingsPage({
           poolEnabled={isPoolEnabled()}
         />
       </section>
-      <section aria-labelledby="risks-title" className="flex flex-col gap-1 rounded-md border p-4">
+      <section
+        aria-labelledby="risks-title"
+        className="flex flex-col gap-1 rounded-md border p-4"
+      >
         <h3 id="risks-title" className="text-lg font-bold tracking-tight">
-          Riscos e responsabilidades
+          {t("risks.title")}
         </h3>
         <p className="text-sm text-muted-foreground">
-          O que pode dar errado quando a automação age em seu nome, os termos que você aceitou, os
-          comprovantes do aceite e a revogação.
+          {t("risks.description")}
         </p>
         <div>
-          <a href="/app/configuracoes/riscos" className="text-sm font-medium underline">
-            Ver riscos e termos
+          <a
+            href="/app/configuracoes/riscos"
+            className="text-sm font-medium underline"
+          >
+            {t("risks.link")}
           </a>
         </div>
       </section>
-      <section aria-labelledby="perms-title" className="flex flex-col gap-1 rounded-md border p-4">
+      <section
+        aria-labelledby="perms-title"
+        className="flex flex-col gap-1 rounded-md border p-4"
+      >
         <h3 id="perms-title" className="text-lg font-bold tracking-tight">
-          Permissões do agente
+          {t("permissions.title")}
         </h3>
         <p className="text-sm text-muted-foreground">
-          O que o agente pode fazer sem perguntar, em quais sites e com quais dados.
+          {t("permissions.description")}
         </p>
         <div>
-          <a href="/app/configuracoes/permissoes" className="text-sm font-medium underline">
-            Gerenciar permissões
+          <a
+            href="/app/configuracoes/permissoes"
+            className="text-sm font-medium underline"
+          >
+            {t("permissions.link")}
           </a>
         </div>
       </section>
