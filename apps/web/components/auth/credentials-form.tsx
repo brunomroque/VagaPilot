@@ -193,6 +193,22 @@ export function CredentialsForm({
                 {pending ? <Spinner data-icon="inline-start" /> : null}
                 {t(`${copy}.submit`)}
               </Button>
+              {mode === "signup" ? (
+                <FieldDescription>
+                  {t("signup.legalPrefix")}{" "}
+                  <Link href="/termos" className="underline underline-offset-4">
+                    {t("signup.termsLink")}
+                  </Link>{" "}
+                  {t("signup.legalAnd")}{" "}
+                  <Link
+                    href="/privacidade"
+                    className="underline underline-offset-4"
+                  >
+                    {t("signup.privacyLink")}
+                  </Link>
+                  .
+                </FieldDescription>
+              ) : null}
             </Field>
             <FieldSeparator>{t("or")}</FieldSeparator>
             <Field>
