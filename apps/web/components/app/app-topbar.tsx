@@ -29,9 +29,9 @@ export function AppTopbar({
           <p className="text-xs font-medium text-muted-foreground first-letter:uppercase md:text-sm">
             {today}
           </p>
-          <h1 className="text-lg leading-tight font-bold tracking-tight text-balance md:truncate md:text-2xl">
+          <p className="text-lg leading-tight font-bold tracking-tight text-balance md:truncate md:text-2xl">
             {t("greeting", { name: firstName })}
-          </h1>
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-2">
