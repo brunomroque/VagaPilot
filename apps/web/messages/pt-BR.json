@@ -1533,6 +1533,7 @@
     "panel": {
       "title": "Painel",
       "description": "Resumo rápido do controle.",
+      "mobileToggle": "Resumo do painel",
       "full": "Ver painel completo",
       "applicationsMonth": "Candidaturas no mês",
       "pendingActions": "Ações pendentes",

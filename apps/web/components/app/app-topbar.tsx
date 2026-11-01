@@ -37,11 +37,13 @@ export function AppTopbar({
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
+          size="lg"
+          className="min-h-11"
           onClick={() => setCommandOpen(true)}
           aria-label={t("search")}
         >
           <SearchIcon data-icon="inline-start" />
-          <span className="hidden lg:inline">{t("search")}</span>
+          <span className="hidden sm:inline">{t("search")}</span>
           <KbdGroup className="hidden lg:inline-flex">
             <Kbd>Ctrl</Kbd>
             <Kbd>K</Kbd>
