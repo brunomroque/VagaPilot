@@ -430,3 +430,19 @@ Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram
 - **Correção:** `effectiveSettingConfirmed` + `chatToolMustWaitForConfirmation` em `packages/core/src/policy.ts`; `applySettingChange` força pendente para médio/alto com origem `chat`. Prompt orquestrador + descrições de ferramenta reforçam confirmação e `ask_clarification` para “prefiro vagas em inglês” sem cargo/local.
 - **Auditoria:** `data-actions`, `extended-tools` e `approvals/*` não gravam buscas/preferências fora de `applySettingChange` / `confirmPendingChange`.
 - **Pendente:** deploy + smoke manual no chat de produção (“prefiro vagas em inglês” → clarificação ou cartão, nunca `applied` sem clique).
+### UX — Auditoria Leis de UX (2026-11-01)
+
+Feito (somente leitura, sem alteração de UI):
+
+- `docs/ux/UX_LAWS_AUDIT.md`: 27 achados verificáveis (Jakob, Fitts, Hick, Miller, Tesler, Doherty, Peak-End, Von Restorff, Proximidade, Região comum, Goal-Gradient, Zeigarnik, Postel, Similaridade, Esforço mínimo, Serial Position) nos fluxos landing, auth, onboarding, chat, shell, CVs, fatos, perfil, buscas, candidaturas e configurações.
+- Prioridade sugerida: percentual de perfil fictício na sidebar (UX01), mapa de etapas do onboarding no mobile (UX04), decisão de IA dos dois atalhos de chat (UX02).
+
+### UX — Implementação lote 1 (2026-11-01)
+
+Feito (`docs/ux/prompt-impl1.md`, `apps/web`):
+
+- UX01: percentual de perfil na sidebar a partir dos requisitos de onboarding (sem `demoProfile`).
+- UX04, UX07, UX08, UX12, UX13, UX21, UX23, UX26: ver status **feito** em `docs/ux/UX_LAWS_AUDIT.md`.
+- Testes: `pnpm --filter web typecheck`, `lint`, `vitest run` (incl. `lib/onboarding/completion.test.ts`).
+
+Pendente (decisão de produto ou fora do lote): UX02, UX03, UX05, UX06, UX09, UX15, UX16, UX28, demais achados do relatório.
