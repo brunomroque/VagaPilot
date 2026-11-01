@@ -543,6 +543,33 @@ export function parseSettingsIntent(text: string): IntentCall[] {
     calls.push({ tool: "add_excluded_company", input: { company: addCompany } })
   }
 
+  // Prefer job language only — do not invent min_fit or a vague saved search (QA R18 P1).
+  // Confirmation comes from policy (create_saved_search is medio); we still need a real query.
+  const preferJobLang =
+    /\b(?:prefiro|quero|gostaria de)\s+vagas?\s+em\s+(ingles|espanhol|portugues|english)\b/.exec(
+      folded
+    )
+  if (preferJobLang?.[1] && calls.length === 0) {
+    const langLabel =
+      preferJobLang[1] === "espanhol"
+        ? "espanhol"
+        : preferJobLang[1] === "portugues"
+          ? "português"
+          : "inglês"
+    calls.push({
+      tool: "ask_clarification",
+      input: {
+        question: `Para filtrar vagas em ${langLabel}, qual cargo ou busca devo usar?`,
+        options: [
+          "Gerente de Engenharia",
+          "Coordenador de TI",
+          "Head de Tecnologia",
+        ],
+      },
+    })
+    return calls
+  }
+
   const language = languageLevel(folded)
   if (language) calls.push({ tool: "update_language_level", input: language })
 
