@@ -39,14 +39,32 @@ async function requireAdmin(): Promise<SupabaseClient> {
 
 async function openNewConversation(page: Page) {
   await signInAsDevUser(page, "/app/chat")
-  await page.getByRole("button", { name: "Nova conversa" }).click()
-  await expect(page).toHaveURL(/\/app\/chat\?c=[0-9a-f-]{36}$/)
+  // Same hydration race as send(): a click before React attaches submits the bare form
+  // natively and reloads /app/chat without a conversation id. Click until the id shows up.
+  await expect(async () => {
+    await page.getByRole("button", { name: "Nova conversa" }).click()
+    await expect(page).toHaveURL(/\/app\/chat\?c=[0-9a-f-]{36}$/, {
+      timeout: 5_000,
+    })
+  }).toPass({ timeout: 20_000 })
   await expect(page.getByLabel("Mensagem")).toBeVisible()
 }
 
 async function send(page: Page, text: string) {
   const input = page.getByLabel("Mensagem")
-  await input.fill(text)
+  const submit = input
+    .locator("xpath=ancestor::form[1]")
+    .getByRole("button", { name: "Enviar", exact: true })
+  // openNewConversation does a full navigation; on the dev server the SSR composer is
+  // visible before React hydrates. A fill that lands before hydration never reaches the
+  // composer state (Enviar stays disabled, Enter is ignored) and the turn is never sent.
+  // Refill until the composer really holds the text, then send. Clearing first matters:
+  // React ignores an input event whose value equals the one it saw at hydration.
+  await expect(async () => {
+    await input.fill("")
+    await input.fill(text)
+    await expect(submit).toBeEnabled({ timeout: 1_000 })
+  }).toPass({ timeout: 20_000 })
   await input.press("Enter")
 }
 
