@@ -1,3 +1,5 @@
+import type { MemoryOrigin } from "./settings.js"
+
 /**
  * Server-side policy for chat tools: `policy.check(intent, origin, risk)` (spec 10.4, F14
  * RF14.3, CA14.3, CA14.8). Independent of the LLM: the model can ask, only this decides.
@@ -207,4 +209,23 @@ export function isAllowedNow(decision: PolicyDecision): boolean {
   return (
     decision.decision === "allow" || decision.decision === "allow_with_undo"
   )
+}
+
+/** Chat cannot pass through a confirmation flag; only form/widget clicks can. */
+export function effectiveSettingConfirmed(
+  memoryOrigin: MemoryOrigin,
+  confirmed?: boolean
+): boolean {
+  if (memoryOrigin === "chat") return false
+  return confirmed === true
+}
+
+/** Medium/high-risk tools from chat always stop at a pending card (QA R18 P1). */
+export function chatToolMustWaitForConfirmation(
+  tool: ChatToolName,
+  memoryOrigin: MemoryOrigin
+): boolean {
+  if (memoryOrigin !== "chat") return false
+  const risk = toolRisk(tool)
+  return risk === "medio" || risk === "alto"
 }

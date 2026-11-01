@@ -423,3 +423,10 @@ Pendente P2 (deferido):
 - Migration `increment_usage` aplicada no Supabase hospedado (`synbycvebzzqarojicfu`, 2026-10-23; registro `20261023144419`, SQL equivalente ao arquivo `20261023180000_increment_usage.sql` no repo).
 
 Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram nesta rodada. Testes unitários focados + typecheck web.
+
+## QA R18 P1 — confirmação no chat (2026-11-01)
+
+- **Causa:** no caminho real do LLM (`applySettingChange` via ferramentas de chat), `create_saved_search` / `set_preference` podiam gravar sem cartão Confirmar se a política ou `confirmed` falhasse.
+- **Correção:** `effectiveSettingConfirmed` + `chatToolMustWaitForConfirmation` em `packages/core/src/policy.ts`; `applySettingChange` força pendente para médio/alto com origem `chat`. Prompt orquestrador + descrições de ferramenta reforçam confirmação e `ask_clarification` para “prefiro vagas em inglês” sem cargo/local.
+- **Auditoria:** `data-actions`, `extended-tools` e `approvals/*` não gravam buscas/preferências fora de `applySettingChange` / `confirmPendingChange`.
+- **Pendente:** deploy + smoke manual no chat de produção (“prefiro vagas em inglês” → clarificação ou cartão, nunca `applied` sem clique).

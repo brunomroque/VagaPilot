@@ -248,15 +248,16 @@ export const CHAT_TOOL_DESCRIPTIONS: Record<ChatToolName, string> = {
   ask_clarification:
     "Pergunta com opções clicáveis quando o pedido é ambíguo (ex.: 'SP' cidade ou estado).",
   create_saved_search:
-    "Cria busca salva. Cargo e local são obrigatórios (local pode faltar se remoto).",
+    "Cria busca salva (sempre pede confirmação). Cargo e local são obrigatórios (local pode faltar se remoto). Não use só por preferência de idioma de vaga sem cargo.",
   update_saved_search: "Altera campos de uma busca salva.",
   delete_saved_search: "Exclui uma busca salva (sempre pede confirmação).",
   add_excluded_company: "Exclui uma empresa de todas as vagas e buscas.",
   remove_excluded_company: "Volta a mostrar vagas de uma empresa excluída.",
-  update_language_level: "Atualiza o nível declarado de um idioma.",
+  update_language_level:
+    "Atualiza o nível declarado de um idioma (sempre pede confirmação).",
   set_salary_rules: "Define pretensão por senioridade e regime.",
   set_preference:
-    "Define preferência por chave (ex.: email.include_salary=false).",
+    "Define preferência por chave (sempre pede confirmação). Ex.: email.include_salary=false. Não use para idioma de vagas sem cargo definido.",
   set_approval_mode: "Muda o modo de aprovação (sempre pede confirmação).",
   undo_change: "Desfaz uma mudança da Memória (sem id: a última).",
   propose_fact: "Propõe um fato dito pela pessoa; ela confirma no cartão.",

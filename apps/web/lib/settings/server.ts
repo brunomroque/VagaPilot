@@ -8,6 +8,8 @@ import {
   type Seniority,
 } from "@vagapilot/core/job-rules"
 import {
+  chatToolMustWaitForConfirmation,
+  effectiveSettingConfirmed,
   isAllowedNow,
   policyCheck,
   type ToolOrigin,
@@ -853,10 +855,11 @@ export async function applySettingChange(
   input: ApplySettingInput
 ): Promise<SettingsChangeOutput> {
   try {
+    const confirmed = effectiveSettingConfirmed(input.origin, input.confirmed)
     const decision = policyCheck({
       tool: input.intent,
       origin: input.policyOrigin,
-      confirmed: input.confirmed,
+      confirmed,
     })
     if (decision.decision === "deny")
       throw new SettingsError("denied", "Not allowed from this origin.")
@@ -872,7 +875,10 @@ export async function applySettingChange(
       }
     }
 
-    if (!isAllowedNow(decision)) {
+    if (
+      !isAllowedNow(decision) ||
+      chatToolMustWaitForConfirmation(input.intent, input.origin)
+    ) {
       const memoryEventId = await recordEvent(ctx, input, current, "pendente")
       return {
         kind: "settings_change",
