@@ -12,6 +12,8 @@ import {
 } from "./guardrails.js"
 import {
   CHAT_TOOL_NAMES,
+  chatToolMustWaitForConfirmation,
+  effectiveSettingConfirmed,
   isAllowedNow,
   policyCheck,
   toolRisk,
@@ -226,6 +228,36 @@ describe("policy.check (10.4, CA14.3, CA14.8)", () => {
         policyCheck({ tool: "set_preference", origin: "automation" })
       )
     ).toBe(false)
+  })
+
+  it("QA R18 P1: chat medium/high settings never self-confirm", () => {
+    for (const tool of [
+      "set_preference",
+      "create_saved_search",
+      "update_language_level",
+    ] as const) {
+      expect(chatToolMustWaitForConfirmation(tool, "chat")).toBe(true)
+      expect(effectiveSettingConfirmed("chat", true)).toBe(false)
+      expect(
+        isAllowedNow(
+          policyCheck({
+            tool,
+            origin: "user_turn",
+            confirmed: effectiveSettingConfirmed("chat", true),
+          })
+        )
+      ).toBe(false)
+    }
+    for (const tool of [
+      "set_preference",
+      "create_saved_search",
+      "update_language_level",
+    ] as const) {
+      expect(chatToolMustWaitForConfirmation(tool, "formulario")).toBe(false)
+      expect(
+        isAllowedNow(policyCheck({ tool, origin: "widget", confirmed: true }))
+      ).toBe(true)
+    }
   })
 })
 
