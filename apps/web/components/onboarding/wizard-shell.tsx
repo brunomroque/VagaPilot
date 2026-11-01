@@ -118,6 +118,12 @@ export function WizardShell({
           value={(step / total) * 100}
           aria-label={t("progress", { step, total })}
         />
+        <p
+          className="text-sm font-semibold text-foreground md:hidden"
+          aria-current="step"
+        >
+          {step}. {steps[step - 1]}
+        </p>
         <ol className="hidden flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground md:flex">
           {steps.map((label, index) => (
             <li
