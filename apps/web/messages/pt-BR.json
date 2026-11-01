@@ -44,7 +44,11 @@
       "description": "Você confirma o e-mail antes do primeiro acesso.",
       "submit": "Criar conta",
       "hasAccount": "Já tem conta?",
-      "signInLink": "Entrar"
+      "signInLink": "Entrar",
+      "legalPrefix": "Ao criar conta, você pode ler os",
+      "termsLink": "Termos de Uso",
+      "legalAnd": "e a",
+      "privacyLink": "Política de privacidade"
     },
     "verify": {
       "title": "Confirme seu e-mail",
@@ -1193,6 +1197,11 @@
     "checklist": "Respostas obrigatórias",
     "done": "(feito)",
     "pending": "(pendente)",
+    "sectionMissing": {
+      "preferences": "Falta preencher modelo de trabalho, regimes ou disponibilidade abaixo.",
+      "salary": "Falta cadastrar pretensão por senioridade abaixo.",
+      "languages": "Falta informar nível de pelo menos um idioma abaixo."
+    },
     "steps": {
       "cvs": {
         "label": "Currículos",
