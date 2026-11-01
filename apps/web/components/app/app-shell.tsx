@@ -27,11 +27,13 @@ export function AppShell({
   nowIso,
   chatBootstrap,
   plan,
+  profileCompletionPercent = null,
   children,
 }: {
   isAdmin?: boolean
   displayName: string
   firstName: string
+  profileCompletionPercent?: number | null
   today: string
   tracker: TrackerData
   nowIso: string
@@ -56,7 +58,12 @@ export function AppShell({
         <SidebarProvider
           style={{ "--sidebar-width": "14.25rem" } as CSSProperties}
         >
-          <AppSidebar displayName={displayName} plan={plan} isAdmin={isAdmin} />
+          <AppSidebar
+            displayName={displayName}
+            plan={plan}
+            profileCompletionPercent={profileCompletionPercent}
+            isAdmin={isAdmin}
+          />
           <SidebarInset className="min-w-0">
             <AppTopbar firstName={firstName} today={today} />
             <div className="flex flex-1 flex-col p-4 md:p-8">{children}</div>
