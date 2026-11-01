@@ -278,7 +278,11 @@ async function loadRunAnswerMeta(
     question_text: string
     answer: string | null
     field_type: string | null
-    proposed_from: { run_id?: string; auto?: boolean; origin?: ReportOrigin } | null
+    proposed_from: {
+      run_id?: string
+      auto?: boolean
+      origin?: ReportOrigin
+    } | null
   }[]) {
     // Consent/permission decisions are per action: only the ones given for THIS run count.
     if (
@@ -430,7 +434,9 @@ function safeTermsUrl(href: string | null, site: string): string | null {
     if (!/^https?:$/.test(u.protocol)) return null
     const host = u.hostname.toLowerCase()
     const base = site.split(".").slice(-2).join(".")
-    return base && (host === base || host.endsWith(`.${base}`)) ? u.toString() : null
+    return base && (host === base || host.endsWith(`.${base}`))
+      ? u.toString()
+      : null
   } catch {
     return null
   }
@@ -439,10 +445,16 @@ function safeTermsUrl(href: string | null, site: string): string | null {
 /** SHA-256 of the terms page text at the moment we asked (best effort, 5 s, 1 MB). */
 async function snapshotTerms(url: string): Promise<string | null> {
   try {
-    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(5000) })
+    const res = await fetch(url, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(5000),
+    })
     if (!res.ok) return null
     const body = (await res.text()).slice(0, 1_000_000)
-    const text = body.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>/gi, " ")
+    const text = body.replace(
+      /<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>/gi,
+      " "
+    )
     return termsSnapshotHash(text)
   } catch {
     return null
@@ -473,7 +485,9 @@ async function askQuestions(
   )
   const site = siteHost(run.target_url)
   const host = hostOf(run.target_url)
-  const fresh = outcome.questions.filter((q) => !open.has(normalizeLabel(q.label)))
+  const fresh = outcome.questions.filter(
+    (q) => !open.has(normalizeLabel(q.label))
+  )
   let failed: string | undefined
   let autoCount = 0
   const rows = (
@@ -594,7 +608,11 @@ async function askQuestions(
           options: cardChoicesFor({ action, siteRisk: perms.siteRisk }).map(
             (c) => CARD_CHOICES[c]
           ),
-          proposed_from: { ...meta, missing: d.missing ?? [], reason: d.reason },
+          proposed_from: {
+            ...meta,
+            missing: d.missing ?? [],
+            reason: d.reason,
+          },
           status: "aberta",
         }
       })
@@ -693,7 +711,10 @@ async function autoApproveSubmit(
     .eq("id", approvalId)
     .eq("user_id", run.user_id)
     .eq("status", "pendente")
-  await ctx.update(run.id, { phase: "submit_approved", approval_id: approvalId })
+  await ctx.update(run.id, {
+    phase: "submit_approved",
+    approval_id: approvalId,
+  })
   await audit(ctx, run.user_id, "agent_permission.auto_used", run.id, {
     action: "final_submit",
     approval_id: approvalId,
@@ -1076,7 +1097,7 @@ export async function runApplyJob(
         run.phase === "submit_approved" ? await approvedHash(ctx, run) : null
       await ctx.update(run.id, {
         phase: submitHash ? "submitting" : "running",
-        provider_id: tracked.config.id,
+        provider_id: tracked.config.id === "local" ? null : tracked.config.id,
         live_view_url: tracked.session.liveViewUrl,
         segments,
         last_error: null,
@@ -1283,7 +1304,13 @@ export async function runApplyJob(
               categoriesForLabels(outcome.summary.map((f) => f.label))
             )
             if (d.decision === "allow" && approvalId && autoRounds++ < 4) {
-              await autoApproveSubmit(ctx, run, approvalId, d.reason, d.rule?.id)
+              await autoApproveSubmit(
+                ctx,
+                run,
+                approvalId,
+                d.reason,
+                d.rule?.id
+              )
               await recordPermissionUse(admin, {
                 user_id: run.user_id,
                 run_id: run.id,
@@ -1378,7 +1405,11 @@ export function openSensitiveReportColumn(
     const key = authStateKeyFromEnv(env)
     const bytes = fromBytea(value)
     if (!key || !bytes) return null
-    return openAuthState<SensitiveReport>(key, sensitiveReportAad(userId, runId), bytes)
+    return openAuthState<SensitiveReport>(
+      key,
+      sensitiveReportAad(userId, runId),
+      bytes
+    )
   } catch {
     return null
   }

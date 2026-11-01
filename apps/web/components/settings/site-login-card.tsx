@@ -14,9 +14,9 @@ import { Button } from "@workspace/ui/components/button"
 const POLL_MS = 3000
 const FINAL = ["saved", "cancelled", "expired", "failed"]
 const LABEL: Record<string, string> = {
-  starting: "Abrindo navegador na nuvem…",
+  starting: "Abrindo navegador (local ou nuvem)…",
   opening: "Abrindo a página de login…",
-  waiting_user: "Faça o login na tela abaixo",
+  waiting_user: "Faça o login para continuar",
   confirm_requested: "Salvando a sessão…",
   saved: "Site conectado",
   cancelled: "Login cancelado",
@@ -101,8 +101,22 @@ export function SiteLoginCard({
       <div className="flex flex-col gap-2 rounded-md border p-3 text-sm">
         <p className="text-muted-foreground">
           Conecte sua conta neste site uma vez. Você digita a senha e o código
-          2FA direto no navegador na nuvem; o VagaPilot só guarda a sessão,
-          criptografada.
+          2FA direto no seu Chrome local (ou no navegador na nuvem, se o local
+          não estiver ativo); o VagaPilot só guarda a sessão, criptografada.
+        </p>
+        <p className="rounded border border-amber-500/50 bg-amber-500/5 p-2 text-xs text-muted-foreground">
+          <strong>Aviso de risco:</strong> usamos o seu próprio navegador como
+          provedor primário (e Browserbase na nuvem só como fallback) para
+          reduzir bloqueios de datacenter, mas sites como LinkedIn, Gupy e
+          outros ainda podem limitar ou bloquear contas que usam automação. Ao
+          conectar, <strong>você assume integralmente esse risco</strong>.{" "}
+          <a
+            href="/app/configuracoes/riscos#navegador_local"
+            className="underline"
+          >
+            Saiba mais
+          </a>
+          .
         </p>
         <div>
           <Button size="sm" onClick={start} disabled={busy}>
@@ -154,16 +168,23 @@ export function SiteLoginCard({
             className="h-[460px] w-full rounded border"
             sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock"
           />
-          <div>
-            <Button
-              size="sm"
-              onClick={() => finish("confirm")}
-              disabled={busy || status !== "waiting_user"}
-            >
-              Pronto, já entrei
-            </Button>
-          </div>
         </>
+      ) : status === "waiting_user" ? (
+        <p className="text-xs text-muted-foreground">
+          Abrimos a página de login no <strong>seu Chrome local</strong>. Faça o
+          login diretamente nele e depois clique no botão abaixo.
+        </p>
+      ) : null}
+      {view?.liveViewUrl || status === "waiting_user" ? (
+        <div>
+          <Button
+            size="sm"
+            onClick={() => finish("confirm")}
+            disabled={busy || status !== "waiting_user"}
+          >
+            Pronto, já entrei
+          </Button>
+        </div>
       ) : null}
       {FINAL.includes(status) && status !== "saved" ? (
         <div>

@@ -16,7 +16,11 @@ import {
   type SiteRiskLevel,
 } from "@vagapilot/core/risks"
 
-import { cloudApplyConsent, consentMeta, loadSiteRiskLevels } from "@/lib/legal/server"
+import {
+  cloudApplyConsent,
+  consentMeta,
+  loadSiteRiskLevels,
+} from "@/lib/legal/server"
 import { audit } from "@/lib/server/audit"
 import type { UserContext } from "@/lib/server/context"
 import { openColumnText } from "@/lib/server/field-crypto"
@@ -40,7 +44,12 @@ export type ApplyRunView = {
     /** Terms/privacy/marketing box of the site: never ticked by the AI, asks Aceito/Cancelar. */
     consent: { termsUrl: string | null } | null
     /** Run card of a standing-permission action (4 choices) and the categories still missing. */
-    card: { action: string; host: string | null; categories: string[]; missing: string[] } | null
+    card: {
+      action: string
+      host: string | null
+      categories: string[]
+      missing: string[]
+    } | null
   }[]
   /** Labels of review fields to highlight as low confidence. */
   lowConfidence: string[]
@@ -206,8 +215,13 @@ export async function loadApplyRun(
     updated_at: string
   } | null
   if (!row) return null
-  const { openSensitiveReportColumn } = await import("@vagapilot/browser-pool/job")
-  const sensitiveReport = openSensitiveReportColumn(row.sensitive_report_enc, ctx.user.id, row.id)
+  const { openSensitiveReportColumn } =
+    await import("@vagapilot/browser-pool/job")
+  const sensitiveReport = openSensitiveReportColumn(
+    row.sensitive_report_enc,
+    ctx.user.id,
+    row.id
+  )
   const questions =
     row.phase === "waiting_answers"
       ? ((
@@ -233,7 +247,9 @@ export async function loadApplyRun(
   ])
   const siteRisk = host ? siteRiskLevel(host, levels) : null
   const reviewFields = row.review_summary?.fields ?? []
-  const lowConfidence = reviewFields.filter(isLowConfidenceField).map((f) => f.label)
+  const lowConfidence = reviewFields
+    .filter(isLowConfidenceField)
+    .map((f) => f.label)
   const mapped = (
     questions as {
       id: string
@@ -253,8 +269,15 @@ export async function loadApplyRun(
     }
     const options = Array.isArray(q.options) ? q.options.map(String) : []
     const card =
-      (pf.permission || pf.consent) && pf.action && options.includes("Permitir uma vez")
-        ? { action: pf.action, host: pf.host ?? null, categories: pf.categories ?? [], missing: pf.missing ?? [] }
+      (pf.permission || pf.consent) &&
+      pf.action &&
+      options.includes("Permitir uma vez")
+        ? {
+            action: pf.action,
+            host: pf.host ?? null,
+            categories: pf.categories ?? [],
+            missing: pf.missing ?? [],
+          }
         : null
     return {
       card,
@@ -265,6 +288,10 @@ export async function loadApplyRun(
     }
   })
   const alerts = riskAlerts({
+    browserProvider:
+      process.env.BROWSER_PROVIDER?.trim().toLowerCase() === "browserbase"
+        ? "browserbase"
+        : "local",
     siteLevel: siteRisk,
     consentPending: mapped.some((q) => q.consent),
     creatingAccount: row.phase === "login_required",

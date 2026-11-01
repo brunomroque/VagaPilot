@@ -1684,7 +1684,7 @@
       }
     },
     "cloudApply": {
-      "intro": "Posso preencher a candidatura num navegador na nuvem. Você acompanha ao vivo, responde o que eu não souber e aprova antes do envio.",
+      "intro": "Posso preencher a candidatura no seu próprio navegador Chrome local (ou no Browserbase na nuvem, como fallback). Você acompanha, responde o que eu não souber e aprova antes do envio.",
       "start": "Candidatar na nuvem",
       "cancel": "Cancelar",
       "resume": "Já resolvi, continuar",
@@ -1995,6 +1995,9 @@
   "Searches": {
     "title": "Buscas salvas",
     "description": "Critérios que rodam na frequência escolhida e trazem vagas com fit já calculado.",
+    "riskNoticeTitle": "Navegador local (primário) + Browserbase (fallback) — você assume o risco:",
+    "riskNoticeBody": "Para diminuir bloqueios de servidores na nuvem, buscas e candidaturas rodam por padrão no seu próprio Chrome local, nas suas contas reais (e usam o Browserbase na nuvem apenas se o Chrome local estiver indisponível). Plataformas como LinkedIn, Gupy e outras podem limitar, suspender ou bloquear sua conta por automação. Ao criar ou executar uma busca, você assume integralmente esse risco.",
+    "riskNoticeLink": "Ler Riscos e responsabilidades",
     "new": "Nova busca",
     "newTitle": "Nova busca salva",
     "editTitle": "Editar busca",
