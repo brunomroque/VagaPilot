@@ -3,6 +3,7 @@ import { RocketIcon } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 
 import { OverviewCompact } from "@/components/app/overview-compact"
+import { OverviewCompactMobile } from "@/components/app/overview-compact-mobile"
 import { NotConfigured } from "@/components/app/not-configured"
 import { ChatView } from "@/components/chat/chat-view"
 import { loadChatBootstrap } from "@/lib/chat/bootstrap"
@@ -51,20 +52,23 @@ export default async function HomeChatPage() {
         </Alert>
       ) : null}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]">
-        <ChatView
-          key={bootstrap.conversationId}
-          conversationId={bootstrap.conversationId}
-          initialMessages={bootstrap.initialMessages}
-          cvOptions={bootstrap.cvOptions}
-          initialPrompt={null}
-          pendingQuestions={bootstrap.pendingQuestions}
-          nextSteps={bootstrap.nextSteps}
-          screenContext={{
-            screen: "home",
-            pathname: "/app",
-          }}
-          variant="home"
-        />
+        <div className="flex min-w-0 flex-col gap-4">
+          <OverviewCompactMobile />
+          <ChatView
+            key={bootstrap.conversationId}
+            conversationId={bootstrap.conversationId}
+            initialMessages={bootstrap.initialMessages}
+            cvOptions={bootstrap.cvOptions}
+            initialPrompt={null}
+            pendingQuestions={bootstrap.pendingQuestions}
+            nextSteps={bootstrap.nextSteps}
+            screenContext={{
+              screen: "home",
+              pathname: "/app",
+            }}
+            variant="home"
+          />
+        </div>
         <aside className="hidden lg:block">
           <OverviewCompact />
         </aside>
