@@ -301,20 +301,39 @@ export async function answerPendingQuestionAction(
   const auth = await session()
   if ("error" in auth) return auth.error
   const { consentMeta } = await import("@/lib/legal/server")
-  const { CONSENT_ACCEPT, CONSENT_CANCEL } = await import("@vagapilot/browser-pool/apply")
+  const { CONSENT_ACCEPT, CONSENT_CANCEL } =
+    await import("@vagapilot/browser-pool/apply")
   const current = await auth.ctx.supabase
     .from("pending_questions")
-    .select("question_text, proposed_from")
+    .select("question_text, proposed_from, field_type")
     .eq("id", parsed.data.questionId)
     .eq("user_id", auth.ctx.user.id)
     .maybeSingle()
-  const currentRow = current.data as { question_text: string; proposed_from: unknown } | null
+  const currentRow = current.data as {
+    question_text: string
+    proposed_from: unknown
+    field_type: string | null
+  } | null
   const consent = consentMeta(currentRow?.proposed_from)
-  const pf = (currentRow?.proposed_from ?? null) as
-    | { permission?: boolean; action?: string; host?: string; categories?: string[]; missing?: string[] }
-    | null
+  const pf = (currentRow?.proposed_from ?? null) as {
+    permission?: boolean
+    action?: string
+    host?: string
+    categories?: string[]
+    missing?: string[]
+  } | null
   const isPermission = pf?.permission === true
   let answer = parsed.data.answer.trim()
+  const isSalaryGate = currentRow?.field_type === "salary_gate"
+  const { SALARY_APPLY_GATE_CANCEL, SALARY_APPLY_OVERRIDE_CHOICE } =
+    await import("@vagapilot/core/job-rules")
+  if (isSalaryGate) {
+    if (
+      answer !== SALARY_APPLY_OVERRIDE_CHOICE &&
+      answer !== SALARY_APPLY_GATE_CANCEL
+    )
+      return fail("invalid_request", "Escolha uma das opções.")
+  }
   const { cardChoiceFor } = await import("@vagapilot/core/permissions")
   const choice = consent || isPermission ? cardChoiceFor(answer) : null
   if (choice) {
@@ -326,7 +345,9 @@ export async function answerPendingQuestionAction(
       {
         id: auth.ctx.user.id,
         email: auth.ctx.user.email,
-        sessionId: sessionIdFromClaims(claims?.claims as Record<string, unknown> | undefined),
+        sessionId: sessionIdFromClaims(
+          claims?.claims as Record<string, unknown> | undefined
+        ),
       },
       pf ?? {},
       choice,
@@ -340,11 +361,20 @@ export async function answerPendingQuestionAction(
         action: "agent_permission.changed",
         targetType: "pending_question",
         targetId: parsed.data.questionId,
-        details: { choice, action: pf?.action ?? null, site: pf?.host ?? null, rule_id: applied.data.ruleId },
+        details: {
+          choice,
+          action: pf?.action ?? null,
+          site: pf?.host ?? null,
+          rule_id: applied.data.ruleId,
+        },
       }).catch(() => undefined)
     answer = isPermission
-      ? applied.data.allow ? "Permitir" : "Negar"
-      : applied.data.allow ? CONSENT_ACCEPT : CONSENT_CANCEL
+      ? applied.data.allow
+        ? "Permitir"
+        : "Negar"
+      : applied.data.allow
+        ? CONSENT_ACCEPT
+        : CONSENT_CANCEL
   }
   // Terms/privacy/marketing boxes: only an explicit decision of THIS run; never remembered.
   if (consent && answer !== CONSENT_ACCEPT && answer !== CONSENT_CANCEL)
@@ -357,7 +387,8 @@ export async function answerPendingQuestionAction(
       answer,
       status: "respondida",
       answered_at: new Date().toISOString(),
-      remember: consent || isPermission ? false : (parsed.data.remember ?? false),
+      remember:
+        consent || isPermission ? false : (parsed.data.remember ?? false),
     })
     .eq("id", parsed.data.questionId)
     .eq("user_id", auth.ctx.user.id)
@@ -378,6 +409,35 @@ export async function answerPendingQuestionAction(
   })
   const applicationId = (data as { application_id: string | null })
     .application_id
+  if (isSalaryGate && applicationId) {
+    const pfRun = (currentRow?.proposed_from ?? {}) as { run_id?: string }
+    if (answer === SALARY_APPLY_GATE_CANCEL) {
+      const { cancelApplyRun } = await import("@/lib/apply/server")
+      if (pfRun.run_id)
+        await cancelApplyRun(auth.ctx.user.id, pfRun.run_id).catch(() => false)
+      await auth.ctx.supabase
+        .from("applications")
+        .update({ next_action: null, updated_at: new Date().toISOString() })
+        .eq("id", applicationId)
+        .eq("user_id", auth.ctx.user.id)
+      return ok({ id: parsed.data.questionId })
+    }
+    await auth.ctx.supabase
+      .from("applications")
+      .update({ next_action: null, updated_at: new Date().toISOString() })
+      .eq("id", applicationId)
+      .eq("user_id", auth.ctx.user.id)
+  }
+  if (applicationId && currentRow?.field_type === "salary_form_bracket") {
+    const { SALARY_FORM_BLOCK_REASON } =
+      await import("@vagapilot/core/job-rules")
+    await auth.ctx.supabase
+      .from("applications")
+      .update({ next_action: null, updated_at: new Date().toISOString() })
+      .eq("id", applicationId)
+      .eq("user_id", auth.ctx.user.id)
+      .eq("next_action", SALARY_FORM_BLOCK_REASON)
+  }
   if (consent) {
     const decision = answer === CONSENT_ACCEPT ? "aceito" : "cancelado"
     const { recordConsentDecision } = await import("@/lib/legal/server")

@@ -97,7 +97,12 @@ describe.skipIf(!executablePath)(
       server?.close()
     })
 
-    const ctx = { payload: samplePayload(), runAnswers: {}, cvPath: null }
+    const ctx = {
+      payload: samplePayload(),
+      runAnswers: {},
+      cvPath: null,
+      salaryTarget: null,
+    }
 
     async function run(
       session: RecipeSession,

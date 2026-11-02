@@ -4,10 +4,14 @@ import {
   acquireLocalBrowser,
   acquireTrackedBrowser,
   browserProviderFromEnv,
-  cloudFallbackEnabled,
+  DEFAULT_LOCAL_CHROME_PROFILE,
+  DEFAULT_LOCAL_CDP_URL,
   localCdpUrlFromEnv,
+  localChromeProfileFromEnv,
+  localChromeUnavailableMessage,
   probeLocalBrowser,
 } from "../src/index.js"
+import { ProviderError } from "../src/pool/types.js"
 import { fakeSupabase } from "./fake-supabase.js"
 
 const providerRows = [
@@ -54,28 +58,34 @@ const providerRows = [
 ]
 
 describe("local browser provider", () => {
-  it("defaults to local with cloud fallback", () => {
+  it("defaults to local CDP 9223 and chrome-vagas profile", () => {
     expect(browserProviderFromEnv({})).toBe("local")
     expect(browserProviderFromEnv({ BROWSER_PROVIDER: "browserbase" })).toBe(
       "browserbase"
     )
-    expect(cloudFallbackEnabled({})).toBe(true)
-    expect(cloudFallbackEnabled({ BROWSER_FALLBACK: "none" })).toBe(false)
-    expect(localCdpUrlFromEnv({})).toBe("http://127.0.0.1:9222")
+    expect(localCdpUrlFromEnv({})).toBe(DEFAULT_LOCAL_CDP_URL)
+    expect(DEFAULT_LOCAL_CDP_URL).toBe("http://127.0.0.1:9223")
+    expect(localChromeProfileFromEnv({})).toBe(DEFAULT_LOCAL_CHROME_PROFILE)
+    expect(
+      localChromeUnavailableMessage("http://127.0.0.1:9223", {})
+    ).toContain("9223")
+    expect(
+      localChromeUnavailableMessage("http://127.0.0.1:9223", {})
+    ).toContain(DEFAULT_LOCAL_CHROME_PROFILE)
   })
 
   it("probes /json/version", async () => {
     const ok = await probeLocalBrowser(
-      "http://127.0.0.1:9222",
+      DEFAULT_LOCAL_CDP_URL,
       async () =>
         new Response(
           JSON.stringify({
-            webSocketDebuggerUrl: "ws://127.0.0.1:9222/devtools/browser/x",
+            webSocketDebuggerUrl: "ws://127.0.0.1:9223/devtools/browser/x",
           })
         )
     )
-    expect(ok).toBe("ws://127.0.0.1:9222/devtools/browser/x")
-    const down = await probeLocalBrowser("http://127.0.0.1:9222", async () => {
+    expect(ok).toBe("ws://127.0.0.1:9223/devtools/browser/x")
+    const down = await probeLocalBrowser(DEFAULT_LOCAL_CDP_URL, async () => {
       throw new Error("ECONNREFUSED")
     })
     expect(down).toBeNull()
@@ -88,7 +98,7 @@ describe("local browser provider", () => {
     await expect(acquired.adapter.closeSession("x")).resolves.toBeUndefined()
   })
 
-  it("uses local as primary and falls back to Browserbase when local is unreachable", async () => {
+  it("uses local when reachable and never falls back to Browserbase", async () => {
     const { client, db } = fakeSupabase({
       browser_providers: providerRows.map((r) => ({ ...r })),
     })
@@ -104,7 +114,6 @@ describe("local browser provider", () => {
       async closeSession() {},
     })
 
-    // 1. Local responds -> returns local without recording browser_sessions
     const trackedLocal = await acquireTrackedBrowser(
       {
         admin: client,
@@ -113,7 +122,7 @@ describe("local browser provider", () => {
           new Response(
             JSON.stringify({
               webSocketDebuggerUrl:
-                "ws://127.0.0.1:9222/devtools/browser/local",
+                "ws://127.0.0.1:9223/devtools/browser/local",
             })
           ),
         adapterFor,
@@ -125,47 +134,11 @@ describe("local browser provider", () => {
     await trackedLocal.finish()
     expect(db.browser_sessions ?? []).toHaveLength(0)
 
-    // 2. Local unreachable -> falls back to Browserbase (even though Steel has priority 10)
-    const trackedFallback = await acquireTrackedBrowser(
-      {
-        admin: client,
-        env: {},
-        fetch: async () => {
-          throw new Error("ECONNREFUSED")
-        },
-        adapterFor,
-      },
-      { timeoutSeconds: 60, userId: "u1" }
-    )
-    expect(trackedFallback.config.provider).toBe("browserbase")
-    expect(trackedFallback.sessionRowId).toBeTruthy()
-    await trackedFallback.finish()
-
-    // 3. Mid-run failover (exclude: ["local"]) also prefers Browserbase
-    const trackedFailover = await acquireTrackedBrowser(
-      {
-        admin: client,
-        env: {},
-        fetch: async () =>
-          new Response(
-            JSON.stringify({
-              webSocketDebuggerUrl:
-                "ws://127.0.0.1:9222/devtools/browser/local",
-            })
-          ),
-        adapterFor,
-      },
-      { timeoutSeconds: 60, userId: "u1", exclude: ["local"] }
-    )
-    expect(trackedFailover.config.provider).toBe("browserbase")
-    await trackedFailover.finish()
-
-    // 4. BROWSER_FALLBACK=none throws when local is down
     await expect(
       acquireTrackedBrowser(
         {
           admin: client,
-          env: { BROWSER_FALLBACK: "none" },
+          env: {},
           fetch: async () => {
             throw new Error("ECONNREFUSED")
           },
@@ -173,6 +146,56 @@ describe("local browser provider", () => {
         },
         { timeoutSeconds: 60, userId: "u1" }
       )
-    ).rejects.toThrow(/BROWSER_FALLBACK=none/)
+    ).rejects.toMatchObject({
+      code: "unavailable",
+    } as Partial<ProviderError>)
+
+    await expect(
+      acquireTrackedBrowser(
+        {
+          admin: client,
+          env: {},
+          fetch: async () => {
+            throw new Error("ECONNREFUSED")
+          },
+          adapterFor,
+        },
+        { timeoutSeconds: 60, userId: "u1" }
+      )
+    ).rejects.toThrow(/Chrome local indisponível/)
+  })
+
+  it("with exclude local uses cloud pool when BROWSER_PROVIDER=browserbase", async () => {
+    const { client } = fakeSupabase({
+      browser_providers: providerRows.map((r) => ({ ...r })),
+    })
+    const adapterFor = (config: { provider: string }) => ({
+      type: config.provider as "browserbase" | "steel",
+      async createSession() {
+        return {
+          externalId: `${config.provider}-ext`,
+          cdpUrl: `wss://${config.provider}`,
+          liveViewUrl: null,
+        }
+      },
+      async closeSession() {},
+    })
+    const tracked = await acquireTrackedBrowser(
+      {
+        admin: client,
+        env: { BROWSER_PROVIDER: "browserbase", BROWSER_POOL_ENABLED: "true" },
+        fetch: async () =>
+          new Response(
+            JSON.stringify({
+              webSocketDebuggerUrl:
+                "ws://127.0.0.1:9223/devtools/browser/local",
+            })
+          ),
+        adapterFor,
+      },
+      { timeoutSeconds: 60, userId: "u1" }
+    )
+    expect(tracked.config.provider).toBe("browserbase")
+    await tracked.finish()
   })
 })

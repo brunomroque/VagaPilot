@@ -31,8 +31,8 @@ export type LegalSlug =
 /** Current version of each document; bump to force re-acceptance. Must exist in legal_documents. */
 export const LEGAL_CURRENT_VERSIONS: Record<LegalSlug, string> = {
   "termos-de-uso": "2026-10-23.1",
-  "politica-de-privacidade": "2026-10-23.1",
-  "termo-riscos-automacao": "2026-10-23.1",
+  "politica-de-privacidade": "2026-11-01.1",
+  "termo-riscos-automacao": "2026-11-01.1",
 }
 
 /** Documents that must be accepted before the first cloud apply. */
@@ -47,7 +47,7 @@ export const RISK_ACCEPT_CLAUSES = [
   {
     id: "navegador_local",
     label:
-      "Entendo que a automação roda por padrão no meu próprio navegador (ou na nuvem como alternativa) nas minhas contas reais e assumo o risco de limitação, suspensão ou bloqueio dessas contas.",
+      "Entendo que a automação de candidatura roda somente no meu Chrome local, no meu computador, nas minhas contas reais, e assumo o risco de limitação, suspensão ou bloqueio dessas contas.",
   },
   {
     id: "sites_bloqueiam_bots",

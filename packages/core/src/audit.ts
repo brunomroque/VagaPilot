@@ -71,6 +71,7 @@ export const AUDIT_ACTIONS = [
   "legal.copy_sent",
   "apply.consent_requested",
   "apply.consent_decided",
+  "apply.salary_gate_overridden",
   "agent_permission.changed",
   "agent_permission.auto_used",
   "browser_pool.site_risk_changed",

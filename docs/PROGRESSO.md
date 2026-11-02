@@ -450,6 +450,28 @@ Feito (`docs/ux/prompt-impl1.md`, `apps/web`):
 
 Pendente (decisão de produto ou fora do lote): UX02, UX03, UX05, UX06, UX09, UX15, UX16, UX28, demais achados do relatório.
 
+### Bot de vagas — navegador local, salário e envio (2026-11-01)
+
+Feito (branch `fix/f0-bot-de-vagas`, ESPEC § navegador / RF6.3 / DA-01):
+
+- Chrome de vagas: CDP padrão `9223`, perfil `C:\Users\bruno\chrome-vagas` (`LOCAL_BROWSER_PROFILE_DIR`), `scripts/start-chrome-debug.bat`, runbook e `.env.example` alinhados; sem fallback automático para Browserbase quando `BROWSER_PROVIDER=local`.
+- `evaluateSalaryApplyGate` em `@vagapilot/core/job-rules` + bloqueio no início de `runApplyJob` com `next_action` e run `failed` + auditoria `apply.salary_review`.
+- Envio final: removido auto-approve de `final_submit` por permissão permanente; testes `submit-approval.test.ts`.
+- Seed: pretensões Coordenador/Gerente CLT e PJ conforme pedido.
+
+Pendente: smoke manual com Chrome local na máquina do worker.
+
+### Bot de vagas — copy local-only, faixas no formulário e override de salário (2026-11-01)
+
+Feito (branch `fix/f0-bot-de-vagas`):
+
+- Copy pt-BR / riscos / termo e política (versões `2026-11-01.1`): automação de candidatura só no Chrome local; sem fallback Browserbase.
+- `packages/core/salary-bracket.ts`: parse de faixas BR + `decideFormSalaryBracket`; integrado em `resolver.ts` (drivers genéricos e dedicados).
+- Gate de salário da vaga: pergunta `salary_gate`, fase `waiting_answers`, override “Candidatar mesmo assim” + auditoria `apply.salary_gate_overridden`; UI no painel de apply e ficha da candidatura.
+- Testes: `salary-bracket.test.ts`, `resolver.test.ts`, `salary-gate-actions.test.ts`, `job-rules.test.ts`.
+
+Pendente: publicar novas versões em `legal_documents` no ambiente (admin) após bump de `LEGAL_CURRENT_VERSIONS`.
+
 ### CI e2e — iteração 2 (2026-11-02)
 
 Feito (branch `fix/ci-e2e`, sem commit nesta sessão):

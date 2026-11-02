@@ -41,6 +41,8 @@ export type ApplyRunView = {
     id: string
     question: string
     options: string[]
+    salaryGate?: boolean
+    formSalaryBracket?: boolean
     /** Terms/privacy/marketing box of the site: never ticked by the AI, asks Aceito/Cancelar. */
     consent: { termsUrl: string | null } | null
     /** Run card of a standing-permission action (4 choices) and the categories still missing. */
@@ -227,7 +229,7 @@ export async function loadApplyRun(
       ? ((
           await ctx.supabase
             .from("pending_questions")
-            .select("id, question_text, options, proposed_from")
+            .select("id, question_text, options, proposed_from, field_type")
             .eq("application_id", row.application_id)
             .eq("user_id", ctx.user.id)
             .eq("status", "aberta")
@@ -256,6 +258,7 @@ export async function loadApplyRun(
       question_text: string
       options: unknown
       proposed_from: unknown
+      field_type: string | null
     }[]
   ).map((q) => {
     const meta = consentMeta(q.proposed_from)
@@ -285,6 +288,8 @@ export async function loadApplyRun(
       question: q.question_text,
       options: Array.isArray(q.options) ? q.options.map(String) : [],
       consent: meta ? { termsUrl: meta.terms_url ?? null } : null,
+      salaryGate: q.field_type === "salary_gate",
+      formSalaryBracket: q.field_type === "salary_form_bracket",
     }
   })
   const alerts = riskAlerts({

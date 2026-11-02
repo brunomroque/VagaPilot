@@ -67,7 +67,11 @@ begin
     returning id into v_cv;
 
     insert into public.salary_rules (user_id, seniority, regime, amount_min, amount_target)
-    values (u.id, 'gerente', 'clt', 28000, 32000);
+    values
+      (u.id, 'coordenador', 'clt', 18000, 20000),
+      (u.id, 'coordenador', 'pj', 20000, 23000),
+      (u.id, 'gerente', 'clt', 22000, 25000),
+      (u.id, 'gerente', 'pj', 25000, 28000);
 
     insert into public.standard_answers (user_id, key, question_examples, answer)
     values (u.id, 'availability', array['Qual sua disponibilidade para início?'], 'Disponível em 30 dias.');

@@ -469,6 +469,91 @@ export function suggestSalary(
   }
 }
 
+export const SALARY_APPLY_BLOCK_REASON = "Faixa salarial abaixo da pretensão"
+
+export const SALARY_APPLY_OVERRIDE_CHOICE = "Candidatar mesmo assim"
+export const SALARY_APPLY_GATE_CANCEL = "Cancelar"
+export const SALARY_APPLY_GATE_QUESTION =
+  "A faixa salarial publicada na vaga está abaixo da sua pretensão. Deseja continuar mesmo assim?"
+
+export function isSalaryApplyGateOverridden(
+  answer: string | null | undefined
+): boolean {
+  return (
+    normalizeSalaryGateAnswer(answer) ===
+    normalizeSalaryGateAnswer(SALARY_APPLY_OVERRIDE_CHOICE)
+  )
+}
+
+function normalizeSalaryGateAnswer(answer: string | null | undefined): string {
+  return (answer ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+}
+
+export {
+  decideFormSalaryBracket,
+  isSalaryBracketField,
+  parseSalaryBracketOption,
+  SALARY_FORM_BLOCK_REASON,
+} from "./salary-bracket.js"
+
+export type SalaryApplyGateResult =
+  | { proceed: true }
+  | {
+      proceed: false
+      reason: typeof SALARY_APPLY_BLOCK_REASON
+      target: number
+      jobMax: number
+      currency: string
+      seniority: Seniority
+      regime: Regime
+    }
+
+/**
+ * Before submitting an application: block when the posting publishes a max salary below the
+ * user's target for the inferred seniority × contract regime. Missing salary on the posting ⇒ proceed.
+ */
+export function evaluateSalaryApplyGate(
+  rules: readonly SalaryRule[],
+  input: {
+    seniority: Seniority | null
+    roleTitle?: string | null
+    regime: Regime | null
+    jobRange?: JobSalaryRange | null
+  }
+): SalaryApplyGateResult {
+  const jobRange = hasRange(input.jobRange) ? input.jobRange : null
+  if (!jobRange || jobRange.max === null) return { proceed: true }
+  const seniority =
+    input.seniority ??
+    (input.roleTitle ? inferSeniority(input.roleTitle) : null)
+  if (!seniority) return { proceed: true }
+  const picked = suggestSalary(rules, {
+    seniority,
+    regime: input.regime,
+    jobRange: null,
+  })
+  if (picked.status !== "rule") return { proceed: true }
+  const { rule } = picked
+  if (jobRange.currency && jobRange.currency !== rule.currency)
+    return { proceed: true }
+  if (jobRange.max < rule.target) {
+    return {
+      proceed: false,
+      reason: SALARY_APPLY_BLOCK_REASON,
+      target: rule.target,
+      jobMax: jobRange.max,
+      currency: rule.currency,
+      seniority,
+      regime: rule.regime,
+    }
+  }
+  return { proceed: true }
+}
+
 // ---------------------------------------------------------------------------
 // Duplicate check (F5 RF5.1, RF5.3, CA5.1)
 // ---------------------------------------------------------------------------

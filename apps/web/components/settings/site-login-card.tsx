@@ -101,13 +101,12 @@ export function SiteLoginCard({
       <div className="flex flex-col gap-2 rounded-md border p-3 text-sm">
         <p className="text-muted-foreground">
           Conecte sua conta neste site uma vez. Você digita a senha e o código
-          2FA direto no seu Chrome local (ou no navegador na nuvem, se o local
-          não estiver ativo); o VagaPilot só guarda a sessão, criptografada.
+          2FA direto no seu Chrome local; o VagaPilot só guarda a sessão,
+          criptografada.
         </p>
         <p className="rounded border border-amber-500/50 bg-amber-500/5 p-2 text-xs text-muted-foreground">
-          <strong>Aviso de risco:</strong> usamos o seu próprio navegador como
-          provedor primário (e Browserbase na nuvem só como fallback) para
-          reduzir bloqueios de datacenter, mas sites como LinkedIn, Gupy e
+          <strong>Aviso de risco:</strong> a candidatura automatizada roda no
+          seu Chrome local, no seu computador. Sites como LinkedIn, Gupy e
           outros ainda podem limitar ou bloquear contas que usam automação. Ao
           conectar, <strong>você assume integralmente esse risco</strong>.{" "}
           <a

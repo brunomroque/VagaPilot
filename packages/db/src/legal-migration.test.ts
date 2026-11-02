@@ -6,10 +6,13 @@ import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..")
-const sql = readFileSync(
-  join(root, "supabase/migrations/20261024000000_risk_alerts_legal_evidence.sql"),
-  "utf8"
-).replace(/\r\n/g, "\n")
+const migrationFiles = [
+  "supabase/migrations/20261024000000_risk_alerts_legal_evidence.sql",
+  "supabase/migrations/20261101000000_legal_local_browser_copy.sql",
+]
+const sql = migrationFiles
+  .map((f) => readFileSync(join(root, f), "utf8").replace(/\r\n/g, "\n"))
+  .join("\n")
 
 describe("legal evidence migration", () => {
   it.each(["legal_documents", "legal_acceptances", "apply_consent_decisions"])(
@@ -20,23 +23,31 @@ describe("legal evidence migration", () => {
           `before update or delete on public\\.${table}\\nfor each row execute function public\\.block_mutation\\(\\)`
         )
       )
-      expect(sql).toContain(`revoke all on table public.${table} from anon, authenticated`)
+      expect(sql).toContain(
+        `revoke all on table public.${table} from anon, authenticated`
+      )
     }
   )
 
   it("chains acceptances per user and keeps evidence after account deletion", () => {
     expect(sql).toContain("unique nulls not distinct (user_id, prev_hash)")
-    const body = sql.split("create table public.legal_acceptances (")[1]!.split(");")[0]!
+    const body = sql
+      .split("create table public.legal_acceptances (")[1]!
+      .split(");")[0]!
     expect(body).toMatch(/user_id uuid not null,/)
     expect(body).not.toMatch(/user_id[^\n]*references/)
   })
 
-  it.each(["termos-de-uso", "politica-de-privacidade", "termo-riscos-automacao"])(
-    "seeds %s exactly as docs/legal (template hash)",
-    (slug) => {
-      const md = readFileSync(join(root, `docs/legal/${slug}.md`), "utf8").replace(/\r\n/g, "\n")
-      const hash = createHash("sha256").update(md, "utf8").digest("hex")
-      expect(sql).toContain(`$legal$${md}$legal$, '${hash}'`)
-    }
-  )
+  it.each([
+    "termos-de-uso",
+    "politica-de-privacidade",
+    "termo-riscos-automacao",
+  ])("seeds %s exactly as docs/legal (template hash)", (slug) => {
+    const md = readFileSync(
+      join(root, `docs/legal/${slug}.md`),
+      "utf8"
+    ).replace(/\r\n/g, "\n")
+    const hash = createHash("sha256").update(md, "utf8").digest("hex")
+    expect(sql).toContain(`$legal$${md}$legal$, '${hash}'`)
+  })
 })

@@ -80,7 +80,7 @@ describe("risk catalog", () => {
     expect(localAlert?.detail).toContain("Chrome local")
     const cloudAlert = riskAlerts({ browserProvider: "browserbase" })[0]
     expect(cloudAlert?.id).toBe("navegador_local")
-    expect(cloudAlert?.detail).toContain("Browserbase")
+    expect(cloudAlert?.detail).toContain("nuvem")
   })
 
   it("flags low-confidence answers", () => {

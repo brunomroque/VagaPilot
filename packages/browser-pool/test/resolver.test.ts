@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import { normalizeLabel, partitionFields, pickOption, resolveField } from "../src/apply/resolver.js"
+import {
+  normalizeLabel,
+  partitionFields,
+  pickOption,
+  resolveField,
+} from "../src/apply/resolver.js"
 import type { FieldInfo } from "../src/apply/types.js"
 import { samplePayload } from "./payload.js"
 
@@ -16,11 +21,18 @@ const field = (overrides: Partial<FieldInfo>): FieldInfo => ({
   ...overrides,
 })
 
-const ctx = { payload: samplePayload(), runAnswers: {}, cvPath: "/tmp/cv.pdf" }
+const ctx = {
+  payload: samplePayload(),
+  runAnswers: {},
+  cvPath: "/tmp/cv.pdf",
+  salaryTarget: null,
+}
 
 describe("resolver", () => {
   it("normalises labels", () => {
-    expect(normalizeLabel("  Você tem disponibilidade? * ")).toBe("voce tem disponibilidade")
+    expect(normalizeLabel("  Você tem disponibilidade? * ")).toBe(
+      "voce tem disponibilidade"
+    )
   })
   it("picks options without guessing", () => {
     expect(pickOption(["Sim", "Não"], "nao")).toBe("Não")
@@ -28,16 +40,58 @@ describe("resolver", () => {
     expect(pickOption(["A", "B"], "talvez")).toBeNull()
   })
   it("fills from profile, never sensitive fields", () => {
-    expect(resolveField(field({ label: "E-mail", kind: "email", autocomplete: "email" }), ctx)?.value).toBe("bruno@example.com")
-    expect(resolveField(field({ label: "Senha", kind: "text" }), ctx)).toBeNull()
-    expect(resolveField(field({ label: "Currículo", kind: "file" }), ctx)?.source).toBe("cv")
+    expect(
+      resolveField(
+        field({ label: "E-mail", kind: "email", autocomplete: "email" }),
+        ctx
+      )?.value
+    ).toBe("bruno@example.com")
+    expect(
+      resolveField(field({ label: "Senha", kind: "text" }), ctx)
+    ).toBeNull()
+    expect(
+      resolveField(field({ label: "Currículo", kind: "file" }), ctx)?.source
+    ).toBe("cv")
   })
   it("unknown required questions go to the user; run answers win", () => {
     const q = field({ label: "Pretensão salarial?", kind: "text" })
     expect(partitionFields([q], ctx).unknown).toHaveLength(1)
-    const answered = { ...ctx, runAnswers: { [normalizeLabel(q.label)]: "R$ 10.000" } }
-    expect(partitionFields([q], answered).answers[0]?.answer).toMatchObject({ value: "R$ 10.000", source: "run_answer" })
-    expect(partitionFields([field({ label: "Opcional", required: false })], ctx).unknown).toHaveLength(0)
+    const answered = {
+      ...ctx,
+      runAnswers: { [normalizeLabel(q.label)]: "R$ 10.000" },
+    }
+    expect(partitionFields([q], answered).answers[0]?.answer).toMatchObject({
+      value: "R$ 10.000",
+      source: "run_answer",
+    })
+    expect(
+      partitionFields([field({ label: "Opcional", required: false })], ctx)
+        .unknown
+    ).toHaveLength(0)
+  })
+
+  it("auto-picks salary bracket when a band covers the target", () => {
+    const bracket = field({
+      label: "Pretensão salarial",
+      kind: "select",
+      options: ["Até R$ 10.000", "R$ 15.001 a R$ 20.000", "Acima de R$ 25.000"],
+    })
+    const withTarget = { ...ctx, salaryTarget: 16000 }
+    const filled = partitionFields([bracket], withTarget)
+    expect(filled.unknown).toHaveLength(0)
+    expect(filled.answers[0]?.answer.value).toBe("R$ 15.001 a R$ 20.000")
+  })
+
+  it("pauses on salary bracket when all bands are below target", () => {
+    const bracket = field({
+      label: "Faixa salarial",
+      kind: "radio",
+      options: ["Até R$ 10.000", "R$ 10.001 a R$ 15.000"],
+    })
+    const withTarget = { ...ctx, salaryTarget: 32000 }
+    const unknown = partitionFields([bracket], withTarget).unknown
+    expect(unknown).toHaveLength(1)
+    expect(unknown[0]?.formSalaryBelowTarget).toBe(true)
   })
 })
 
@@ -51,24 +105,52 @@ describe("hashPreview", async () => {
 })
 
 describe("consent checkboxes are never ticked by the automation", () => {
-  const terms = field({ label: "Li e aceito os Termos de Uso e a Política de Privacidade", kind: "checkbox", linkHref: "https://ats.example/termos" })
-  const marketing = field({ label: "Aceito receber comunicações de marketing", kind: "checkbox", required: false })
+  const terms = field({
+    label: "Li e aceito os Termos de Uso e a Política de Privacidade",
+    kind: "checkbox",
+    linkHref: "https://ats.example/termos",
+  })
+  const marketing = field({
+    label: "Aceito receber comunicações de marketing",
+    kind: "checkbox",
+    required: false,
+  })
 
   it("ignores profile and standard answers for consent boxes", () => {
     const payload = samplePayload()
     const withStandard = {
       ...ctx,
-      payload: { ...payload, standardAnswers: [...payload.standardAnswers, { key: "termos", questionExamples: [terms.label], answer: "sim", proposedFrom: null }] },
+      payload: {
+        ...payload,
+        standardAnswers: [
+          ...payload.standardAnswers,
+          {
+            key: "termos",
+            questionExamples: [terms.label],
+            answer: "sim",
+            proposedFrom: null,
+          },
+        ],
+      },
     }
     expect(resolveField(terms, withStandard as typeof ctx)).toBeNull()
-    expect(resolveField(terms, { ...ctx, runAnswers: { [normalizeLabel(terms.label)]: "sim" } })).toBeNull()
+    expect(
+      resolveField(terms, {
+        ...ctx,
+        runAnswers: { [normalizeLabel(terms.label)]: "sim" },
+      })
+    ).toBeNull()
   })
 
   it("turns a required consent box into an Aceito/Cancelar question with the terms link", () => {
     const { answers, unknown } = partitionFields([terms, marketing], ctx)
     expect(answers).toHaveLength(0)
     expect(unknown).toEqual([
-      expect.objectContaining({ label: terms.label, options: ["Aceito", "Cancelar"], consent: { termsUrl: "https://ats.example/termos" } }),
+      expect.objectContaining({
+        label: terms.label,
+        options: ["Aceito", "Cancelar"],
+        consent: { termsUrl: "https://ats.example/termos" },
+      }),
     ])
   })
 
@@ -80,9 +162,17 @@ describe("consent checkboxes are never ticked by the automation", () => {
   })
 
   it("ticks only after the user's own Aceito; Cancelar never ticks", () => {
-    const accepted = { ...ctx, runAnswers: { [normalizeLabel(terms.label)]: "Aceito" } }
-    expect(partitionFields([terms], accepted).answers[0]?.answer).toMatchObject({ value: "sim", source: "run_answer" })
-    const cancelled = { ...ctx, runAnswers: { [normalizeLabel(terms.label)]: "Cancelar" } }
+    const accepted = {
+      ...ctx,
+      runAnswers: { [normalizeLabel(terms.label)]: "Aceito" },
+    }
+    expect(partitionFields([terms], accepted).answers[0]?.answer).toMatchObject(
+      { value: "sim", source: "run_answer" }
+    )
+    const cancelled = {
+      ...ctx,
+      runAnswers: { [normalizeLabel(terms.label)]: "Cancelar" },
+    }
     expect(resolveField(terms, cancelled)).toBeNull()
   })
 })

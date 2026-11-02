@@ -73,9 +73,9 @@ export function ConnectedSites({
         </CardTitle>
         <CardDescription>
           Sessões salvas para o VagaPilot agir por você (Gupy, InHire,
-          SuccessFactors, Cornerstone, SmartRecruiters…). Por padrão usamos o
-          seu próprio Chrome local e o Browserbase (nuvem) apenas como fallback.
-          Nos logins que você faz, a senha nunca passa pelo VagaPilot.
+          SuccessFactors, Cornerstone, SmartRecruiters…). A candidatura
+          automatizada roda no seu Chrome local, no seu computador. Nos logins
+          que você faz, a senha nunca passa pelo VagaPilot.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -89,12 +89,9 @@ export function ConnectedSites({
             bloqueio):
           </p>
           <p className="mt-1 text-muted-foreground">
-            Por padrão, a automação roda no{" "}
-            <strong>seu próprio navegador Chrome local</strong> (e usa o{" "}
-            <strong>Browserbase na nuvem só como alternativa/fallback</strong>{" "}
-            se o navegador local não estiver acessível). Fazemos isso porque
-            plataformas como LinkedIn, Gupy e outros ATS bloqueiam com
-            frequência robôs em servidores na nuvem. Mesmo no seu navegador,
+            Por padrão, a automação de candidatura roda no{" "}
+            <strong>seu próprio Chrome local, no seu computador</strong>. Não há
+            fallback automático para navegador na nuvem. Mesmo no seu navegador,
             usar automação na sua conta real pode gerar{" "}
             <strong>
               limitação, suspensão ou bloqueio permanente da conta

@@ -28,6 +28,7 @@ import { fakeSupabase } from "./fake-supabase.js"
 
 const KEY = randomBytes(32).toString("base64")
 const env = { AUTH_STATE_ENCRYPTION_KEY: KEY, BROWSER_POOL_ENABLED: "true" }
+const loginEnv = { ...env, BROWSER_PROVIDER: "browserbase" }
 
 const cookie = (domain: string, expires = -1) => ({
   name: "sid",
@@ -384,7 +385,7 @@ describe("runLoginJob", () => {
     const onSaved = vi.fn(async () => undefined)
     const login = db.browser_login_sessions![0]!
     const job = runLoginJob(login.id as string, {
-      env,
+      env: loginEnv,
       admin: client,
       adapterFor,
       connect: async () => fb.browser,
@@ -430,7 +431,7 @@ describe("runLoginJob", () => {
     const fb = fakeBrowser({ cookies: [], origins: [] })
     const login = db.browser_login_sessions![0]!
     const job = runLoginJob(login.id as string, {
-      env,
+      env: loginEnv,
       admin: client,
       adapterFor,
       connect: async () => fb.browser,

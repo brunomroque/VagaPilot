@@ -1,4 +1,4 @@
-# Navegador local (padrão) + Browserbase (fallback)
+# Navegador local (Chrome de vagas)
 
 ## Por quê
 
@@ -10,31 +10,37 @@ e assume esse risco antes de qualquer busca/candidatura/login.
 
 ## Configuração
 
-| Variável                | Padrão                  | Efeito                                                                    |
-| ----------------------- | ----------------------- | ------------------------------------------------------------------------- |
-| `BROWSER_PROVIDER`      | `local`                 | `local` = Chrome do usuário via CDP; `browserbase` = pool na nuvem direto |
-| `BROWSER_FALLBACK`      | `browserbase`           | `none` desliga o fallback para a nuvem                                    |
-| `LOCAL_BROWSER_CDP_URL` | `http://127.0.0.1:9222` | Endpoint de remote debugging (http ou ws)                                 |
+| Variável                    | Padrão                        | Efeito                                                                    |
+| --------------------------- | ----------------------------- | ------------------------------------------------------------------------- |
+| `BROWSER_PROVIDER`          | `local`                       | `local` = Chrome do usuário via CDP; `browserbase` = pool na nuvem direto |
+| `LOCAL_BROWSER_CDP_URL`     | `http://127.0.0.1:9223`       | Endpoint de remote debugging (http ou ws)                                 |
+| `LOCAL_BROWSER_PROFILE_DIR` | `C:\Users\bruno\chrome-vagas` | Perfil dedicado (Windows); sobrescreva se usar outro perfil (ex.: QA)     |
 
 Fluxo (`acquireTrackedBrowser`, `packages/browser-pool/src/pool/supabase.ts`):
 
-1. `local`: testa `GET {LOCAL_BROWSER_CDP_URL}/json/version` (2 s). Se responder, conecta via CDP
-   no Chrome do usuário. Nunca fecha o Chrome dele; não grava `browser_sessions`.
-2. Sem resposta: cai no pool de nuvem (`BROWSER_POOL_ENABLED=true`), preferindo Browserbase.
-3. Se o local falhar no meio da execução, o id `local` entra em `exclude` e o próximo segmento usa a nuvem.
+1. Com `BROWSER_PROVIDER=local` (padrão): testa `GET {LOCAL_BROWSER_CDP_URL}/json/version` (2 s). Se
+   responder, conecta via CDP no Chrome do usuário. Nunca fecha o Chrome dele; não grava
+   `browser_sessions`.
+2. Se o local não responder, a execução **falha** com mensagem clara — **não** há fallback automático
+   para Browserbase. Use `BROWSER_PROVIDER=browserbase` apenas se quiser rodar só na nuvem.
+3. Se o local falhar no meio da execução, o id `local` entra em `exclude`; com provider `local`, o
+   próximo segmento também falha até o Chrome voltar.
 
 ## Subir o Chrome local (Windows)
 
-Use um perfil dedicado (não o perfil principal) — igual ao `Start-ChromeDebug.ps1` dos bots:
+Use um perfil dedicado (não o perfil principal). Repositório: `scripts/start-chrome-debug.bat` ou:
 
 ```powershell
 & "C:\Program Files\Google\Chrome\Application\chrome.exe" `
-  --remote-debugging-port=9222 `
-  --user-data-dir="$env:LOCALAPPDATA\VagaPilot\chrome-profile"
+  --remote-debugging-port=9223 `
+  --user-data-dir="$env:LOCAL_BROWSER_PROFILE_DIR"
 ```
+
+Se `LOCAL_BROWSER_PROFILE_DIR` não estiver definida, o padrão é `C:\Users\bruno\chrome-vagas`.
 
 Faça login manualmente nesse Chrome (LinkedIn, Gupy...). Nunca informe senhas ao VagaPilot.
 
 **Importante:** o worker precisa rodar **na mesma máquina** (ou alcançar a porta via túnel seguro).
-Funções Netlify não alcançam `127.0.0.1` do usuário — nelas o local fica indisponível e o fallback
-Browserbase assume. Não exponha a porta 9222 na internet: ela dá controle total do navegador.
+Funções Netlify não alcançam `127.0.0.1` do usuário — nelas o local fica indisponível até você
+usar um worker na sua máquina ou `BROWSER_PROVIDER=browserbase`. Não exponha a porta 9223 na
+internet: ela dá controle total do navegador.
