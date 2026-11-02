@@ -2,6 +2,8 @@ import { headers } from "next/headers"
 
 import { resolveAppUrl } from "@vagapilot/core/app-url"
 
+const e2eAllowLocalAppUrl = process.env.E2E_ALLOW_LOCAL_APP_URL === "1"
+
 /** Only same-site relative paths are accepted as post-login destinations (no open redirects). */
 export function safeNextPath(value: unknown, fallback: string): string {
   if (typeof value !== "string") return fallback
@@ -18,6 +20,7 @@ export async function getAppOrigin(): Promise<string> {
   const resolved = resolveAppUrl({
     configured: process.env.NEXT_PUBLIC_APP_URL,
     nodeEnv: process.env.NODE_ENV,
+    allowLocal: e2eAllowLocalAppUrl,
   })
   if (resolved.ok) return resolved.url
   if (process.env.NODE_ENV === "production") {
@@ -40,6 +43,7 @@ export function billingAppUrl(): string {
   const resolved = resolveAppUrl({
     configured: process.env.NEXT_PUBLIC_APP_URL,
     nodeEnv: process.env.NODE_ENV,
+    allowLocal: e2eAllowLocalAppUrl,
   })
   if (resolved.ok) return resolved.url
   if (process.env.NODE_ENV === "production") {

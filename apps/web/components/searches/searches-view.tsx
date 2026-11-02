@@ -74,6 +74,12 @@ import {
 import { FieldGroup } from "@workspace/ui/components/field"
 import { Switch } from "@workspace/ui/components/switch"
 
+const DISPLAY_TZ = "America/Sao_Paulo"
+
+function formatSearchRunAt(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", { timeZone: DISPLAY_TZ })
+}
+
 export type SearchView = SavedSearch & {
   id: string
   active: boolean
@@ -186,9 +192,7 @@ export function SearchesView({
                   <CardDescription>
                     {search.lastRunAt
                       ? t("lastRun", {
-                          date: new Date(search.lastRunAt).toLocaleString(
-                            "pt-BR"
-                          ),
+                          date: formatSearchRunAt(search.lastRunAt),
                         })
                       : t("neverRun")}
                   </CardDescription>

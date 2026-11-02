@@ -66,9 +66,11 @@ test.describe("auth with Supabase", () => {
       await page.getByText("não está configurada neste ambiente").isVisible(),
       "apps/web/.env.local does not point at the local Supabase."
     )
+    await page.getByLabel("Nome").fill("E2E Fictício")
     await page.getByLabel("E-mail").fill(email)
     await page.getByLabel("Senha").fill(password)
     await page.getByRole("button", { name: "Criar conta" }).click()
+    await expect(page).toHaveURL(/\/cadastro\/verifique/, { timeout: 60_000 })
     await expect(
       page.getByRole("heading", { name: "Confirme seu e-mail" })
     ).toBeVisible()

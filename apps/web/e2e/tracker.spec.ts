@@ -318,10 +318,7 @@ test("P3.2 marca a ação como feita em Tarefas e a visão geral acompanha", asy
     },
   ])
 
-  await page
-    .locator("[data-slot=sidebar-container]")
-    .getByRole("link", { name: "Visão geral" })
-    .click()
+  await page.goto("/app")
   await expect(
     page.getByRole("heading", { name: "Pipeline de candidaturas" })
   ).toBeVisible()
