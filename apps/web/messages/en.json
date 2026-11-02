@@ -3,5 +3,12 @@
     "title": "VagaPilot",
     "body": "Monorepo foundation is ready. Product screens arrive in later phases.",
     "action": "Continue"
+  },
+  "JobSheet": {
+    "salaryGateProceedSuccess": "Proceeding with the application",
+    "salaryGateCancelSuccess": "Application cancelled"
+  },
+  "Chat": {
+    "newConversationDraftNotice": "You have text in the field. Send or clear it before starting a new conversation."
   }
 }

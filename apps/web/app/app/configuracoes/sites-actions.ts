@@ -15,7 +15,8 @@ async function userId(): Promise<string | { error: ActionResult<never> }> {
 }
 
 const START_ERRORS: Record<string, string> = {
-  pool_disabled: "O navegador na nuvem está desligado (BROWSER_POOL_ENABLED).",
+  pool_disabled:
+    "Login no Chrome do seu PC está desligado (BROWSER_POOL_ENABLED).",
   invalid_url: "Informe o endereço da página de login (https://...).",
   linkedin_disabled: "O LinkedIn fica desligado por padrão (termos de uso).",
   not_configured: "Servidor sem Supabase configurado.",

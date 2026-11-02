@@ -109,23 +109,33 @@ export async function recordLegacySignupConsents(
 
 /**
  * True when the user accepted every signup-required legal document at its current version/hash.
- * Fail-open only if legal documents cannot be loaded (missing admin client or DB error), so users
- * are not locked out by infrastructure failures.
+ * Fail-closed when the admin client is unavailable, required legal documents cannot be loaded,
+ * or loading throws — users must not pass the gate without verified acceptance.
  */
 export async function hasAcceptedTerms(user: CurrentUser): Promise<boolean> {
   if (user.isDevBypass) return true
 
   if (!getAdminClient()) {
     console.error(
-      "[hasAcceptedTerms] admin client unavailable; treating as accepted (fail-open)"
+      "[hasAcceptedTerms] admin client unavailable; treating as not accepted (fail-closed)"
     )
-    return true
+    return false
   }
 
-  const [docs, rows] = await Promise.all([
-    loadCurrentLegalDocuments(),
-    loadEvidence(user.id),
-  ])
+  let docs: Awaited<ReturnType<typeof loadCurrentLegalDocuments>>
+  let rows: Awaited<ReturnType<typeof loadEvidence>>
+  try {
+    ;[docs, rows] = await Promise.all([
+      loadCurrentLegalDocuments(),
+      loadEvidence(user.id),
+    ])
+  } catch (err) {
+    console.error(
+      "[hasAcceptedTerms] failed to load legal data (fail-closed)",
+      err
+    )
+    return false
+  }
 
   const current: Partial<
     Record<LegalSlug, { version: string; sha256: string }>
@@ -138,9 +148,9 @@ export async function hasAcceptedTerms(user: CurrentUser): Promise<boolean> {
   const requiredLoaded = SIGNUP_REQUIRED_LEGAL_DOCS.filter((s) => current[s])
   if (requiredLoaded.length === 0) {
     console.error(
-      "[hasAcceptedTerms] no current legal documents loaded; treating as accepted (fail-open)"
+      "[hasAcceptedTerms] no current legal documents loaded; treating as not accepted (fail-closed)"
     )
-    return true
+    return false
   }
 
   const latest = latestByDocument(rows)

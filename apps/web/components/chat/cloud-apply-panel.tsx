@@ -172,8 +172,9 @@ export function CloudApplyPanel({
             role="alert"
             className="rounded border border-amber-500/50 bg-amber-500/5 p-2 text-xs"
           >
-            Antes da primeira candidatura na nuvem (e quando os termos mudam),
-            você precisa ler e aceitar o Termo de Riscos e os Termos de Uso.{" "}
+            Antes da primeira candidatura no Chrome do seu PC (e quando os
+            termos mudam), você precisa ler e aceitar o Termo de Riscos e os
+            Termos de Uso.{" "}
             <a
               href="/app/configuracoes/riscos"
               className="font-medium underline"

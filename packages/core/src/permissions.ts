@@ -28,37 +28,48 @@ export const MODE_LABELS: Record<PermissionMode, string> = {
 
 export const ACTION_INFO: Record<
   PermissionAction,
-  { title: string; description: string; defaultMode: PermissionMode; needsExtraConfirmation?: boolean }
+  {
+    title: string
+    description: string
+    defaultMode: PermissionMode
+    needsExtraConfirmation?: boolean
+  }
 > = {
   accept_site_terms: {
     title: "Aceitar termos de sites",
-    description: "Marcar a caixa de termos de uso / privacidade exigida pelo site da vaga.",
+    description:
+      "Marcar a caixa de termos de uso / privacidade exigida pelo site da vaga.",
     defaultMode: "ask",
   },
   create_site_account: {
     title: "Criar conta no site",
-    description: "Criar uma conta no ATS com seu e-mail e uma senha gerada (guardada criptografada).",
+    description:
+      "Criar uma conta no ATS com seu e-mail e uma senha gerada (guardada criptografada).",
     defaultMode: "ask",
   },
   open_email_link: {
     title: "Abrir link de confirmação do e-mail",
-    description: "Abrir o link de verificação enviado pelo próprio site da vaga ao seu Gmail.",
+    description:
+      "Abrir o link de verificação enviado pelo próprio site da vaga ao seu Gmail.",
     defaultMode: "ask",
   },
   use_email_code: {
     title: "Usar código recebido por e-mail",
-    description: "Digitar o código de verificação enviado pelo próprio site da vaga ao seu Gmail.",
+    description:
+      "Digitar o código de verificação enviado pelo próprio site da vaga ao seu Gmail.",
     defaultMode: "ask",
   },
   final_submit: {
     title: "Enviar a candidatura final",
-    description: "Enviar sem a sua revisão. Exige confirmação adicional; desligado por padrão.",
+    description:
+      "Enviar sem a sua revisão. Exige confirmação adicional; desligado por padrão.",
     defaultMode: "ask",
     needsExtraConfirmation: true,
   },
   accept_marketing_optin: {
     title: "Aceitar marketing / ofertas",
-    description: "Caixas de newsletter, ofertas e comunicações. Negadas por padrão.",
+    description:
+      "Caixas de newsletter, ofertas e comunicações. Negadas por padrão.",
     defaultMode: "deny",
   },
 }
@@ -69,17 +80,25 @@ export const FINAL_SUBMIT_CONFIRMATION = "ENVIAR SEM REVISAR"
 export const PERMISSION_ACK_TEXT =
   "Ao ativar esta permissão, nomeio o VagaPilot meu mandatário para praticar esta ação em meu nome, sem me perguntar, nos sites indicados — inclusive aceitar os termos desses sites, que valerão como aceitos por mim. Vale só para as categorias de dados que eu marcar; dados sensíveis exigem confirmação própria. Posso revogar a permissão ou qualquer categoria a qualquer momento. Sites de alto risco sempre perguntam."
 
-
 /** Data categories a standing permission covers. Each must be confirmed explicitly. */
 export const DATA_CATEGORIES = {
-  contato: { label: "Dados de contato (nome, e-mail, telefone)", sensitive: false },
+  contato: {
+    label: "Dados de contato (nome, e-mail, telefone)",
+    sensitive: false,
+  },
   documentos: { label: "Documentos (CPF/RG)", sensitive: false },
   endereco: { label: "Endereço", sensitive: false },
   salario: { label: "Pretensão salarial", sensitive: false },
   familia: { label: "Dados familiares / estado civil", sensitive: false },
-  diversidade: { label: "Diversidade (raça/cor, gênero, orientação sexual)", sensitive: true },
+  diversidade: {
+    label: "Diversidade (raça/cor, gênero, orientação sexual)",
+    sensitive: true,
+  },
   saude: { label: "Saúde / PcD", sensitive: true },
-  compliance: { label: "Antecedentes, vínculos e compliance", sensitive: false },
+  compliance: {
+    label: "Antecedentes, vínculos e compliance",
+    sensitive: false,
+  },
   termos: { label: "Termos e políticas do site", sensitive: false },
   marketing: { label: "Marketing / opt-in", sensitive: false },
 } as const
@@ -93,15 +112,33 @@ export const SENSITIVE_CATEGORY_NOTE =
 export const SENSITIVE_CONFIRMATION = "AUTORIZO DADOS SENSIVEIS"
 
 const CATEGORY_PATTERNS: [DataCategory, RegExp][] = [
-  ["diversidade", /(ra[cç]a|etnia|cor da pele|\bcor\b|g[eê]nero|orienta[cç][aã]o sexual|identidade|diversidade|lgbt|ethnic|diversity|gender|religi)/],
-  ["saude", /(sa[uú]de|defici[eê]ncia|\bpcd\b|laudo|cid\b|health|disabilit|biom[eé]tric)/],
-  ["documentos", /(\bcpf\b|\brg\b|documento|identidade civil|passaporte|cnh|pis|ctps)/],
+  [
+    "diversidade",
+    /(ra[cç]a|etnia|cor da pele|\bcor\b|g[eê]nero|orienta[cç][aã]o sexual|identidade|diversidade|lgbt|ethnic|diversity|gender|religi)/,
+  ],
+  [
+    "saude",
+    /(sa[uú]de|defici[eê]ncia|\bpcd\b|laudo|cid\b|health|disabilit|biom[eé]tric)/,
+  ],
+  [
+    "documentos",
+    /(\bcpf\b|\brg\b|documento|identidade civil|passaporte|cnh|pis|ctps)/,
+  ],
   ["endereco", /(endere[cç]o|\bcep\b|cidade|bairro|logradouro|address)/],
   ["salario", /(sal[aá]ri|pretens[aã]o|remunera|salary)/],
   ["familia", /(estado civil|c[oô]njuge|filhos|dependentes|familia|marital)/],
-  ["compliance", /(antecedente|criminal|parente|v[ií]nculo|conflito de interesse|compliance|funcion[aá]rio p[uú]blico|sindica|pol[ií]tic)/],
-  ["marketing", /(marketing|newsletter|ofertas|novidades|promo|comunica[cç][oõ]es|parceiros)/],
-  ["termos", /(termo|pol[ií]tica|privacidade|consentimento|aceito|concordo|terms|privacy)/],
+  [
+    "compliance",
+    /(antecedente|criminal|parente|v[ií]nculo|conflito de interesse|compliance|funcion[aá]rio p[uú]blico|sindica|pol[ií]tic)/,
+  ],
+  [
+    "marketing",
+    /(marketing|newsletter|ofertas|novidades|promo|comunica[cç][oõ]es|parceiros)/,
+  ],
+  [
+    "termos",
+    /(termo|pol[ií]tica|privacidade|consentimento|aceito|concordo|terms|privacy)/,
+  ],
   ["contato", /(e-?mail|telefone|celular|whats|nome|linkedin|phone|contact)/],
 ]
 
@@ -120,7 +157,10 @@ export function hasSensitive(categories: readonly DataCategory[]): boolean {
 }
 
 /** Validates a grant: every sensitive category needs the typed confirmation. */
-export function categoryGrantOk(categories: readonly DataCategory[], typed: string | null | undefined): boolean {
+export function categoryGrantOk(
+  categories: readonly DataCategory[],
+  typed: string | null | undefined
+): boolean {
   if (!categories.length) return false
   if (!hasSensitive(categories)) return true
   return (typed ?? "").trim().toUpperCase() === SENSITIVE_CONFIRMATION
@@ -198,12 +238,17 @@ export function patternMatches(pattern: string, host: string): boolean {
  * them). Final submit needs the extra confirmation for any automatic path.
  */
 export function resolvePermission(ctx: PermissionContext): PermissionDecision {
-  const setting = ctx.settings[ctx.action] ?? { mode: ACTION_INFO[ctx.action].defaultMode }
-  const rules = ctx.rules.filter((r) => r.action === ctx.action && patternMatches(r.pattern, ctx.host))
+  const setting = ctx.settings[ctx.action] ?? {
+    mode: ACTION_INFO[ctx.action].defaultMode,
+  }
+  const rules = ctx.rules.filter(
+    (r) => r.action === ctx.action && patternMatches(r.pattern, ctx.host)
+  )
   const deny = rules.find((r) => r.effect === "deny")
   if (deny) return { decision: "deny", reason: "deny_rule", rule: deny }
   if (setting.mode === "deny") return { decision: "deny", reason: "mode_deny" }
-  if (ctx.siteRisk === "alto") return { decision: "ask", reason: "high_risk_site" }
+  if (ctx.siteRisk === "alto")
+    return { decision: "ask", reason: "high_risk_site" }
   if (setting.mode === "ask") return { decision: "ask", reason: "mode_ask" }
   if (ACTION_INFO[ctx.action].needsExtraConfirmation && !setting.confirmedAt)
     return { decision: "ask", reason: "final_submit_unconfirmed" }
@@ -212,7 +257,8 @@ export function resolvePermission(ctx: PermissionContext): PermissionDecision {
     touched.filter((c) => !(confirmed ?? []).includes(c))
   const allows = rules.filter((r) => r.effect === "allow")
   for (const rule of allows)
-    if (!missingFor(rule.categories).length) return { decision: "allow", reason: "allow_rule", rule }
+    if (!missingFor(rule.categories).length)
+      return { decision: "allow", reason: "allow_rule", rule }
   if (setting.mode === "auto" && !missingFor(setting.categories).length)
     return { decision: "allow", reason: "mode_auto" }
   const candidates = [
@@ -220,17 +266,30 @@ export function resolvePermission(ctx: PermissionContext): PermissionDecision {
     ...(setting.mode === "auto" ? [missingFor(setting.categories)] : []),
   ]
   if (!candidates.length) return { decision: "ask", reason: "not_listed" }
-  const missing = candidates.reduce((a, b) => (b.length < a.length ? b : a))
-  return { decision: "ask", reason: "missing_category", missing, rule: allows[0] }
+  const missing = candidates
+    .slice(1)
+    .reduce((a, b) => (b.length < a.length ? b : a), candidates[0]!)
+  return {
+    decision: "ask",
+    reason: "missing_category",
+    missing,
+    rule: allows[0],
+  }
 }
 
 /** Consent box classification: marketing vs site terms, plus every data category it mentions. */
-export function consentActionFor(label: string): { action: PermissionAction; categories: DataCategory[] } {
+export function consentActionFor(label: string): {
+  action: PermissionAction
+  categories: DataCategory[]
+} {
   const found = categoriesForLabels([label]).filter((c) => c !== "contato")
   const marketing = found.includes("marketing")
   const categories = found.length ? found : ["termos" as DataCategory]
   if (!marketing && !categories.includes("termos")) categories.unshift("termos")
-  return { action: marketing ? "accept_marketing_optin" : "accept_site_terms", categories }
+  return {
+    action: marketing ? "accept_marketing_optin" : "accept_site_terms",
+    categories,
+  }
 }
 
 /** Buttons of the inline card (like Cursor's run prompt). */
@@ -243,7 +302,9 @@ export const CARD_CHOICES = {
 export type CardChoice = keyof typeof CARD_CHOICES
 
 export function cardChoiceFor(answer: string): CardChoice | null {
-  const entry = Object.entries(CARD_CHOICES).find(([, label]) => label === answer)
+  const entry = Object.entries(CARD_CHOICES).find(
+    ([, label]) => label === answer
+  )
   return entry ? (entry[0] as CardChoice) : null
 }
 
@@ -262,7 +323,8 @@ export function ruleFromCardChoice(
       rule: { action, pattern, effect: "allow", categories: [...categories] },
       mode: current === "ask" || current === "deny" ? "allowlist" : current,
     }
-  if (choice === "denyAlways") return { rule: { action, pattern, effect: "deny" }, mode: current }
+  if (choice === "denyAlways")
+    return { rule: { action, pattern, effect: "deny" }, mode: current }
   return null
 }
 
@@ -270,9 +332,15 @@ export function ruleFromCardChoice(
  * Card buttons. "always" stays available for sensitive data too, but the UI then requires the
  * category ticks + typed confirmation; high-risk sites and final submit never offer it.
  */
-export function cardChoicesFor(ctx: { action: PermissionAction; siteRisk?: SiteRiskLevel | null }): CardChoice[] {
-  const canAlways = ctx.siteRisk !== "alto" && !ACTION_INFO[ctx.action].needsExtraConfirmation
-  return canAlways ? ["once", "always", "deny", "denyAlways"] : ["once", "deny", "denyAlways"]
+export function cardChoicesFor(ctx: {
+  action: PermissionAction
+  siteRisk?: SiteRiskLevel | null
+}): CardChoice[] {
+  const canAlways =
+    ctx.siteRisk !== "alto" && !ACTION_INFO[ctx.action].needsExtraConfirmation
+  return canAlways
+    ? ["once", "always", "deny", "denyAlways"]
+    : ["once", "deny", "denyAlways"]
 }
 
 /** Whether a change grants standing authority (must be recorded in the evidence log). */

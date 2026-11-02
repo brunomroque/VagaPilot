@@ -126,7 +126,7 @@ export function formFingerprint(snapshot: PageSnapshot): string {
     .map(
       (f) => `${f.kind}:${normalizeLabel(safeText(f.label || f.name || ""))}`
     )
-    .sort()
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
   return createHash("sha256")
     .update(`${fields.join("|")}#pw${snapshot.passwordKeys.length}`)
     .digest("hex")
