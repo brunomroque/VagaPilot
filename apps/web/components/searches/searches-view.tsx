@@ -27,12 +27,6 @@ import type { CvOption } from "@/components/chat/job-card-view"
 import { useDiffFormat } from "@/components/chat/use-diff-format"
 import { SelectField, TextField } from "@/components/forms/fields"
 import type { IngestItem } from "@/lib/chat/types"
-
-const DISPLAY_TZ = "America/Sao_Paulo"
-
-function formatSearchRunAt(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", { timeZone: DISPLAY_TZ })
-}
 import {
   EMPTY_SEARCH_FORM,
   searchFormSchema,
@@ -79,6 +73,12 @@ import {
 } from "@workspace/ui/components/empty"
 import { FieldGroup } from "@workspace/ui/components/field"
 import { Switch } from "@workspace/ui/components/switch"
+
+const DISPLAY_TZ = "America/Sao_Paulo"
+
+function formatSearchRunAt(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", { timeZone: DISPLAY_TZ })
+}
 
 export type SearchView = SavedSearch & {
   id: string

@@ -7,8 +7,8 @@ import { expect, test, type Page } from "@playwright/test"
 import {
   adminClient,
   MARINA_ID,
+  openNewConversation,
   screenshotDir,
-  signInAsDevUser,
 } from "./support"
 
 /**
@@ -35,15 +35,6 @@ test.beforeAll(async () => {
 async function requireAdmin(): Promise<SupabaseClient> {
   test.skip(!admin, "Local Supabase is not running (supabase start).")
   return admin as SupabaseClient
-}
-
-async function openNewConversation(page: Page) {
-  await signInAsDevUser(page, "/app/chat")
-  await page.getByRole("button", { name: "Nova conversa" }).click()
-  await expect(page).toHaveURL(/\/app\/chat\?c=[0-9a-f-]{36}$/, {
-    timeout: 60_000,
-  })
-  await expect(page.getByLabel("Mensagem")).toBeVisible()
 }
 
 async function send(page: Page, text: string) {

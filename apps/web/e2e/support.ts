@@ -65,9 +65,20 @@ export async function signInAsDevUser(page: Page, next = "/app") {
     "Dev auth bypass disabled (set VAGAPILOT_DEV_AUTH_BYPASS=1)."
   )
   await expect(page).toHaveURL(new RegExp(`${next.replace("/", "\\/")}$`))
-  await expect(
-    page.locator("header").getByText(/Olá, Marina/)
-  ).toBeVisible()
+  await expect(page.locator("header").getByText(/Olá, Marina/)).toBeVisible()
+}
+
+/** "Nova conversa" uses window.location.assign; the DB row is created on the first message. */
+export async function openNewConversation(page: Page) {
+  await signInAsDevUser(page, "/app/chat")
+  const newChat = page.getByRole("button", { name: "Nova conversa" })
+  await Promise.all([
+    page.waitForURL(/\/app\/chat\?c=[0-9a-f-]{36}$/, { timeout: 60_000 }),
+    newChat.click(),
+  ])
+  const composer = page.getByLabel("Mensagem")
+  await expect(composer).toBeVisible({ timeout: 60_000 })
+  await expect(composer).toBeEnabled({ timeout: 60_000 })
 }
 
 /** Waits for enter/exit animations so screenshots are stable. */
