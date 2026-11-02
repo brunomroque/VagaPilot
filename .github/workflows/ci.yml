@@ -90,7 +90,9 @@ jobs:
 
       - name: Ephemeral crypto key for e2e (not a production secret)
         run: |
-          echo "KEK_LOCAL=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          KEK=$(openssl rand -base64 32)
+          echo "::add-mask::$KEK"
+          echo "KEK_LOCAL=$KEK" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_APP_URL=http://127.0.0.1:${E2E_PORT}" >> "$GITHUB_ENV"
 
       - name: Start Supabase and reset DB
@@ -121,6 +123,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
         working-directory: apps/web
+
+      - name: Build web for e2e (next start)
+        run: pnpm --filter web build
 
       - name: Playwright e2e (port 3100)
         run: pnpm --filter web test:e2e

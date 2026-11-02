@@ -22,6 +22,7 @@ import {
 import { SupabaseAuditSink } from "@vagapilot/db/server"
 
 import { getCurrentUser, type CurrentUser } from "@/lib/auth/session"
+import { getAdminClient } from "@/lib/server/admin"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 /** Server-only helpers shared by the tracker server actions and route handlers. */
@@ -38,13 +39,21 @@ export async function getTrackerSession(): Promise<
   return { user, supabase }
 }
 
-/** Appends to audit_log through the user's session. A failed audit write is logged, never thrown. */
+/** Appends to audit_log with service role (authenticated insert was revoked in QA migration). */
 export async function audit(
-  supabase: SupabaseClient,
+  _supabase: SupabaseClient,
   event: AuditEventInput
 ): Promise<void> {
+  const admin = getAdminClient()
+  if (!admin) {
+    console.error("audit write failed", {
+      action: event.action,
+      reason: "not_configured",
+    })
+    return
+  }
   try {
-    await logAudit(new SupabaseAuditSink(supabase), event)
+    await logAudit(new SupabaseAuditSink(admin), event)
   } catch (error) {
     console.error("audit write failed", {
       action: event.action,

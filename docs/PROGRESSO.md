@@ -432,6 +432,7 @@ Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram
 - **Correção:** `effectiveSettingConfirmed` + `chatToolMustWaitForConfirmation` em `packages/core/src/policy.ts`; `applySettingChange` força pendente para médio/alto com origem `chat`. Prompt orquestrador + descrições de ferramenta reforçam confirmação e `ask_clarification` para “prefiro vagas em inglês” sem cargo/local.
 - **Auditoria:** `data-actions`, `extended-tools` e `approvals/*` não gravam buscas/preferências fora de `applySettingChange` / `confirmPendingChange`.
 - **Pendente:** deploy + smoke manual no chat de produção (“prefiro vagas em inglês” → clarificação ou cartão, nunca `applied` sem clique).
+
 ### UX — Auditoria Leis de UX (2026-11-01)
 
 Feito (somente leitura, sem alteração de UI):
@@ -448,3 +449,15 @@ Feito (`docs/ux/prompt-impl1.md`, `apps/web`):
 - Testes: `pnpm --filter web typecheck`, `lint`, `vitest run` (incl. `lib/onboarding/completion.test.ts`).
 
 Pendente (decisão de produto ou fora do lote): UX02, UX03, UX05, UX06, UX09, UX15, UX16, UX28, demais achados do relatório.
+
+### CI e2e — iteração 2 (2026-11-02)
+
+Feito (branch `fix/ci-e2e`, sem commit nesta sessão):
+
+- **Bug produto:** auditoria do tracker passou a gravar `audit_log` com `service_role` (migração QA revogou `INSERT` para `authenticated`; alinhado a `lib/server/audit.ts`).
+- **Bug produto:** datas em `/app/buscas` formatadas com `timeZone: America/Sao_Paulo` para evitar hydration mismatch (UTC no runner vs pt-BR no browser).
+- **Chat:** “Nova conversa” usa `startNewConversationAction` (redirect server-side, funciona sem hidratação).
+- **CI:** `KEK_LOCAL` mascarado com `::add-mask::`; `pnpm --filter web build` + Playwright com `next start` em CI; timeout padrão 120s; limite local `auth.rate_limit.email_sent` aumentado para suportar cadastros e2e.
+- **Testes:** locators de fatos (Ignorar / Fato ignorado), auth aguarda `/cadastro/verifique`, tracker P3.2 navega com `goto /app`, timeouts de chat/buscas ajustados.
+
+Pendente: reexecutar job e2e no PR após push; smoke local exige `supabase start` + `pnpm db:reset`.

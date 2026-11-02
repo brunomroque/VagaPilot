@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useFormStatus } from "react-dom"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai"
 import {
@@ -20,6 +21,7 @@ import {
   captureChatMessageSent,
   captureChatOpened,
 } from "@/lib/analytics/chat-events"
+import { startNewConversationAction } from "@/app/app/chat/actions"
 import type { NextStepsPayload } from "@/lib/chat/next-steps"
 import type { ChatScreenContext } from "@/lib/chat/screens"
 import type { ChatToolOutput } from "@/lib/chat/types"
@@ -60,6 +62,26 @@ function errorMessage(error: Error, fallback: string): string {
   }
 }
 
+function NewConversationButton({ disabled }: { disabled: boolean }) {
+  const t = useTranslations("Chat")
+  const { pending } = useFormStatus()
+  return (
+    <Button
+      type="submit"
+      variant="outline"
+      size="sm"
+      disabled={disabled || pending}
+    >
+      {pending ? (
+        <LoaderCircleIcon data-icon="inline-start" className="animate-spin" />
+      ) : (
+        <PlusIcon data-icon="inline-start" />
+      )}
+      {t("newConversation")}
+    </Button>
+  )
+}
+
 /** F7 chat: streaming answers, widgets for tool results, keyboard-first composer (CA7.2). */
 export function ChatView({
   conversationId,
@@ -88,8 +110,6 @@ export function ChatView({
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  // QA: typing while "Nova conversa" was still redirecting sent to the old conversation.
-  const [switching, setSwitching] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
   const sentInitial = useRef(false)
 
@@ -114,8 +134,7 @@ export function ChatView({
     },
   })
 
-  const busy =
-    status === "submitted" || status === "streaming" || uploading || switching
+  const busy = status === "submitted" || status === "streaming" || uploading
 
   async function addFiles(list: FileList | null) {
     if (!list) return
@@ -282,31 +301,10 @@ export function ChatView({
           <h2 className="text-lg font-bold">
             {variant === "home" ? t("homeTitle") : t("title")}
           </h2>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault()
-              setSwitching(true)
-              // Full navigation to a brand-new id: no stale chat state survives,
-              // and the first message creates the conversation with this id.
-              window.location.assign(`/app/chat?c=${crypto.randomUUID()}`)
-            }}
-          >
-            <Button
-              type="submit"
-              variant="outline"
-              size="sm"
-              disabled={switching || uploading || status === "streaming"}
-            >
-              {switching ? (
-                <LoaderCircleIcon
-                  data-icon="inline-start"
-                  className="animate-spin"
-                />
-              ) : (
-                <PlusIcon data-icon="inline-start" />
-              )}
-              {t("newConversation")}
-            </Button>
+          <form action={startNewConversationAction}>
+            <NewConversationButton
+              disabled={uploading || status === "streaming"}
+            />
           </form>
         </div>
       ) : null}

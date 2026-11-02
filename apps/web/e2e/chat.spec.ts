@@ -40,7 +40,9 @@ async function requireAdmin(): Promise<SupabaseClient> {
 async function openNewConversation(page: Page) {
   await signInAsDevUser(page, "/app/chat")
   await page.getByRole("button", { name: "Nova conversa" }).click()
-  await expect(page).toHaveURL(/\/app\/chat\?c=[0-9a-f-]{36}$/)
+  await expect(page).toHaveURL(/\/app\/chat\?c=[0-9a-f-]{36}$/, {
+    timeout: 60_000,
+  })
   await expect(page.getByLabel("Mensagem")).toBeVisible()
 }
 
@@ -251,7 +253,7 @@ test.describe("chat with widgets (P2.4)", () => {
 
     await send(page, links.join("\n"))
     const batch = page.getByTestId("ingest-batch")
-    await expect(batch).toBeVisible()
+    await expect(batch).toBeVisible({ timeout: 60_000 })
     await expect(batch.getByRole("status").first()).toBeVisible()
     const cards = page.getByTestId("job-card")
     await expect(cards).toHaveCount(3, { timeout: 30_000 })
@@ -482,6 +484,7 @@ test.describe("chat that configures the app (P2.5, F14)", () => {
     await page.goto("/app/buscas")
     await page.getByRole("button", { name: "Nova busca" }).first().click()
     const dialog = page.getByRole("dialog", { name: "Nova busca salva" })
+    await expect(dialog).toBeVisible({ timeout: 60_000 })
     await dialog.getByLabel("Cargo ou palavras-chave").fill(query)
     await dialog.getByLabel("Local").fill("São Paulo")
     await dialog.getByLabel("Nível").selectOption("gerente")

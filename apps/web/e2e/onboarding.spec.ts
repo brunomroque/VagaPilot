@@ -62,9 +62,7 @@ test.describe("onboarding (J1)", () => {
     })
     await page.getByRole("button", { name: "Enviar e extrair fatos" }).click()
     await expect(
-      page
-        .getByText(/Currículo enviado\. \d+ fatos para revisar\./)
-        .first()
+      page.getByText(/Currículo enviado\. \d+ fatos para revisar\./).first()
     ).toBeVisible({
       timeout: 60_000,
     })
@@ -95,9 +93,9 @@ test.describe("onboarding (J1)", () => {
     await expect(alfa).toBeHidden()
 
     await page
-      .getByRole("button", { name: /^Rejeitar: Desenvolveu o roteirizador/ })
+      .getByRole("button", { name: /^Ignorar: Desenvolveu o roteirizador/ })
       .click()
-    await expect(page.getByText("Fato rejeitado")).toBeVisible()
+    await expect(page.getByText("Fato ignorado")).toBeVisible()
 
     await page
       .getByRole("button", { name: /^Editar e confirmar: Entregou 8 projetos/ })

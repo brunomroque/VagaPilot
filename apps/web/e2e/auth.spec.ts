@@ -70,6 +70,7 @@ test.describe("auth with Supabase", () => {
     await page.getByLabel("E-mail").fill(email)
     await page.getByLabel("Senha").fill(password)
     await page.getByRole("button", { name: "Criar conta" }).click()
+    await expect(page).toHaveURL(/\/cadastro\/verifique/, { timeout: 60_000 })
     await expect(
       page.getByRole("heading", { name: "Confirme seu e-mail" })
     ).toBeVisible()
