@@ -78,8 +78,22 @@ async function scrollTextContainerToEnd(container: Locator) {
   await container.evaluate((el) => {
     const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
     el.scrollTop = maxTop
+    el.dispatchEvent(new Event("scroll", { bubbles: true }))
   })
-  await container.dispatchEvent("scroll")
+}
+
+/** After one "Li e aceito": client navigates to onboarding or soft-refreshes /aceite. */
+async function waitAfterLegalAcceptClick(page: Page, acceptButton: Locator) {
+  await Promise.race([
+    page.waitForURL((url) => url.pathname !== "/aceite", { timeout: 60_000 }),
+    acceptButton.waitFor({ state: "hidden", timeout: 60_000 }),
+  ])
+  if (new URL(page.url()).pathname === "/aceite") {
+    await page
+      .getByRole("button", { name: "Li e aceito" })
+      .first()
+      .waitFor({ state: "visible", timeout: 60_000 })
+  }
 }
 
 /** Scroll-to-end + per-document clickwrap on /aceite (LegalAcceptanceCard). */
@@ -114,7 +128,7 @@ export async function acceptSignupLegalDocuments(page: Page) {
 
     await expect(acceptButton).toBeEnabled({ timeout: 5_000 })
     await acceptButton.click()
-    await page.waitForLoadState("load", { timeout: 60_000 })
+    await waitAfterLegalAcceptClick(page, acceptButton)
   }
 
   await expect(page).toHaveURL(/\/app\/onboarding$/, { timeout: 60_000 })

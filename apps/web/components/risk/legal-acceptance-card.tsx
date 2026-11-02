@@ -1,6 +1,7 @@
 "use client"
 
 import { useLayoutEffect, useRef, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import {
@@ -45,6 +46,7 @@ export function LegalAcceptanceCard({
   gmailSend,
   history,
   compact = false,
+  afterAcceptNavigateTo,
 }: {
   doc: Doc
   clauses: { id: string; label: string }[]
@@ -52,7 +54,10 @@ export function LegalAcceptanceCard({
   gmailSend: boolean
   history: { id: string; action: string; version: string; at: string }[]
   compact?: boolean
+  /** When signup legal docs are all accepted (e.g. /aceite), navigate here instead of reload. */
+  afterAcceptNavigateTo?: string
 }) {
+  const router = useRouter()
   const textScrollRef = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   const [checks, setChecks] = useState<Record<string, boolean>>({})
@@ -95,7 +100,12 @@ export function LegalAcceptanceCard({
         return
       }
       toast.success("Aceite registrado. Baixe o comprovante se quiser.")
-      window.location.reload()
+      if (r.data.signupComplete && afterAcceptNavigateTo) {
+        router.replace(afterAcceptNavigateTo)
+        router.refresh()
+        return
+      }
+      router.refresh()
     })
   }
 
@@ -115,7 +125,7 @@ export function LegalAcceptanceCard({
         toast.success(
           `Aceite revogado. ${r.data.cancelledRuns} candidatura(s) cancelada(s).`
         )
-        window.location.reload()
+        router.refresh()
       }
     })
   }

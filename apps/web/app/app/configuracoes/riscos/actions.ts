@@ -49,7 +49,7 @@ const acceptSchema = z.object({
 /** Clickwrap acceptance of ONE document version (the text the user saw, by hash). */
 export async function acceptLegalDocumentAction(
   input: unknown
-): Promise<Result<{ recordId: string }>> {
+): Promise<Result<{ recordId: string; signupComplete: boolean }>> {
   const parsed = acceptSchema.safeParse(input)
   if (!parsed.success)
     return { ok: false, error: "Leia o texto até o fim e marque cada item." }
@@ -112,7 +112,8 @@ export async function acceptLegalDocumentAction(
       { version: docs[s]!.version, sha256: docs[s]!.sha256 },
     ])
   )
-  if (signupLegalComplete(latest, current)) {
+  const signupComplete = signupLegalComplete(latest, current)
+  if (signupComplete) {
     const user = await getCurrentUser()
     if (user) await recordLegacySignupConsents(user)
   }
@@ -125,7 +126,8 @@ export async function acceptLegalDocumentAction(
     details: { slug: doc.slug, version: doc.version, sha256: doc.sha256 },
   }).catch(() => undefined)
   revalidatePath("/app/configuracoes/riscos")
-  return { ok: true, data: { recordId: record.id } }
+  revalidatePath("/aceite")
+  return { ok: true, data: { recordId: record.id, signupComplete } }
 }
 
 /** LGPD revocation at any time: disables cloud apply (new and paused runs) and is logged. */

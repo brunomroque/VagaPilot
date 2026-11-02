@@ -25,6 +25,7 @@ type DocPanel = {
 }
 
 export function AceiteLegalPanel({
+  next,
   pending,
   docs,
 }: {
@@ -95,6 +96,7 @@ export function AceiteLegalPanel({
             gmailSend={false}
             history={[]}
             compact
+            afterAcceptNavigateTo={next}
           />
         </div>
       ))}
