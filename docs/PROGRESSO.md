@@ -484,7 +484,7 @@ Feito (branch `fix/ci-e2e`, sem commit nesta sessão):
 
 Pendente: reexecutar job e2e no PR após push; smoke local exige `supabase start` + `pnpm db:reset`.
 
-- **E2E aceite (2026-11-02):** helper `acceptSignupLegalDocuments` (scroll até o fim + clickwrap por documento) substitui checkboxes globais / botão “Aceitar e continuar” obsoleto após `LegalAcceptanceCard` em `/aceite`.
+- **E2E aceite (2026-11-02):** helper `acceptSignupLegalDocuments` (scroll até o fim + clickwrap por documento) substitui checkboxes globais / botão “Aceitar e continuar” obsoleto após `LegalAcceptanceCard` em `/aceite`. **Correção (2026-11-02):** `LegalAcceptanceCard` libera o fieldset quando o texto cabe sem scroll (`useLayoutEffect` + `ResizeObserver`); helper e2e rola de fato o container, espera `fieldset` habilitado (não o botão “Li e aceito”, que exige checkboxes) e `LEGAL_ALLOW_DRAFT=true` no servidor Playwright em CI (`next start`).
 
 ### Reteste QA c3404f7 (2026-11-02)
 
