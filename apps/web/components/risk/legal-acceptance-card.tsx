@@ -59,6 +59,7 @@ export function LegalAcceptanceCard({
 }) {
   const router = useRouter()
   const textScrollRef = useRef<HTMLDivElement>(null)
+  const scrollEndSentinelRef = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   const [checks, setChecks] = useState<Record<string, boolean>>({})
   const [typed, setTyped] = useState("")
@@ -70,16 +71,33 @@ export function LegalAcceptanceCard({
 
   useLayoutEffect(() => {
     if (accepted) return
-    const el = textScrollRef.current
-    if (!el) return
-    const syncScrollEnd = () => {
-      if (isScrolledToEnd(el)) setScrolled(true)
+    setScrolled(false)
+    const root = textScrollRef.current
+    const sentinel = scrollEndSentinelRef.current
+    if (!root) return
+    const markIfAtEnd = () => {
+      if (isScrolledToEnd(root)) setScrolled(true)
     }
-    syncScrollEnd()
-    const observer = new ResizeObserver(syncScrollEnd)
-    observer.observe(el)
-    for (const child of el.children) observer.observe(child)
-    return () => observer.disconnect()
+    markIfAtEnd()
+    root.addEventListener("scroll", markIfAtEnd, { passive: true })
+    const resizeObserver = new ResizeObserver(markIfAtEnd)
+    resizeObserver.observe(root)
+    for (const child of root.children) resizeObserver.observe(child)
+    let intersectionObserver: IntersectionObserver | undefined
+    if (sentinel) {
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) setScrolled(true)
+        },
+        { root, threshold: 0, rootMargin: "0px 0px 0px 0px" }
+      )
+      intersectionObserver.observe(sentinel)
+    }
+    return () => {
+      root.removeEventListener("scroll", markIfAtEnd)
+      resizeObserver.disconnect()
+      intersectionObserver?.disconnect()
+    }
   }, [accepted, doc.text, doc.version])
 
   function accept() {
@@ -93,6 +111,7 @@ export function LegalAcceptanceCard({
         ),
         typedConfirmation: typed.trim() || null,
         scrolledToEnd: scrolled,
+        afterSignupNavigateTo: afterAcceptNavigateTo,
       })
       if (!r.ok) {
         if (r.error === "reauth_required") setNeedsReauth(true)
@@ -101,8 +120,7 @@ export function LegalAcceptanceCard({
       }
       toast.success("Aceite registrado. Baixe o comprovante se quiser.")
       if (r.data.signupComplete && afterAcceptNavigateTo) {
-        router.replace(afterAcceptNavigateTo)
-        router.refresh()
+        window.location.assign(afterAcceptNavigateTo)
         return
       }
       router.refresh()
@@ -171,6 +189,11 @@ export function LegalAcceptanceCard({
         }}
       >
         <LegalText text={doc.text} />
+        <div
+          ref={scrollEndSentinelRef}
+          aria-hidden
+          className="h-px w-full shrink-0"
+        />
       </div>
       {!accepted ? (
         <>

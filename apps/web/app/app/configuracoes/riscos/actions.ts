@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { z } from "zod"
 
 import { GMAIL_SEND_SCOPE, sendGmailMessage } from "@vagapilot/gmail"
@@ -30,6 +31,7 @@ import { getCurrentUser, recordLegacySignupConsents } from "@/lib/auth/session"
 import { audit } from "@/lib/server/audit"
 import { getUserContext } from "@/lib/server/context"
 import { getFieldCrypto } from "@/lib/server/field-crypto"
+import { safeNextPath } from "@/lib/url"
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string }
 
@@ -44,6 +46,7 @@ const acceptSchema = z.object({
   checkboxes: z.record(z.string(), z.boolean()),
   typedConfirmation: z.string().max(200).nullable(),
   scrolledToEnd: z.literal(true),
+  afterSignupNavigateTo: z.string().max(500).optional(),
 })
 
 /** Clickwrap acceptance of ONE document version (the text the user saw, by hash). */
@@ -127,6 +130,9 @@ export async function acceptLegalDocumentAction(
   }).catch(() => undefined)
   revalidatePath("/app/configuracoes/riscos")
   revalidatePath("/aceite")
+  if (signupComplete && parsed.data.afterSignupNavigateTo) {
+    redirect(safeNextPath(parsed.data.afterSignupNavigateTo, "/app/onboarding"))
+  }
   return { ok: true, data: { recordId: record.id, signupComplete } }
 }
 

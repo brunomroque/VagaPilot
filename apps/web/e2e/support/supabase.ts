@@ -74,24 +74,54 @@ function textContainerForAcceptButton(acceptButton: Locator): Locator {
   )
 }
 
-async function scrollTextContainerToEnd(container: Locator) {
+async function scrollTextContainerToEnd(page: Page, container: Locator) {
+  if (new URL(page.url()).pathname !== "/aceite") return
   await container.evaluate((el) => {
     const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
     el.scrollTop = maxTop
     el.dispatchEvent(new Event("scroll", { bubbles: true }))
   })
+  if (new URL(page.url()).pathname !== "/aceite") return
+  try {
+    await container.focus({ timeout: 2_000 })
+    await container.press("End", { timeout: 2_000 })
+  } catch {
+    /* navigation can unmount the scroll container mid-gesture */
+  }
+}
+
+function pendingLegalCard(page: Page): Locator {
+  return page
+    .locator("div.rounded-md.border")
+    .filter({ has: page.getByRole("button", { name: "Li e aceito" }) })
+    .first()
 }
 
 /** After one "Li e aceito": client navigates to onboarding or soft-refreshes /aceite. */
-async function waitAfterLegalAcceptClick(page: Page, acceptButton: Locator) {
-  await Promise.race([
-    page.waitForURL((url) => url.pathname !== "/aceite", { timeout: 60_000 }),
-    acceptButton.waitFor({ state: "hidden", timeout: 60_000 }),
-  ])
+async function waitAfterLegalAcceptClick(page: Page, card: Locator) {
+  try {
+    await Promise.race([
+      page.waitForURL((url) => url.pathname !== "/aceite", {
+        timeout: 60_000,
+        waitUntil: "commit",
+      }),
+      page.getByText("Aceite registrado").waitFor({
+        state: "visible",
+        timeout: 30_000,
+      }),
+      card
+        .getByText("Você aceitou esta versão")
+        .waitFor({ state: "visible", timeout: 60_000 }),
+    ])
+  } catch {
+    if (new URL(page.url()).pathname !== "/aceite") return
+    if (await card.getByText("Você aceitou esta versão").isVisible()) return
+    await page.reload({ waitUntil: "domcontentloaded" })
+    if (new URL(page.url()).pathname !== "/aceite") return
+  }
   if (new URL(page.url()).pathname === "/aceite") {
-    await page
+    await pendingLegalCard(page)
       .getByRole("button", { name: "Li e aceito" })
-      .first()
       .waitFor({ state: "visible", timeout: 60_000 })
   }
 }
@@ -105,30 +135,37 @@ export async function acceptSignupLegalDocuments(page: Page) {
       throw new Error("acceptSignupLegalDocuments timed out on /aceite")
     }
 
-    const acceptButton = page
-      .getByRole("button", { name: "Li e aceito" })
-      .first()
+    const card = pendingLegalCard(page)
+    const acceptButton = card.getByRole("button", { name: "Li e aceito" })
     if (!(await acceptButton.isVisible())) break
 
     const fieldset = acceptButton.locator("xpath=ancestor::fieldset[1]")
     const textContainer = textContainerForAcceptButton(acceptButton)
 
-    const enableDeadline = Date.now() + 20_000
+    const firstCheckbox = fieldset.locator('input[type="checkbox"]').first()
+    const enableDeadline = Date.now() + 30_000
     while (Date.now() < enableDeadline) {
-      if (!(await fieldset.isDisabled())) break
-      await scrollTextContainerToEnd(textContainer)
+      if (new URL(page.url()).pathname !== "/aceite") return
+      const enabled = await firstCheckbox
+        .isEnabled({ timeout: 1_000 })
+        .catch(() => false)
+      if (enabled) break
+      await scrollTextContainerToEnd(page, textContainer)
       await page.waitForTimeout(100)
     }
-    await expect(fieldset).toBeEnabled({ timeout: 5_000 })
+    if (new URL(page.url()).pathname !== "/aceite") return
+    await expect(firstCheckbox).toBeEnabled({ timeout: 10_000 })
 
     const boxes = fieldset.locator('input[type="checkbox"]')
     for (let i = 0; i < (await boxes.count()); i++) {
+      await expect(boxes.nth(i)).toBeEnabled()
       await boxes.nth(i).check()
     }
 
     await expect(acceptButton).toBeEnabled({ timeout: 5_000 })
     await acceptButton.click()
-    await waitAfterLegalAcceptClick(page, acceptButton)
+    await waitAfterLegalAcceptClick(page, card)
+    if (new URL(page.url()).pathname !== "/aceite") break
   }
 
   await expect(page).toHaveURL(/\/app\/onboarding$/, { timeout: 60_000 })
