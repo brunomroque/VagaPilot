@@ -279,7 +279,7 @@ Datasets fictícios.
 
 ### 10.7 Auditoria mínima
 
-`fact.proposed/confirmed/rejected`, `cv.uploaded/generated`, `job.ingested`, `match.created`, `decision.recorded`, `package.created/consumed`, `form.field_filled`, `question.asked/answered`, `approval.requested/approved/rejected/expired`, `email.sent`, `application.submitted`, `status.changed`, `gmail.connected/revoked/synced`, `data.exported`, `account.deletion_requested`, `settings.changed/undone`, `search.created/updated/deleted`, `chat.off_topic_refused`, `chat.injection_blocked`, `ratelimit.hit`, `killswitch.toggled`, `risk.accepted/revoked/reconsent_required` (imutáveis). Visível em "Atividade".
+`fact.proposed/confirmed/rejected`, `cv.uploaded/generated`, `job.ingested`, `match.created`, `decision.recorded`, `package.created/consumed`, `form.field_filled`, `question.asked/answered`, `approval.requested/approved/rejected/expired`, `email.sent`, `application.submitted`, `application.next_action_set/completed`, `application.notes_updated`, `applications.imported`, `status.changed`, `gmail.connected/revoked/synced`, `data.exported`, `account.deletion_requested`, `settings.changed/undone`, `search.created/updated/deleted`, `chat.off_topic_refused`, `chat.injection_blocked`, `ratelimit.hit`, `killswitch.toggled`, `risk.accepted/revoked/reconsent_required` (imutáveis). Visível em "Atividade".
 
 ## 11. Integrações
 

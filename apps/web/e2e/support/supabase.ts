@@ -2,7 +2,7 @@ import { execSync } from "node:child_process"
 import { randomUUID } from "node:crypto"
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
-import { expect, type Page } from "@playwright/test"
+import { expect, type Locator, type Page } from "@playwright/test"
 
 /** Local Supabase admin access for e2e setup and assertions. Never fakes a session. */
 export type AdminEnv = { url: string; serviceRoleKey: string }
@@ -68,6 +68,109 @@ export async function createFictitiousUser(
   return { id: data.user.id, email }
 }
 
+function textContainerForAcceptButton(acceptButton: Locator): Locator {
+  return acceptButton.locator(
+    'xpath=ancestor::div[contains(@class,"rounded-md")][1]//div[starts-with(@aria-label,"Texto completo:")]'
+  )
+}
+
+async function scrollTextContainerToEnd(page: Page, container: Locator) {
+  if (new URL(page.url()).pathname !== "/aceite") return
+  await container.evaluate((el) => {
+    const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
+    el.scrollTop = maxTop
+    el.dispatchEvent(new Event("scroll", { bubbles: true }))
+  })
+  if (new URL(page.url()).pathname !== "/aceite") return
+  try {
+    await container.focus({ timeout: 2_000 })
+    await container.press("End", { timeout: 2_000 })
+  } catch {
+    /* navigation can unmount the scroll container mid-gesture */
+  }
+}
+
+function pendingLegalCard(page: Page): Locator {
+  return page
+    .locator("div.rounded-md.border")
+    .filter({ has: page.getByRole("button", { name: "Li e aceito" }) })
+    .first()
+}
+
+/** After one "Li e aceito": client navigates to onboarding or soft-refreshes /aceite. */
+async function waitAfterLegalAcceptClick(page: Page, card: Locator) {
+  try {
+    await Promise.race([
+      page.waitForURL((url) => url.pathname !== "/aceite", {
+        timeout: 60_000,
+        waitUntil: "commit",
+      }),
+      page.getByText("Aceite registrado").waitFor({
+        state: "visible",
+        timeout: 30_000,
+      }),
+      card
+        .getByText("Você aceitou esta versão")
+        .waitFor({ state: "visible", timeout: 60_000 }),
+    ])
+  } catch {
+    if (new URL(page.url()).pathname !== "/aceite") return
+    if (await card.getByText("Você aceitou esta versão").isVisible()) return
+    await page.reload({ waitUntil: "domcontentloaded" })
+    if (new URL(page.url()).pathname !== "/aceite") return
+  }
+  if (new URL(page.url()).pathname === "/aceite") {
+    await pendingLegalCard(page)
+      .getByRole("button", { name: "Li e aceito" })
+      .waitFor({ state: "visible", timeout: 60_000 })
+  }
+}
+
+/** Scroll-to-end + per-document clickwrap on /aceite (LegalAcceptanceCard). */
+export async function acceptSignupLegalDocuments(page: Page) {
+  const deadline = Date.now() + 120_000
+
+  while (new URL(page.url()).pathname === "/aceite") {
+    if (Date.now() > deadline) {
+      throw new Error("acceptSignupLegalDocuments timed out on /aceite")
+    }
+
+    const card = pendingLegalCard(page)
+    const acceptButton = card.getByRole("button", { name: "Li e aceito" })
+    if (!(await acceptButton.isVisible())) break
+
+    const fieldset = acceptButton.locator("xpath=ancestor::fieldset[1]")
+    const textContainer = textContainerForAcceptButton(acceptButton)
+
+    const firstCheckbox = fieldset.locator('input[type="checkbox"]').first()
+    const enableDeadline = Date.now() + 30_000
+    while (Date.now() < enableDeadline) {
+      if (new URL(page.url()).pathname !== "/aceite") return
+      const enabled = await firstCheckbox
+        .isEnabled({ timeout: 1_000 })
+        .catch(() => false)
+      if (enabled) break
+      await scrollTextContainerToEnd(page, textContainer)
+      await page.waitForTimeout(100)
+    }
+    if (new URL(page.url()).pathname !== "/aceite") return
+    await expect(firstCheckbox).toBeEnabled({ timeout: 10_000 })
+
+    const boxes = fieldset.locator('input[type="checkbox"]')
+    for (let i = 0; i < (await boxes.count()); i++) {
+      await expect(boxes.nth(i)).toBeEnabled()
+      await boxes.nth(i).check()
+    }
+
+    await expect(acceptButton).toBeEnabled({ timeout: 5_000 })
+    await acceptButton.click()
+    await waitAfterLegalAcceptClick(page, card)
+    if (new URL(page.url()).pathname !== "/aceite") break
+  }
+
+  await expect(page).toHaveURL(/\/app\/onboarding$/, { timeout: 60_000 })
+}
+
 /** Logs in through the real form and accepts the terms; ends on the onboarding wizard. */
 export async function signInAndAccept(page: Page, email: string) {
   await page.goto("/entrar")
@@ -75,12 +178,5 @@ export async function signInAndAccept(page: Page, email: string) {
   await page.getByLabel("Senha").fill(FICTITIOUS_PASSWORD)
   await page.getByRole("button", { name: "Entrar", exact: true }).click()
   await expect(page).toHaveURL(/\/aceite$/)
-  await page
-    .getByRole("checkbox", { name: "Li e aceito os Termos de uso" })
-    .check()
-  await page
-    .getByRole("checkbox", { name: "Li e aceito a Política de privacidade" })
-    .check()
-  await page.getByRole("button", { name: "Aceitar e continuar" }).click()
-  await expect(page).toHaveURL(/\/app\/onboarding$/)
+  await acceptSignupLegalDocuments(page)
 }

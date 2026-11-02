@@ -1,5 +1,17 @@
 import { cookies } from "next/headers"
 
+import {
+  SIGNUP_REQUIRED_LEGAL_DOCS,
+  signupLegalComplete,
+  type LegalSlug,
+} from "@vagapilot/core/legal"
+
+import {
+  latestByDocument,
+  loadCurrentLegalDocuments,
+  loadEvidence,
+} from "@/lib/legal/server"
+import { getAdminClient } from "@/lib/server/admin"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 import {
@@ -16,6 +28,7 @@ export type CurrentUser = {
   isDevBypass: boolean
 }
 
+/** Legacy consents.version written alongside legal_acceptances on signup. */
 export const TERMS_VERSION = "v1"
 export const REQUIRED_CONSENTS = ["termos", "privacidade"] as const
 
@@ -63,23 +76,73 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   }
 }
 
-/** True when the user granted every required consent at the current terms version. */
-export async function hasAcceptedTerms(user: CurrentUser): Promise<boolean> {
-  if (user.isDevBypass) return true
+/** Inserts legacy consents rows (P0.3) after legal signup docs are accepted. */
+export async function recordLegacySignupConsents(
+  user: CurrentUser
+): Promise<void> {
+  if (user.isDevBypass) return
   const supabase = await createSupabaseServerClient()
-  if (!supabase) return false
+  if (!supabase) return
 
-  const { data, error } = await supabase
+  const { data: existing } = await supabase
     .from("consents")
-    .select("purpose, granted, created_at")
+    .select("purpose")
+    .eq("user_id", user.id)
     .eq("version", TERMS_VERSION)
     .in("purpose", [...REQUIRED_CONSENTS])
-    .order("created_at", { ascending: false })
-  if (error || !data) return false
+    .eq("granted", true)
+  const have = new Set(
+    (existing ?? []).map((r: { purpose: string }) => r.purpose)
+  )
+  const missing = REQUIRED_CONSENTS.filter((p) => !have.has(p))
+  if (missing.length === 0) return
 
-  const latest = new Map<string, boolean>()
-  for (const row of data as { purpose: string; granted: boolean }[]) {
-    if (!latest.has(row.purpose)) latest.set(row.purpose, row.granted)
+  await supabase.from("consents").insert(
+    missing.map((purpose) => ({
+      user_id: user.id,
+      purpose,
+      version: TERMS_VERSION,
+      granted: true,
+    }))
+  )
+}
+
+/**
+ * True when the user accepted every signup-required legal document at its current version/hash.
+ * Fail-open only if legal documents cannot be loaded (missing admin client or DB error), so users
+ * are not locked out by infrastructure failures.
+ */
+export async function hasAcceptedTerms(user: CurrentUser): Promise<boolean> {
+  if (user.isDevBypass) return true
+
+  if (!getAdminClient()) {
+    console.error(
+      "[hasAcceptedTerms] admin client unavailable; treating as accepted (fail-open)"
+    )
+    return true
   }
-  return REQUIRED_CONSENTS.every((purpose) => latest.get(purpose) === true)
+
+  const [docs, rows] = await Promise.all([
+    loadCurrentLegalDocuments(),
+    loadEvidence(user.id),
+  ])
+
+  const current: Partial<
+    Record<LegalSlug, { version: string; sha256: string }>
+  > = {}
+  for (const slug of SIGNUP_REQUIRED_LEGAL_DOCS) {
+    const d = docs[slug]
+    if (d) current[slug] = { version: d.version, sha256: d.sha256 }
+  }
+
+  const requiredLoaded = SIGNUP_REQUIRED_LEGAL_DOCS.filter((s) => current[s])
+  if (requiredLoaded.length === 0) {
+    console.error(
+      "[hasAcceptedTerms] no current legal documents loaded; treating as accepted (fail-open)"
+    )
+    return true
+  }
+
+  const latest = latestByDocument(rows)
+  return signupLegalComplete(latest, current)
 }

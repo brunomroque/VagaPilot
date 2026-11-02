@@ -6,6 +6,8 @@ import {
   allClausesChecked,
   canonicalJson,
   documentsNeedingAcceptance,
+  signupLegalComplete,
+  SIGNUP_REQUIRED_LEGAL_DOCS,
   evidenceHash,
   legalPublishable,
   renderLegal,
@@ -100,6 +102,44 @@ describe("acceptance evidence", () => {
     tampered[1]!.ip = "6.6.6.6"
     expect(verifyEvidenceChain(tampered)).toBe(1)
     expect(verifyEvidenceChain([c[0]!, c[2]!])).toBe(1)
+  })
+
+  it("signup gate uses termos and privacidade only", () => {
+    const cur = {
+      "termos-de-uso": { version: "v2", sha256: "h1" },
+      "politica-de-privacidade": { version: "v2", sha256: "h2" },
+      "termo-riscos-automacao": { version: "v9", sha256: "hx" },
+    }
+    const latest = {
+      "termos-de-uso": {
+        action: "accept" as const,
+        document_version: "v2",
+        document_sha256: "h1",
+      },
+      "politica-de-privacidade": {
+        action: "accept" as const,
+        document_version: "v2",
+        document_sha256: "h2",
+      },
+    }
+    expect(SIGNUP_REQUIRED_LEGAL_DOCS).toEqual([
+      "termos-de-uso",
+      "politica-de-privacidade",
+    ])
+    expect(signupLegalComplete(latest, cur)).toBe(true)
+    expect(
+      signupLegalComplete(
+        {
+          ...latest,
+          "politica-de-privacidade": {
+            action: "accept",
+            document_version: "v1",
+            document_sha256: "h2",
+          },
+        },
+        cur
+      )
+    ).toBe(false)
   })
 
   it("re-prompts on new version or text and after revocation", () => {

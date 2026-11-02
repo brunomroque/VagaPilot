@@ -3,6 +3,8 @@ import { execSync } from "node:child_process"
 import { createClient } from "@supabase/supabase-js"
 import { expect, test } from "@playwright/test"
 
+import { acceptSignupLegalDocuments } from "./support/supabase"
+
 /*
  * P0.3 acceptance: cadastro → confirmação de e-mail → aceite de termos → /app/chat.
  * Needs the local Supabase stack (`supabase start && pnpm db:reset`) and apps/web/.env.local
@@ -92,16 +94,9 @@ test.describe("auth with Supabase", () => {
     await page.getByRole("button", { name: "Entrar", exact: true }).click()
 
     await expect(page).toHaveURL(/\/aceite$/)
-    await page
-      .getByRole("checkbox", { name: "Li e aceito os Termos de uso" })
-      .check()
-    await page
-      .getByRole("checkbox", { name: "Li e aceito a Política de privacidade" })
-      .check()
-    await page.getByRole("button", { name: "Aceitar e continuar" }).click()
+    await acceptSignupLegalDocuments(page)
 
     // J1: the onboarding wizard comes right after the terms; it can be resumed later.
-    await expect(page).toHaveURL(/\/app\/onboarding$/)
     await page.getByRole("button", { name: "Continuar depois" }).click()
     await expect(page).toHaveURL(/\/app\/chat$/)
     await expect(

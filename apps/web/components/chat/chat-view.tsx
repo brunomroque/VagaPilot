@@ -203,6 +203,14 @@ export function ChatView({
   }, [messages.length, status])
 
   useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setSwitching(false)
+    }
+    window.addEventListener("pageshow", onPageShow)
+    return () => window.removeEventListener("pageshow", onPageShow)
+  }, [])
+
+  useEffect(() => {
     if (!initialPrompt) return
     const timer = setTimeout(() => {
       if (sentInitial.current) return
@@ -285,6 +293,11 @@ export function ChatView({
           <form
             onSubmit={(event) => {
               event.preventDefault()
+              const draft = input.trim()
+              if (draft) {
+                setNotice(t("newConversationDraftNotice"))
+                return
+              }
               setSwitching(true)
               // Full navigation to a brand-new id: no stale chat state survives,
               // and the first message creates the conversation with this id.

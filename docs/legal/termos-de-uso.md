@@ -12,7 +12,7 @@ Estes Termos regulam o uso do serviço {{NOME_FANTASIA}}, oferecido por {{RAZAO_
 
 ## 2. Natureza do Serviço: ferramenta que age em seu nome
 
-2.1. O {{NOME_FANTASIA}} é uma **ferramenta de apoio à busca de emprego** que, **por sua instrução e em seu nome**, pode: encontrar e organizar vagas; preparar currículos e respostas; preencher formulários de candidatura em sites de terceiros por meio de um navegador na nuvem; ler e-mails relacionados às suas candidaturas (quando você conectar o Gmail); e registrar o andamento das candidaturas.
+2.1. O {{NOME_FANTASIA}} é uma **ferramenta de apoio à busca de emprego** que, **por sua instrução e em seu nome**, pode: encontrar e organizar vagas; preparar currículos e respostas; preencher formulários de candidatura em sites de terceiros **no seu próprio Chrome local, no seu computador**; ler e-mails relacionados às suas candidaturas (quando você conectar o Gmail); e registrar o andamento das candidaturas.
 
 2.2. **Mandato.** Ao iniciar uma candidatura automatizada, o Usuário outorga ao {{NOME_FANTASIA}} poderes específicos e revogáveis para praticar, em seu nome e por sua conta, os atos necessários àquela candidatura (arts. 653 e seguintes do Código Civil), sempre nos limites das instruções do Usuário. **O envio final de cada candidatura depende da sua aprovação expressa do resumo apresentado, salvo se o Usuário tiver ativado o envio final automático com a confirmação adicional expressa prevista na cláusula 11 do Termo de Ciência e Aceite de Riscos da Automação, revogável a qualquer momento.** O mandato pode ser revogado a qualquer momento, cancelando a execução em andamento.
 
@@ -50,7 +50,7 @@ Estes Termos regulam o uso do serviço {{NOME_FANTASIA}}, oferecido por {{RAZAO_
 
 ## 7. Provedores de infraestrutura e cotas
 
-7.1. **O navegador na nuvem e outras partes do Serviço funcionam com provedores terceiros, alguns localizados fora do Brasil (por exemplo, nos Estados Unidos), conforme a Política de Privacidade.**
+7.1. **A automação de candidatura roda somente no seu Chrome local, no seu computador; não há navegador na nuvem para candidaturas.** Outras partes do Serviço usam provedores terceiros, alguns localizados fora do Brasil (por exemplo, nos Estados Unidos), conforme a Política de Privacidade.
 
 7.2. **Partes do Serviço podem depender de cotas gratuitas ou limitadas desses provedores. O Serviço pode ficar temporariamente indisponível, lento ou limitado quando essas cotas acabarem ou quando um provedor falhar.** Não há garantia de disponibilidade ininterrupta.
 

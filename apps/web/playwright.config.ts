@@ -48,6 +48,8 @@ export default defineConfig({
       VAGAPILOT_GMAIL_MOCK: "1",
       KEY_PROVIDER: process.env.KEY_PROVIDER ?? "local",
       AI_PROVIDER: process.env.AI_PROVIDER ?? "fake",
+      // Draft legal templates (empty LEGAL_VARS tags) must be acceptable in e2e production builds.
+      LEGAL_ALLOW_DRAFT: "true",
       ...(process.env.KEK_LOCAL ? { KEK_LOCAL: process.env.KEK_LOCAL } : {}),
       ...(process.env.SUPABASE_URL
         ? { SUPABASE_URL: process.env.SUPABASE_URL }

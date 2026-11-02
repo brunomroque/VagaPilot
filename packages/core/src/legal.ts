@@ -30,9 +30,26 @@ export type LegalSlug =
 
 /** Current version of each document; bump to force re-acceptance. Must exist in legal_documents. */
 export const LEGAL_CURRENT_VERSIONS: Record<LegalSlug, string> = {
-  "termos-de-uso": "2026-10-23.1",
+  "termos-de-uso": "2026-11-02.1",
   "politica-de-privacidade": "2026-11-01.1",
-  "termo-riscos-automacao": "2026-11-01.1",
+  "termo-riscos-automacao": "2026-11-02.1",
+}
+
+/** Legal documents required before using the app (signup /aceite gate). */
+export const SIGNUP_REQUIRED_LEGAL_DOCS: readonly LegalSlug[] = [
+  "termos-de-uso",
+  "politica-de-privacidade",
+]
+
+/** True when every signup-required doc has a current accept (version + hash when available). */
+export function signupLegalComplete(
+  latest: Partial<Record<LegalSlug, LatestAcceptance | undefined>>,
+  current: Partial<Record<LegalSlug, { version: string; sha256: string }>>
+): boolean {
+  return (
+    documentsNeedingAcceptance(latest, current, SIGNUP_REQUIRED_LEGAL_DOCS)
+      .length === 0
+  )
 }
 
 /** Documents that must be accepted before the first cloud apply. */

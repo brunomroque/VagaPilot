@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useLayoutEffect, useRef, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import {
@@ -22,7 +23,16 @@ type Doc = {
 }
 
 function fmt(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) + " (Brasília)"
+  return (
+    new Date(iso).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) +
+    " (Brasília)"
+  )
+}
+
+const SCROLL_END_SLACK_PX = 8
+
+function isScrolledToEnd(el: HTMLElement): boolean {
+  return el.scrollTop + el.clientHeight >= el.scrollHeight - SCROLL_END_SLACK_PX
 }
 
 /**
@@ -35,13 +45,21 @@ export function LegalAcceptanceCard({
   accepted,
   gmailSend,
   history,
+  compact = false,
+  afterAcceptNavigateTo,
 }: {
   doc: Doc
   clauses: { id: string; label: string }[]
   accepted: boolean
   gmailSend: boolean
   history: { id: string; action: string; version: string; at: string }[]
+  compact?: boolean
+  /** When signup legal docs are all accepted (e.g. /aceite), navigate here instead of reload. */
+  afterAcceptNavigateTo?: string
 }) {
+  const router = useRouter()
+  const textScrollRef = useRef<HTMLDivElement>(null)
+  const scrollEndSentinelRef = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   const [checks, setChecks] = useState<Record<string, boolean>>({})
   const [typed, setTyped] = useState("")
@@ -51,15 +69,49 @@ export function LegalAcceptanceCard({
   const allChecked = clauses.every((c) => checks[c.id] === true)
   const lastAccept = history.find((h) => h.action === "accept")
 
+  useLayoutEffect(() => {
+    if (accepted) return
+    setScrolled(false)
+    const root = textScrollRef.current
+    const sentinel = scrollEndSentinelRef.current
+    if (!root) return
+    const markIfAtEnd = () => {
+      if (isScrolledToEnd(root)) setScrolled(true)
+    }
+    markIfAtEnd()
+    root.addEventListener("scroll", markIfAtEnd, { passive: true })
+    const resizeObserver = new ResizeObserver(markIfAtEnd)
+    resizeObserver.observe(root)
+    for (const child of root.children) resizeObserver.observe(child)
+    let intersectionObserver: IntersectionObserver | undefined
+    if (sentinel) {
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) setScrolled(true)
+        },
+        { root, threshold: 0, rootMargin: "0px 0px 0px 0px" }
+      )
+      intersectionObserver.observe(sentinel)
+    }
+    return () => {
+      root.removeEventListener("scroll", markIfAtEnd)
+      resizeObserver.disconnect()
+      intersectionObserver?.disconnect()
+    }
+  }, [accepted, doc.text, doc.version])
+
   function accept() {
     start(async () => {
       const r = await acceptLegalDocumentAction({
         slug: doc.slug,
         version: doc.version,
         sha256: doc.sha256,
-        checkboxes: Object.fromEntries(clauses.map((c) => [c.id, checks[c.id] === true])),
+        checkboxes: Object.fromEntries(
+          clauses.map((c) => [c.id, checks[c.id] === true])
+        ),
         typedConfirmation: typed.trim() || null,
         scrolledToEnd: scrolled,
+        afterSignupNavigateTo: afterAcceptNavigateTo,
       })
       if (!r.ok) {
         if (r.error === "reauth_required") setNeedsReauth(true)
@@ -67,26 +119,42 @@ export function LegalAcceptanceCard({
         return
       }
       toast.success("Aceite registrado. Baixe o comprovante se quiser.")
-      window.location.reload()
+      if (r.data.signupComplete && afterAcceptNavigateTo) {
+        window.location.assign(afterAcceptNavigateTo)
+        return
+      }
+      router.refresh()
     })
   }
 
   function revoke() {
-    if (!window.confirm("Revogar o aceite? A candidatura na nuvem será desativada e as em andamento canceladas."))
+    if (
+      !window.confirm(
+        compact
+          ? "Revogar o aceite? A candidatura automatizada será desativada."
+          : "Revogar o aceite? A candidatura automatizada será desativada e as em andamento canceladas."
+      )
+    )
       return
     start(async () => {
       const r = await revokeLegalAcceptanceAction({ slug: doc.slug })
       if (!r.ok) toast.error(r.error)
       else {
-        toast.success(`Aceite revogado. ${r.data.cancelledRuns} candidatura(s) cancelada(s).`)
-        window.location.reload()
+        toast.success(
+          `Aceite revogado. ${r.data.cancelledRuns} candidatura(s) cancelada(s).`
+        )
+        router.refresh()
       }
     })
   }
 
   function sendCopy(recordId: string) {
     start(async () => {
-      const r = await sendAcceptanceCopyAction({ recordId, via, approved: true })
+      const r = await sendAcceptanceCopyAction({
+        recordId,
+        via,
+        approved: true,
+      })
       if (!r.ok) toast.error(r.error)
       else toast.success("Cópia enviada para o seu e-mail.")
     })
@@ -107,33 +175,46 @@ export function LegalAcceptanceCard({
       ) : null}
       {accepted ? (
         <p className="text-xs text-emerald-700 dark:text-emerald-400">
-          Você aceitou esta versão{lastAccept ? ` em ${fmt(lastAccept.at)}` : ""}.
+          Você aceitou esta versão
+          {lastAccept ? ` em ${fmt(lastAccept.at)}` : ""}.
         </p>
       ) : null}
       <div
+        ref={textScrollRef}
         tabIndex={0}
         aria-label={`Texto completo: ${doc.title}`}
         className="max-h-72 overflow-y-auto rounded border bg-muted/30 p-2 text-xs leading-relaxed whitespace-pre-wrap"
         onScroll={(e) => {
-          const el = e.currentTarget
-          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8) setScrolled(true)
+          if (isScrolledToEnd(e.currentTarget)) setScrolled(true)
         }}
       >
         <LegalText text={doc.text} />
+        <div
+          ref={scrollEndSentinelRef}
+          aria-hidden
+          className="h-px w-full shrink-0"
+        />
       </div>
       {!accepted ? (
         <>
           {!scrolled ? (
-            <p className="text-xs text-muted-foreground">Role o texto até o fim para liberar o aceite.</p>
+            <p className="text-xs text-muted-foreground">
+              Role o texto até o fim para liberar o aceite.
+            </p>
           ) : null}
-          <fieldset disabled={!scrolled || busy || !doc.publishable} className="flex flex-col gap-1">
+          <fieldset
+            disabled={!scrolled || busy || !doc.publishable}
+            className="flex flex-col gap-1"
+          >
             <legend className="sr-only">Itens do aceite</legend>
             {clauses.map((c) => (
               <label key={c.id} className="flex items-start gap-2 text-xs">
                 <input
                   type="checkbox"
                   checked={checks[c.id] === true}
-                  onChange={(e) => setChecks((v) => ({ ...v, [c.id]: e.target.checked }))}
+                  onChange={(e) =>
+                    setChecks((v) => ({ ...v, [c.id]: e.target.checked }))
+                  }
                   className="mt-0.5"
                 />
                 <span>{c.label}</span>
@@ -141,37 +222,60 @@ export function LegalAcceptanceCard({
             ))}
             <label className="mt-1 flex flex-col gap-1 text-xs">
               Opcional: digite ACEITO ou seu nome completo
-              <Input value={typed} onChange={(e) => setTyped(e.target.value)} maxLength={200} />
+              <Input
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                maxLength={200}
+              />
             </label>
             <div className="mt-1">
-              <Button size="sm" onClick={accept} disabled={!scrolled || !allChecked || busy}>
+              <Button
+                size="sm"
+                onClick={accept}
+                disabled={!scrolled || !allChecked || busy}
+              >
                 Li e aceito
               </Button>
             </div>
           </fieldset>
           {needsReauth ? (
             <p role="alert" className="text-xs">
-              Por segurança, o aceite exige um login recente (últimos 5 minutos).{" "}
-              <a href="/entrar?next=/app/configuracoes/riscos" className="underline">
+              Por segurança, o aceite exige um login recente (últimos 5
+              minutos).{" "}
+              <a
+                href="/entrar?next=/app/configuracoes/riscos"
+                className="underline"
+              >
                 Entrar de novo
               </a>
             </p>
           ) : null}
         </>
       ) : null}
-      {history.length ? (
+      {history.length && !compact ? (
         <details className="text-xs">
-          <summary className="cursor-pointer">Comprovantes ({history.length})</summary>
+          <summary className="cursor-pointer">
+            Comprovantes ({history.length})
+          </summary>
           <ul className="mt-1 flex flex-col gap-1">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center gap-2">
                 <span>
-                  {h.action === "accept" ? "Aceite" : "Revogação"} v{h.version} · {fmt(h.at)}
+                  {h.action === "accept" ? "Aceite" : "Revogação"} v{h.version}{" "}
+                  · {fmt(h.at)}
                 </span>
-                <a href={`/api/legal/certificate/${h.id}`} className="underline">
+                <a
+                  href={`/api/legal/certificate/${h.id}`}
+                  className="underline"
+                >
                   Baixar (JSON)
                 </a>
-                <Button size="sm" variant="ghost" disabled={busy} onClick={() => sendCopy(h.id)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => sendCopy(h.id)}
+                >
                   Enviar cópia por e-mail
                 </Button>
               </li>
@@ -181,16 +285,20 @@ export function LegalAcceptanceCard({
             Enviar por
             <select
               value={via}
-              onChange={(e) => setVia(e.target.value as "transacional" | "gmail")}
+              onChange={(e) =>
+                setVia(e.target.value as "transacional" | "gmail")
+              }
               className="rounded border bg-background px-1"
             >
               <option value="transacional">E-mail do VagaPilot</option>
-              {gmailSend ? <option value="gmail">Meu Gmail (para mim mesmo)</option> : null}
+              {gmailSend ? (
+                <option value="gmail">Meu Gmail (para mim mesmo)</option>
+              ) : null}
             </select>
           </label>
         </details>
       ) : null}
-      {accepted ? (
+      {accepted && !compact ? (
         <div>
           <Button size="sm" variant="outline" onClick={revoke} disabled={busy}>
             Revogar aceite

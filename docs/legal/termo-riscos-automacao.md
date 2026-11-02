@@ -2,7 +2,7 @@
 
 > **MINUTA – revisar com advogado.** Versão {{VERSAO}} · vigência a partir de {{DATA_VIGENCIA}}. Rascunho técnico; não é parecer jurídico.
 
-Este Termo complementa os [Termos de Uso]({{SITE_URL}}/termos) e a [Política de Privacidade]({{SITE_URL}}/privacidade) de {{RAZAO_SOCIAL}} (CNPJ {{CNPJ}}). Ele explica, em linguagem simples, **os riscos de usar a candidatura automatizada**. Leia até o final. Você só poderá usar a candidatura na nuvem depois de aceitar cada item separadamente. Você pode revogar este aceite a qualquer momento em Configurações → Riscos e responsabilidades; a candidatura na nuvem será desativada.
+Este Termo complementa os [Termos de Uso]({{SITE_URL}}/termos) e a [Política de Privacidade]({{SITE_URL}}/privacidade) de {{RAZAO_SOCIAL}} (CNPJ {{CNPJ}}). Ele explica, em linguagem simples, **os riscos de usar a candidatura automatizada**. Leia até o final. Você só poderá usar a candidatura automatizada depois de aceitar cada item separadamente. Você pode revogar este aceite a qualquer momento em Configurações → Riscos e responsabilidades; a candidatura automatizada será desativada.
 
 ## O que a automação faz
 

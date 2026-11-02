@@ -9,6 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../../..")
 const migrationFiles = [
   "supabase/migrations/20261024000000_risk_alerts_legal_evidence.sql",
   "supabase/migrations/20261101000000_legal_local_browser_copy.sql",
+  "supabase/migrations/20261102000100_legal_terms_local_browser.sql",
 ]
 const sql = migrationFiles
   .map((f) => readFileSync(join(root, f), "utf8").replace(/\r\n/g, "\n"))

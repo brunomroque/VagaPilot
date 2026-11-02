@@ -81,18 +81,29 @@ export async function loadCurrentLegalDocuments(
   admin: SupabaseClient | null = getAdminClient()
 ): Promise<Partial<Record<LegalSlug, LegalDocumentView>>> {
   if (!admin) return {}
-  const { data } = await admin
+  const { data, error } = await admin
     .from("legal_documents")
     .select("id, slug, version, title, effective_date, body_md")
     .in("slug", Object.keys(LEGAL_CURRENT_VERSIONS))
+  if (error) {
+    console.error(
+      "[loadCurrentLegalDocuments] query failed:",
+      error.code,
+      error.message
+    )
+    return {}
+  }
   const out: Partial<Record<LegalSlug, LegalDocumentView>> = {}
   for (const row of (data ?? []) as DocRow[]) {
-    if (LEGAL_CURRENT_VERSIONS[row.slug] === row.version) out[row.slug] = toView(row)
+    if (LEGAL_CURRENT_VERSIONS[row.slug] === row.version)
+      out[row.slug] = toView(row)
   }
   return out
 }
 
-export async function loadLegalDocumentById(id: string): Promise<LegalDocumentView | null> {
+export async function loadLegalDocumentById(
+  id: string
+): Promise<LegalDocumentView | null> {
   const admin = getAdminClient()
   if (!admin) return null
   const { data } = await admin
@@ -105,7 +116,6 @@ export async function loadLegalDocumentById(id: string): Promise<LegalDocumentVi
 
 const EVIDENCE_COLUMNS =
   "id, seq, user_id, email, action, document_id, document_slug, document_version, document_sha256, checkboxes, typed_confirmation, accepted_at, recorded_at, ip, user_agent, session_id, locale, ui_version, prev_hash, record_hash"
-
 
 export async function loadEvidence(userId: string): Promise<EvidenceRow[]> {
   const admin = getAdminClient()
@@ -130,14 +140,28 @@ export type CloudApplyConsent = {
 }
 
 /** Gate of the cloud apply: every required document accepted at its current version/hash. */
-export async function cloudApplyConsent(userId: string): Promise<CloudApplyConsent> {
-  const [docs, rows] = await Promise.all([loadCurrentLegalDocuments(), loadEvidence(userId)])
+export async function cloudApplyConsent(
+  userId: string
+): Promise<CloudApplyConsent> {
+  const [docs, rows] = await Promise.all([
+    loadCurrentLegalDocuments(),
+    loadEvidence(userId),
+  ])
   const latest = latestByDocument(rows)
   const current = Object.fromEntries(
-    Object.entries(docs).map(([slug, d]) => [slug, { version: d!.version, sha256: d!.sha256 }])
+    Object.entries(docs).map(([slug, d]) => [
+      slug,
+      { version: d!.version, sha256: d!.sha256 },
+    ])
   )
-  const pending = documentsNeedingAcceptance(latest, current, CLOUD_APPLY_REQUIRED_DOCS)
-  const revoked = CLOUD_APPLY_REQUIRED_DOCS.some((s) => latest[s]?.action === "revoke")
+  const pending = documentsNeedingAcceptance(
+    latest,
+    current,
+    CLOUD_APPLY_REQUIRED_DOCS
+  )
+  const revoked = CLOUD_APPLY_REQUIRED_DOCS.some(
+    (s) => latest[s]?.action === "revoke"
+  )
   return { ok: pending.length === 0, pending, revoked }
 }
 
@@ -155,12 +179,15 @@ export async function requestMeta(): Promise<{
   return {
     ip,
     userAgent: h.get("user-agent")?.slice(0, 500) ?? null,
-    locale: h.get("accept-language")?.split(",")[0]?.trim().slice(0, 20) ?? null,
+    locale:
+      h.get("accept-language")?.split(",")[0]?.trim().slice(0, 20) ?? null,
   }
 }
 
 /** Session id from the access token claims (never the token itself). */
-export function sessionIdFromClaims(claims: Record<string, unknown> | null | undefined): string | null {
+export function sessionIdFromClaims(
+  claims: Record<string, unknown> | null | undefined
+): string | null {
   const sid = claims?.session_id
   return typeof sid === "string" ? sid : null
 }
@@ -170,7 +197,9 @@ export function sessionIdFromClaims(claims: Record<string, unknown> | null | und
  * (unique user_id+prev_hash) and any UPDATE/DELETE (trigger), so a race just retries.
  */
 export async function appendEvidence(
-  input: Omit<EvidencePayload, "accepted_at" | "ui_version"> & { document_id: string }
+  input: Omit<EvidencePayload, "accepted_at" | "ui_version"> & {
+    document_id: string
+  }
 ): Promise<EvidenceRow | null> {
   const admin = getAdminClient()
   if (!admin) return null
@@ -206,7 +235,14 @@ export type AcceptanceCertificate = {
   generated_at: string
   disclaimer: string
   record: EvidenceRow
-  document: { id: string; slug: string; version: string; title: string; sha256: string; text: string } | null
+  document: {
+    id: string
+    slug: string
+    version: string
+    title: string
+    sha256: string
+    text: string
+  } | null
   document_hash_matches: boolean
   chain: { length: number; verified: boolean; broken_at: number | null }
   certificate_sha256: string
@@ -230,14 +266,27 @@ export async function buildCertificate(
       "Registro técnico do aceite eletrônico. Não constitui atestado de validade jurídica.",
     record,
     document: doc
-      ? { id: doc.id, slug: doc.slug, version: doc.version, title: doc.title, sha256: doc.sha256, text: doc.text }
+      ? {
+          id: doc.id,
+          slug: doc.slug,
+          version: doc.version,
+          title: doc.title,
+          sha256: doc.sha256,
+          text: doc.text,
+        }
       : null,
     document_hash_matches: doc?.sha256 === record.document_sha256,
-    chain: { length: rows.length, verified: broken === -1, broken_at: broken === -1 ? null : broken },
+    chain: {
+      length: rows.length,
+      verified: broken === -1,
+      broken_at: broken === -1 ? null : broken,
+    },
   }
   return {
     ...body,
-    certificate_sha256: createHash("sha256").update(JSON.stringify(body)).digest("hex"),
+    certificate_sha256: createHash("sha256")
+      .update(JSON.stringify(body))
+      .digest("hex"),
   }
 }
 
@@ -268,15 +317,27 @@ export async function recordConsentDecision(input: {
 }
 
 /** Admin-editable per-domain risk levels. */
-export async function loadSiteRiskLevels(): Promise<{ domain: string; level: SiteRiskLevel; note: string | null }[]> {
+export async function loadSiteRiskLevels(): Promise<
+  { domain: string; level: SiteRiskLevel; note: string | null }[]
+> {
   const admin = getAdminClient()
   if (!admin) return []
-  const { data } = await admin.from("site_risk_levels").select("domain, level, note").order("domain")
-  return (data ?? []) as { domain: string; level: SiteRiskLevel; note: string | null }[]
+  const { data } = await admin
+    .from("site_risk_levels")
+    .select("domain, level, note")
+    .order("domain")
+  return (data ?? []) as {
+    domain: string
+    level: SiteRiskLevel
+    note: string | null
+  }[]
 }
 
 /** Admin: number of distinct users whose latest record for (slug, version) is an acceptance. */
-export async function countCurrentAcceptances(slug: LegalSlug, version: string): Promise<number> {
+export async function countCurrentAcceptances(
+  slug: LegalSlug,
+  version: string
+): Promise<number> {
   const admin = getAdminClient()
   if (!admin) return 0
   const { data } = await admin
@@ -286,7 +347,13 @@ export async function countCurrentAcceptances(slug: LegalSlug, version: string):
     .order("seq", { ascending: true })
     .limit(10_000)
   const latest = new Map<string, { action: string; document_version: string }>()
-  for (const r of (data ?? []) as { user_id: string; action: string; document_version: string }[])
+  for (const r of (data ?? []) as {
+    user_id: string
+    action: string
+    document_version: string
+  }[])
     latest.set(r.user_id, r)
-  return [...latest.values()].filter((r) => r.action === "accept" && r.document_version === version).length
+  return [...latest.values()].filter(
+    (r) => r.action === "accept" && r.document_version === version
+  ).length
 }

@@ -12,7 +12,7 @@ export async function PublicLegalPage({
   fallback,
 }: {
   slug: LegalSlug
-  fallback: "termsTitle" | "privacyTitle"
+  fallback: "termsTitle" | "privacyTitle" | "risksTitle"
 }) {
   const docs = await loadCurrentLegalDocuments().catch(
     (): Awaited<ReturnType<typeof loadCurrentLegalDocuments>> => ({})
@@ -23,15 +23,22 @@ export async function PublicLegalPage({
     <main className="mx-auto flex max-w-3xl flex-col gap-3 p-6 text-sm">
       <h1 className="text-2xl font-bold">{doc.title}</h1>
       <p className="text-xs text-muted-foreground">
-        Versão {doc.version} · vigente desde {doc.effectiveDate} · SHA-256 {doc.sha256}
+        Versão {doc.version} · vigente desde {doc.effectiveDate} · SHA-256{" "}
+        {doc.sha256}
       </p>
       <div className="leading-relaxed whitespace-pre-wrap">
         <LegalText text={doc.text} />
       </div>
       <nav className="flex gap-4 border-t pt-3 text-xs">
-        <Link href="/termos" className="underline">Termos de Uso</Link>
-        <Link href="/privacidade" className="underline">Privacidade</Link>
-        <Link href="/riscos" className="underline">Riscos da automação</Link>
+        <Link href="/termos" className="underline">
+          Termos de Uso
+        </Link>
+        <Link href="/privacidade" className="underline">
+          Privacidade
+        </Link>
+        <Link href="/riscos" className="underline">
+          Riscos da automação
+        </Link>
       </nav>
     </main>
   )

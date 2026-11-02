@@ -483,3 +483,16 @@ Feito (branch `fix/ci-e2e`, sem commit nesta sessão):
 - **Testes:** locators de fatos (Ignorar / Fato ignorado), auth aguarda `/cadastro/verifique`, tracker P3.2 navega com `goto /app`, timeouts de chat/buscas ajustados.
 
 Pendente: reexecutar job e2e no PR após push; smoke local exige `supabase start` + `pnpm db:reset`.
+
+- **E2E aceite (2026-11-02):** helper `acceptSignupLegalDocuments` (scroll até o fim + clickwrap por documento) substitui checkboxes globais / botão “Aceitar e continuar” obsoleto após `LegalAcceptanceCard` em `/aceite`. **Correção (2026-11-02):** `LegalAcceptanceCard` libera o fieldset quando o texto cabe sem scroll (`useLayoutEffect` + `ResizeObserver`); helper e2e rola de fato o container, espera `fieldset` habilitado (não o botão “Li e aceito”, que exige checkboxes) e `LEGAL_ALLOW_DRAFT=true` no servidor Playwright em CI (`next start`). **Correção (2026-11-02, run CI 41495217211):** helper deixa de usar `hover`/`scrollIntoViewIfNeeded` (timeout com página já em `/app/onboarding` durante `window.location.reload` após cada aceite). **Correção app (2026-11-02):** `LegalAcceptanceCard` em `/aceite` usa `router.refresh` entre documentos e `router.replace(next)` quando `signupComplete`; action retorna `signupComplete` e revalida `/aceite`. Helper e2e: scroll via `evaluate` + evento `scroll`, espera URL ou botão oculto após clique. **Correção (2026-11-02, run CI 41512178722 / commit pós-10bc63d):** artefatos mostravam `/aceite` parado em “Role o texto até o fim” (fieldset desabilitado) — `IntersectionObserver` + sentinel no fim do texto, listener `scroll` nativo e reset de `scrolled` por versão; helper usa card pendente (não `.first()` global), espera checkbox habilitado, corrida toast/navegação/“Você aceitou” + `reload` se RSC não refletir; fim do signup com `redirect()` na action e `window.location.assign` (substitui `router.replace` dentro de `useTransition`).
+
+### Reteste QA c3404f7 (2026-11-02)
+
+Feito (branch `fix/qa-c3404f7`, ESPEC § legal / aceite / auditoria):
+
+- Migração `20261102000000_service_role_grants.sql`: `GRANT` em tabelas pós-fundação para `service_role` + default privileges.
+- Migração `20261102000100_legal_terms_local_browser.sql`: termos e termo de riscos `2026-11-02.1` (Chrome local, sem nuvem).
+- `loadCurrentLegalDocuments` loga erro de query; reaceite via `legal_acceptances` + `/aceite` com cards; fail-open só se docs não carregarem.
+- Auditoria do tracker (`next_action`, notas, import CSV); toasts distintos no gate de salário; aviso ao trocar conversa com rascunho no composer.
+
+Pendente: **aplicar as duas migrações no Supabase de produção** antes do deploy que depende de `LEGAL_CURRENT_VERSIONS` novos.
