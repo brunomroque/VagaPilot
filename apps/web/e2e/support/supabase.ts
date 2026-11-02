@@ -68,6 +68,29 @@ export async function createFictitiousUser(
   return { id: data.user.id, email }
 }
 
+async function scrollLegalTextContainersToEnd(page: Page) {
+  const containers = page.locator('[aria-label^="Texto completo:"]')
+  const count = await containers.count()
+  for (let i = 0; i < count; i++) {
+    const container = containers.nth(i)
+    await container.scrollIntoViewIfNeeded()
+    await container.hover()
+    for (let step = 0; step < 32; step++) {
+      await container.evaluate((el) => {
+        const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
+        el.scrollTop = Math.min(el.scrollTop + el.clientHeight, maxTop)
+      })
+      await container.dispatchEvent("scroll")
+      await page.mouse.wheel(0, 600)
+    }
+    await container.evaluate((el) => {
+      const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
+      el.scrollTop = maxTop
+    })
+    await container.dispatchEvent("scroll")
+  }
+}
+
 /** Scroll-to-end + per-document clickwrap on /aceite (LegalAcceptanceCard). */
 export async function acceptSignupLegalDocuments(page: Page) {
   const deadline = Date.now() + 120_000
@@ -76,28 +99,25 @@ export async function acceptSignupLegalDocuments(page: Page) {
       throw new Error("acceptSignupLegalDocuments timed out on /aceite")
     }
 
-    await page
-      .locator('[aria-label^="Texto completo:"]')
-      .evaluateAll((elements) => {
-        for (const el of elements) {
-          el.scrollTop = el.scrollHeight
-          el.dispatchEvent(new Event("scroll", { bubbles: true }))
-        }
-      })
-
     const acceptButton = page
       .getByRole("button", { name: "Li e aceito" })
       .first()
     if (!(await acceptButton.isVisible())) break
 
-    await expect(acceptButton).toBeEnabled({ timeout: 15_000 })
-
-    const fieldset = page.locator("fieldset:not([disabled])").first()
+    const fieldset = acceptButton.locator("xpath=ancestor::fieldset[1]")
+    const enableDeadline = Date.now() + 15_000
+    while (Date.now() < enableDeadline) {
+      await scrollLegalTextContainersToEnd(page)
+      if (!(await fieldset.isDisabled())) break
+      await page.waitForTimeout(100)
+    }
+    await expect(fieldset).toBeEnabled({ timeout: 2_000 })
     const boxes = fieldset.locator('input[type="checkbox"]')
     for (let i = 0; i < (await boxes.count()); i++) {
       await boxes.nth(i).check()
     }
 
+    await expect(acceptButton).toBeEnabled({ timeout: 5_000 })
     await Promise.all([page.waitForLoadState("load"), acceptButton.click()])
   }
 

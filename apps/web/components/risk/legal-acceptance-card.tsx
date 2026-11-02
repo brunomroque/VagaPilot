@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useLayoutEffect, useRef, useState, useTransition } from "react"
 import { toast } from "sonner"
 
 import {
@@ -28,6 +28,12 @@ function fmt(iso: string): string {
   )
 }
 
+const SCROLL_END_SLACK_PX = 8
+
+function isScrolledToEnd(el: HTMLElement): boolean {
+  return el.scrollTop + el.clientHeight >= el.scrollHeight - SCROLL_END_SLACK_PX
+}
+
 /**
  * Clickwrap: full text with scroll-to-end, separate unchecked boxes, optional typed ACEITO/name,
  * "Li e aceito". Afterwards: JSON certificate, optional e-mail copy (only on click) and revocation.
@@ -47,6 +53,7 @@ export function LegalAcceptanceCard({
   history: { id: string; action: string; version: string; at: string }[]
   compact?: boolean
 }) {
+  const textScrollRef = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   const [checks, setChecks] = useState<Record<string, boolean>>({})
   const [typed, setTyped] = useState("")
@@ -55,6 +62,20 @@ export function LegalAcceptanceCard({
   const [needsReauth, setNeedsReauth] = useState(false)
   const allChecked = clauses.every((c) => checks[c.id] === true)
   const lastAccept = history.find((h) => h.action === "accept")
+
+  useLayoutEffect(() => {
+    if (accepted) return
+    const el = textScrollRef.current
+    if (!el) return
+    const syncScrollEnd = () => {
+      if (isScrolledToEnd(el)) setScrolled(true)
+    }
+    syncScrollEnd()
+    const observer = new ResizeObserver(syncScrollEnd)
+    observer.observe(el)
+    for (const child of el.children) observer.observe(child)
+    return () => observer.disconnect()
+  }, [accepted, doc.text, doc.version])
 
   function accept() {
     start(async () => {
@@ -131,13 +152,12 @@ export function LegalAcceptanceCard({
         </p>
       ) : null}
       <div
+        ref={textScrollRef}
         tabIndex={0}
         aria-label={`Texto completo: ${doc.title}`}
         className="max-h-72 overflow-y-auto rounded border bg-muted/30 p-2 text-xs leading-relaxed whitespace-pre-wrap"
         onScroll={(e) => {
-          const el = e.currentTarget
-          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8)
-            setScrolled(true)
+          if (isScrolledToEnd(e.currentTarget)) setScrolled(true)
         }}
       >
         <LegalText text={doc.text} />
