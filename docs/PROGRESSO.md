@@ -458,4 +458,15 @@ Feito (branch `fix/f0-bot-de-vagas`, ESPEC § navegador / RF6.3 / DA-01):
 - Envio final: removido auto-approve de `final_submit` por permissão permanente; testes `submit-approval.test.ts`.
 - Seed: pretensões Coordenador/Gerente CLT e PJ conforme pedido.
 
-Pendente: revisar copy de risco/UI que ainda menciona “Browserbase como fallback”; smoke manual com Chrome local na máquina do worker.
+Pendente: smoke manual com Chrome local na máquina do worker.
+
+### Bot de vagas — copy local-only, faixas no formulário e override de salário (2026-11-01)
+
+Feito (branch `fix/f0-bot-de-vagas`):
+
+- Copy pt-BR / riscos / termo e política (versões `2026-11-01.1`): automação de candidatura só no Chrome local; sem fallback Browserbase.
+- `packages/core/salary-bracket.ts`: parse de faixas BR + `decideFormSalaryBracket`; integrado em `resolver.ts` (drivers genéricos e dedicados).
+- Gate de salário da vaga: pergunta `salary_gate`, fase `waiting_answers`, override “Candidatar mesmo assim” + auditoria `apply.salary_gate_overridden`; UI no painel de apply e ficha da candidatura.
+- Testes: `salary-bracket.test.ts`, `resolver.test.ts`, `salary-gate-actions.test.ts`, `job-rules.test.ts`.
+
+Pendente: publicar novas versões em `legal_documents` no ambiente (admin) após bump de `LEGAL_CURRENT_VERSIONS`.

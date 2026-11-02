@@ -34,7 +34,12 @@ describe("final submit approval", () => {
       page,
       driver: reviewDriver(calls),
       url: "https://acme.gupy.io/vaga",
-      ctx: { payload: samplePayload(), runAnswers: {}, cvPath: null },
+      ctx: {
+        payload: samplePayload(),
+        runAnswers: {},
+        cvPath: null,
+        salaryTarget: null,
+      },
       deadline: Date.now() + 60_000,
     })
     expect(out.kind).toBe("review")
@@ -44,7 +49,12 @@ describe("final submit approval", () => {
   it("submits only when approvedSummaryHash matches the review", async () => {
     const calls = { n: 0 }
     const driver = reviewDriver(calls)
-    const ctx = { payload: samplePayload(), runAnswers: {}, cvPath: null }
+    const ctx = {
+      payload: samplePayload(),
+      runAnswers: {},
+      cvPath: null,
+      salaryTarget: null,
+    }
     const first = await runSegment({
       page,
       driver,

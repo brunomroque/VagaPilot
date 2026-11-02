@@ -155,26 +155,15 @@ export function CloudApplyPanel({
           className="rounded border border-amber-500/50 bg-amber-500/5 p-2.5 text-xs leading-relaxed text-muted-foreground"
         >
           <p className="font-semibold text-amber-900 dark:text-amber-300">
-            Navegador local (primário) + Browserbase (fallback) — você assume o
-            risco:
+            {t("riskNoticeTitle")}
           </p>
           <p className="mt-1">
-            Por padrão, a automação usa o{" "}
-            <strong>seu próprio Chrome local</strong> logado nas suas contas
-            reais (e o <strong>Browserbase na nuvem só como fallback</strong> se
-            o Chrome local não estiver disponível). Fazemos isso porque sites
-            como LinkedIn, Gupy e outros bloqueiam menos o seu navegador real do
-            que um robô na nuvem — mas{" "}
-            <strong>
-              sua conta ainda pode ser limitada, suspensa ou bloqueada
-            </strong>
-            . O VagaPilot não se responsabiliza por bloqueios: ao iniciar,{" "}
-            <strong>você assume integralmente esse risco</strong>.{" "}
+            {t("riskNoticeBody")}{" "}
             <a
               href="/app/configuracoes/riscos#navegador_local"
               className="underline"
             >
-              Riscos e responsabilidades
+              {t("riskNoticeLink")}
             </a>
           </p>
         </div>
@@ -273,7 +262,13 @@ export function CloudApplyPanel({
 
       {phase === "waiting_answers" && run?.questions.length ? (
         <div className="flex flex-col gap-3">
-          <p className="text-xs text-muted-foreground">{t("questionsHelp")}</p>
+          <p className="text-xs text-muted-foreground">
+            {run.questions.some((q) => q.salaryGate)
+              ? t("salaryGateHelp")
+              : run.questions.some((q) => q.formSalaryBracket)
+                ? t("salaryFormBracketHelp")
+                : t("questionsHelp")}
+          </p>
           {run.questions.map((q) =>
             q.card ? (
               <PermissionRunCard

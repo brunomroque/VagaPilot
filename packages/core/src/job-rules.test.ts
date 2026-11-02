@@ -13,6 +13,8 @@ import {
   suggestSalary,
   evaluateSalaryApplyGate,
   SALARY_APPLY_BLOCK_REASON,
+  SALARY_APPLY_OVERRIDE_CHOICE,
+  isSalaryApplyGateOverridden,
   titleSimilarity,
   type ProfileForAlerts,
   type SalaryRule,
@@ -285,6 +287,13 @@ describe("evaluateSalaryApplyGate", () => {
         jobRange: { min: 18000, max: 22000, currency: "BRL" },
       }).proceed
     ).toBe(true)
+  })
+})
+
+describe("salary apply gate override", () => {
+  it("recognises the override choice", () => {
+    expect(isSalaryApplyGateOverridden(SALARY_APPLY_OVERRIDE_CHOICE)).toBe(true)
+    expect(isSalaryApplyGateOverridden("cancelar")).toBe(false)
   })
 })
 

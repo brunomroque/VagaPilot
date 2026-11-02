@@ -53,8 +53,8 @@ Compartilhamos dados apenas: (a) com o site/empregador da vaga, quando você apr
 | Supabase | Banco de dados e autenticação | EUA |
 | Netlify | Hospedagem e funções | EUA |
 | Upstash | Filas e cache | EUA |
-| Browserbase, Kernel, Steel, Browserless | Navegador na nuvem para candidaturas | EUA |
 | Google (Gemini; Gmail API) | IA; leitura do Gmail autorizada por você | EUA |
+| Browserbase, Kernel, Steel, Browserless (opcional, admin) | Conexão interativa de sites quando configurado pelo administrador; **não** é fallback da candidatura automatizada | EUA |
 | Provedor de e-mail transacional (se configurado) | Envio de avisos | EUA |
 
 **Há transferência internacional de dados (art. 33, LGPD),** fundamentada em cláusulas contratuais dos provedores e, quando aplicável, no seu consentimento específico e destacado, após informação sobre o caráter internacional da operação (art. 33, VIII). Exigimos dos operadores medidas de segurança compatíveis.

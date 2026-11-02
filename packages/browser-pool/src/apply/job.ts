@@ -48,6 +48,11 @@ import {
 import { checkTransition, type ApplicationStatus } from "@vagapilot/core/status"
 import {
   evaluateSalaryApplyGate,
+  isSalaryApplyGateOverridden,
+  SALARY_APPLY_GATE_CANCEL,
+  SALARY_APPLY_GATE_QUESTION,
+  SALARY_APPLY_OVERRIDE_CHOICE,
+  SALARY_FORM_BLOCK_REASON,
   type Regime,
   type SalaryRule,
   type Seniority,
@@ -257,7 +262,7 @@ async function loadPayload(
   return parsed.success ? parsed.data : null
 }
 
-async function salaryApplyGateForRun(ctx: Ctx, run: RunRow) {
+async function salaryContextForRun(ctx: Ctx, run: RunRow) {
   const { data: appRow } = await ctx.admin
     .from("applications")
     .select(
@@ -266,7 +271,7 @@ async function salaryApplyGateForRun(ctx: Ctx, run: RunRow) {
     .eq("id", run.application_id)
     .eq("user_id", run.user_id)
     .maybeSingle()
-  if (!appRow) return { proceed: true as const }
+  if (!appRow) return null
   const posting = (
     appRow as {
       job_postings:
@@ -290,7 +295,7 @@ async function salaryApplyGateForRun(ctx: Ctx, run: RunRow) {
     }
   ).job_postings
   const job = Array.isArray(posting) ? posting[0] : posting
-  if (!job) return { proceed: true as const }
+  if (!job) return null
   const { data: salaryRows } = await ctx.admin
     .from("salary_rules")
     .select("seniority, regime, amount_min, amount_target, currency, period")
@@ -314,16 +319,122 @@ async function salaryApplyGateForRun(ctx: Ctx, run: RunRow) {
   }))
   const toNum = (v: number | string | null) =>
     v == null ? null : typeof v === "number" ? v : Number(v)
-  return evaluateSalaryApplyGate(rules, {
-    seniority: job.seniority,
-    roleTitle: job.title,
-    regime: job.regime,
+  return {
+    rules,
     jobRange: {
       min: toNum(job.salary_min),
       max: toNum(job.salary_max),
       currency: job.salary_currency,
     },
+    seniority: job.seniority,
+    roleTitle: job.title,
+    regime: job.regime,
+  }
+}
+
+async function salaryApplyGateForRun(ctx: Ctx, run: RunRow) {
+  if (await salaryApplyGateOverridden(ctx, run))
+    return { proceed: true as const }
+  const ctxSalary = await salaryContextForRun(ctx, run)
+  if (!ctxSalary) return { proceed: true as const }
+  return evaluateSalaryApplyGate(ctxSalary.rules, {
+    seniority: ctxSalary.seniority,
+    roleTitle: ctxSalary.roleTitle,
+    regime: ctxSalary.regime,
+    jobRange: ctxSalary.jobRange,
   })
+}
+
+async function salaryTargetForRun(
+  ctx: Ctx,
+  run: RunRow
+): Promise<number | null> {
+  const ctxSalary = await salaryContextForRun(ctx, run)
+  if (!ctxSalary) return null
+  const { suggestSalary, inferSeniority } =
+    await import("@vagapilot/core/job-rules")
+  const seniority =
+    ctxSalary.seniority ??
+    (ctxSalary.roleTitle ? inferSeniority(ctxSalary.roleTitle) : null)
+  if (!seniority) return null
+  const picked = suggestSalary(ctxSalary.rules, {
+    seniority,
+    regime: ctxSalary.regime,
+    jobRange: null,
+  })
+  return picked.status === "rule" ? picked.rule.target : null
+}
+
+async function salaryApplyGateOverridden(
+  ctx: Ctx,
+  run: RunRow
+): Promise<boolean> {
+  const { data } = await ctx.admin
+    .from("pending_questions")
+    .select("id, answer, proposed_from")
+    .eq("application_id", run.application_id)
+    .eq("user_id", run.user_id)
+    .eq("field_type", "salary_gate")
+    .eq("status", "respondida")
+    .order("answered_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const row = data as {
+    id: string
+    answer: string | null
+    proposed_from: { audited?: boolean } | null
+  } | null
+  if (!row || !isSalaryApplyGateOverridden(row.answer)) return false
+  if (!row.proposed_from?.audited) {
+    await ctx.admin
+      .from("pending_questions")
+      .update({
+        proposed_from: { ...(row.proposed_from ?? {}), audited: true },
+      })
+      .eq("id", row.id)
+    await audit(ctx, run.user_id, "apply.salary_gate_overridden", run.id, {
+      application_id: run.application_id,
+    })
+  }
+  return true
+}
+
+async function ensureSalaryGateQuestion(
+  ctx: Ctx,
+  run: RunRow,
+  blocked: Extract<
+    Awaited<ReturnType<typeof evaluateSalaryApplyGate>>,
+    { proceed: false }
+  >
+) {
+  const { data: existing } = await ctx.admin
+    .from("pending_questions")
+    .select("id")
+    .eq("application_id", run.application_id)
+    .eq("user_id", run.user_id)
+    .eq("field_type", "salary_gate")
+    .eq("status", "aberta")
+    .maybeSingle()
+  if (!existing) {
+    await ctx.admin.from("pending_questions").insert({
+      user_id: run.user_id,
+      application_id: run.application_id,
+      question_text: SALARY_APPLY_GATE_QUESTION,
+      field_type: "salary_gate",
+      options: [SALARY_APPLY_OVERRIDE_CHOICE, SALARY_APPLY_GATE_CANCEL],
+      proposed_from: {
+        run_id: run.id,
+        target: blocked.target,
+        job_max: blocked.jobMax,
+        currency: blocked.currency,
+      },
+      status: "aberta",
+    })
+    await audit(ctx, run.user_id, "question.asked", run.id, {
+      kind: "salary_gate",
+      application_id: run.application_id,
+    })
+  }
 }
 
 /** Answers the user gave to this application's pending questions (status respondida). */
@@ -471,7 +582,8 @@ async function audit(
     | "apply.site_account_created"
     | "apply.site_login"
     | "apply.consent_requested"
-    | "agent_permission.auto_used",
+    | "agent_permission.auto_used"
+    | "apply.salary_gate_overridden",
   runId: string,
   details: Record<string, unknown>
 ) {
@@ -589,6 +701,25 @@ async function askQuestions(
               missing: d.missing ?? [],
               reason: d.reason,
             },
+            status: "aberta",
+          }
+        }
+        if (q.formSalaryBelowTarget) {
+          await ctx.admin
+            .from("applications")
+            .update({
+              next_action: SALARY_FORM_BLOCK_REASON,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", run.application_id)
+            .eq("user_id", run.user_id)
+          return {
+            user_id: run.user_id,
+            application_id: run.application_id,
+            question_text: q.label.slice(0, 500),
+            field_type: "salary_form_bracket",
+            options: q.options.length ? q.options : null,
+            proposed_from: { run_id: run.id, form_salary_bracket: true },
             status: "aberta",
           }
         }
@@ -768,23 +899,31 @@ async function requestApproval(
   return approvalId
 }
 
-async function flagSalaryApplyReview(ctx: Ctx, run: RunRow, reason: string) {
+async function flagSalaryApplyReview(
+  ctx: Ctx,
+  run: RunRow,
+  blocked: Extract<
+    Awaited<ReturnType<typeof evaluateSalaryApplyGate>>,
+    { proceed: false }
+  >
+) {
+  await ensureSalaryGateQuestion(ctx, run, blocked)
   await ctx.admin
     .from("applications")
     .update({
-      next_action: reason,
+      next_action: blocked.reason,
       updated_at: new Date().toISOString(),
     })
     .eq("id", run.application_id)
     .eq("user_id", run.user_id)
   await ctx.update(run.id, {
-    phase: "failed",
-    last_error: reason,
+    phase: "waiting_answers",
+    last_error: blocked.reason,
     lease_until: null,
   })
   await audit(ctx, run.user_id, "apply.run_paused", run.id, {
     reason: "salary_below_expectation",
-    message: reason,
+    message: blocked.reason,
   })
 }
 
@@ -1019,12 +1158,13 @@ export async function runApplyJob(
   })
   const salaryGate = await salaryApplyGateForRun(ctx, run)
   if (!salaryGate.proceed) {
-    await flagSalaryApplyReview(ctx, run, salaryGate.reason)
-    return { runId, phase: "failed", segments: 0 }
+    await flagSalaryApplyReview(ctx, run, salaryGate)
+    return { runId, phase: "waiting_answers", segments: 0 }
   }
   const dir = await mkdtemp(join(tmpdir(), "vp-apply-"))
   let segments = run.segments
   let phase: ApplyRunPhase = run.phase
+  const salaryTarget = await salaryTargetForRun(ctx, run)
   try {
     const cvPath = await downloadCv(ctx, run, payload, dir)
     const runtime: PoolRuntime = { admin, env, adapterFor: options.adapterFor }
@@ -1201,6 +1341,7 @@ export async function runApplyJob(
             runAnswers: (answerMeta = await loadRunAnswerMeta(ctx, run))
               .answers,
             cvPath,
+            salaryTarget,
           },
           permit,
           deadline: Date.now() + sessionMs - 60_000,

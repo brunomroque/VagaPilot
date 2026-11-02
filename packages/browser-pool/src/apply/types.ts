@@ -47,6 +47,8 @@ export type UnknownQuestion = {
   permission?: {
     action: "create_site_account" | "open_email_link" | "use_email_code"
   }
+  /** Form salary brackets are all below the user's target; user must decide. */
+  formSalaryBelowTarget?: boolean
 }
 
 export type PageState =
@@ -78,6 +80,8 @@ export type FillContext = {
   /** Answers given by the user for THIS run, keyed by normalised question label. */
   runAnswers: Record<string, string>
   cvPath: string | null
+  /** User's salary target (seniority × regime) for bracket decisions; null skips auto-pick. */
+  salaryTarget: number | null
 }
 
 /** One ATS (spec 11.1). Nothing here ever clicks the final submit except `submit`. */

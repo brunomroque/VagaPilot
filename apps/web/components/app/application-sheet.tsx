@@ -20,6 +20,7 @@ import {
 import type { TrackerApplication } from "@vagapilot/core/tracker"
 
 import { CompanyLogo } from "@/components/app/company-logo"
+import { SalaryGateActions } from "@/components/app/salary-gate-actions"
 import { FilledViaChatBadgeClient } from "@/components/chat/filled-via-chat-badge-client"
 import {
   companyInitials,
@@ -321,6 +322,10 @@ function NextActionEditor({
 
   return (
     <FieldGroup className="gap-3">
+      <SalaryGateActions
+        applicationId={application.id}
+        nextAction={application.nextAction}
+      />
       {application.nextAction ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">

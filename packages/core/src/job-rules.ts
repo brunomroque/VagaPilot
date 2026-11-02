@@ -471,6 +471,35 @@ export function suggestSalary(
 
 export const SALARY_APPLY_BLOCK_REASON = "Faixa salarial abaixo da pretensão"
 
+export const SALARY_APPLY_OVERRIDE_CHOICE = "Candidatar mesmo assim"
+export const SALARY_APPLY_GATE_CANCEL = "Cancelar"
+export const SALARY_APPLY_GATE_QUESTION =
+  "A faixa salarial publicada na vaga está abaixo da sua pretensão. Deseja continuar mesmo assim?"
+
+export function isSalaryApplyGateOverridden(
+  answer: string | null | undefined
+): boolean {
+  return (
+    normalizeSalaryGateAnswer(answer) ===
+    normalizeSalaryGateAnswer(SALARY_APPLY_OVERRIDE_CHOICE)
+  )
+}
+
+function normalizeSalaryGateAnswer(answer: string | null | undefined): string {
+  return (answer ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+}
+
+export {
+  decideFormSalaryBracket,
+  isSalaryBracketField,
+  parseSalaryBracketOption,
+  SALARY_FORM_BLOCK_REASON,
+} from "./salary-bracket.js"
+
 export type SalaryApplyGateResult =
   | { proceed: true }
   | {

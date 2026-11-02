@@ -349,7 +349,11 @@
       "file": "Arquivo"
     },
     "archive": "Arquivar",
-    "prepare": "Preparar próxima etapa"
+    "prepare": "Preparar próxima etapa",
+    "salaryGateTitle": "Faixa da vaga abaixo da pretensão",
+    "salaryGateBody": "A faixa salarial publicada está abaixo da sua pretensão para esta vaga. Você pode cancelar ou candidatar mesmo assim só nesta candidatura.",
+    "salaryGateProceed": "Candidatar mesmo assim",
+    "salaryGateCancel": "Cancelar"
   },
   "Tasks": {
     "title": "Suas ações",
@@ -1704,7 +1708,10 @@
       }
     },
     "cloudApply": {
-      "intro": "Posso preencher a candidatura no seu próprio navegador Chrome local (ou no Browserbase na nuvem, como fallback). Você acompanha, responde o que eu não souber e aprova antes do envio.",
+      "intro": "Posso preencher a candidatura no seu próprio Chrome local, no seu computador. Você acompanha, responde o que eu não souber e aprova antes do envio.",
+      "riskNoticeTitle": "Chrome local no seu PC — você assume o risco:",
+      "riskNoticeBody": "A automação roda somente no seu Chrome local, no seu computador, nas suas contas reais. Não há navegador na nuvem como fallback. Sites como LinkedIn, Gupy e outros podem limitar, suspender ou bloquear sua conta. Ao iniciar, você assume integralmente esse risco.",
+      "riskNoticeLink": "Riscos e responsabilidades",
       "start": "Candidatar na nuvem",
       "cancel": "Cancelar",
       "resume": "Já resolvi, continuar",
@@ -1713,6 +1720,8 @@
       "loginHelp": "Faça login no navegador abaixo. Depois eu continuo sozinho.",
       "captchaHelp": "Resolva a verificação no navegador abaixo. Depois eu continuo.",
       "questionsHelp": "O formulário pediu informações que não estão no seu perfil. Não vou inventar nada.",
+      "salaryGateHelp": "A faixa salarial publicada na vaga está abaixo da sua pretensão. Você pode cancelar ou candidatar mesmo assim só nesta vaga.",
+      "salaryFormBracketHelp": "Todas as faixas salariais deste campo estão abaixo da sua pretensão. Escolha uma opção ou responda no chat.",
       "remember": "Salvar como fato do meu perfil",
       "answer": "Responder",
       "reviewHelp": "Revise o que será enviado. Nada é enviado sem a sua aprovação.",
@@ -2015,8 +2024,8 @@
   "Searches": {
     "title": "Buscas salvas",
     "description": "Critérios que rodam na frequência escolhida e trazem vagas com fit já calculado.",
-    "riskNoticeTitle": "Navegador local (primário) + Browserbase (fallback) — você assume o risco:",
-    "riskNoticeBody": "Para diminuir bloqueios de servidores na nuvem, buscas e candidaturas rodam por padrão no seu próprio Chrome local, nas suas contas reais (e usam o Browserbase na nuvem apenas se o Chrome local estiver indisponível). Plataformas como LinkedIn, Gupy e outras podem limitar, suspender ou bloquear sua conta por automação. Ao criar ou executar uma busca, você assume integralmente esse risco.",
+    "riskNoticeTitle": "Chrome local no seu PC — você assume o risco:",
+    "riskNoticeBody": "Buscas e candidaturas automatizadas rodam somente no seu próprio Chrome local, no seu computador, nas suas contas reais. Não usamos navegador na nuvem como fallback. Plataformas como LinkedIn, Gupy e outras podem limitar, suspender ou bloquear sua conta por automação. Ao criar ou executar uma busca, você assume integralmente esse risco.",
     "riskNoticeLink": "Ler Riscos e responsabilidades",
     "new": "Nova busca",
     "newTitle": "Nova busca salva",

@@ -6,7 +6,7 @@ Este Termo complementa os [Termos de Uso]({{SITE_URL}}/termos) e a [Política de
 
 ## O que a automação faz
 
-Quando você pede, um navegador na nuvem abre o site da vaga, preenche o formulário com os seus dados e respostas, e para na revisão. **Nada é enviado sem a sua aprovação do resumo final.**
+Quando você pede, o VagaPilot abre o site da vaga **no seu próprio Chrome local**, preenche o formulário com os seus dados e respostas, e para na revisão. **Nada é enviado sem a sua aprovação do resumo final.**
 
 ## Riscos e responsabilidades (leia com atenção)
 
@@ -24,7 +24,7 @@ Quando você pede, um navegador na nuvem abre o site da vaga, preenche o formul�
 
 **7. LinkedIn.** A candidatura automatizada no LinkedIn está desativada, pois as regras daquela plataforma não permitem.
 
-**8. Navegador na nuvem e provedores no exterior.** **Seus dados de candidatura passam por provedores de navegador na nuvem (Browserbase, Kernel, Steel, Browserless) e de infraestrutura (Supabase, Upstash, Netlify) e de IA (Google Gemini), localizados principalmente nos Estados Unidos.** Detalhes na Política de Privacidade (transferência internacional).
+**8. Provedores no exterior.** **Seus dados passam por provedores de infraestrutura (Supabase, Upstash, Netlify) e de IA (Google Gemini), localizados principalmente nos Estados Unidos.** Detalhes na Política de Privacidade (transferência internacional).
 
 **9. Cotas e disponibilidade.** **Parte do serviço usa cotas gratuitas ou limitadas. Quando acabarem, a candidatura pode ficar indisponível ou atrasar.**
 
@@ -32,14 +32,13 @@ Quando você pede, um navegador na nuvem abre o site da vaga, preenche o formul�
 
 **11. Permissões permanentes (opcional).** Em Configurações → Permissões do agente você pode, se quiser, autorizar o sistema a realizar certas ações sem perguntar a cada vez: aceitar termos de sites, criar contas, abrir links e usar códigos recebidos por e-mail, aceitar caixas de marketing e, com confirmação adicional, enviar a candidatura final. A autorização pode valer para todos os sites ("Sempre permitir") ou só para os sites da sua lista ("Permitir em sites da lista"); uma lista de bloqueio sempre prevalece. **Ao ativar uma permissão permanente, você nomeia o VagaPilot seu mandatário para praticar aquela ação em seu nome, inclusive aceitar os termos daqueles sites e informar os dados das categorias que você marcar, e esses atos valem como se você mesmo os tivesse praticado.** A permissão vale **somente para as categorias de dados que você marcar uma a uma** (contato; documentos como CPF/RG; endereço; pretensão salarial; família/estado civil; diversidade; saúde/PcD; antecedentes, vínculos e compliance; termos do site; marketing/opt-in); nenhuma vem marcada. **Dados sensíveis (diversidade, saúde e deficiência — art. 11 da LGPD) só são cobertos se você marcar cada categoria em destaque e digitar uma confirmação própria; esse é o seu consentimento específico e destacado para que o agente os informe e consinta em seu nome nos sites cobertos.** Quando uma etapa envolver categoria que você não marcou, o agente pergunta. Mesmo com permissão ativa: **(a) marketing fica desmarcado até você confirmá-lo; (b) sites classificados como de alto risco sempre perguntam; e (c) o envio final automático fica desligado até você digitar a confirmação adicional — sem ela, cada envio depende da sua aprovação do resumo.** Após cada candidatura, e na revisão antes do envio, mostramos o relatório "Dados sensíveis enviados" (pergunta, resposta exata, categoria, origem da autorização e confiança da IA), guardado criptografado e visível só para você; administradores veem apenas contagens por categoria. Se você optar (desligado por padrão), avisamos por e-mail **apenas** quando um dado dessas categorias for preenchido por permissão permanente, sem incluir os dados no assunto. Cada ativação, alteração e revogação fica registrada no histórico de aceites, e cada ação automática fica registrada com o site, o endereço dos termos e o hash do texto, visível no histórico de atividade. **Você pode revogar qualquer permissão ou categoria a qualquer momento**, com efeito para as próximas ações; para corrigir um dado já enviado, siga as instruções "Corrigir/contestar" do relatório (o site terceiro decide se permite edição).
 
-### Navegador local (padrão) e navegador na nuvem (alternativa)
+### Navegador local (Chrome no seu computador)
 
-- **Por que usamos o seu navegador:** por padrão, a automação roda no **seu próprio Chrome**, no seu computador, já logado nas **suas contas reais** (LinkedIn, Gupy e outros sites). Fazemos isso porque sites de vagas detectam e bloqueiam com mais frequência navegadores automatizados em servidores na nuvem. Usar o seu navegador **reduz** essa chance, mas **não elimina**.
+- **Como funciona:** a automação de candidatura roda **somente no seu próprio Chrome**, no seu computador, já logado nas **suas contas reais** (LinkedIn, Gupy e outros sites). Não há fallback automático para navegador na nuvem.
 - **Risco de bloqueio:** qualquer automação na sua conta pode levar o site a **limitar, suspender ou bloquear permanentemente** a sua conta, recusar candidaturas ou exigir verificações extras. Isso depende só das regras e sistemas de cada site.
 - **Sem garantia:** {{NOME_FANTASIA}} **não garante** nenhuma conta sua em sites de terceiros e **não se responsabiliza** por bloqueios, limitações, perda de acesso, de contatos ou de histórico.
-- **Alternativa na nuvem:** quando o seu navegador local não está disponível, usamos um navegador na nuvem (Browserbase). Ele **também** pode ser detectado e bloqueado, e seus dados passam por servidores nos Estados Unidos.
 - **Você decide e assume:** ao aceitar este termo e iniciar uma busca, conexão de conta ou candidatura, **você assume integralmente esses riscos**. Se não quiser assumi-los, não conecte suas contas e candidate-se manualmente.
-- **Senhas:** nunca pedimos nem guardamos a senha das suas contas para usar o navegador local; você faz login você mesmo, no seu Chrome.
+- **Senhas:** nunca pedimos nem guardamos a senha das suas contas para usar o Chrome local; você faz login você mesmo, no seu navegador.
 
 ## Registro do aceite
 

@@ -1,7 +1,11 @@
 import type { Page } from "playwright-core"
 import { describe, expect, it, vi } from "vitest"
 
-import { decide, EMPTY_PERMISSIONS, type PermissionState } from "../src/apply/permissions.js"
+import {
+  decide,
+  EMPTY_PERMISSIONS,
+  type PermissionState,
+} from "../src/apply/permissions.js"
 import { runSegment } from "../src/apply/runner.js"
 import type { AtsDriver } from "../src/apply/types.js"
 import { samplePayload } from "./payload.js"
@@ -29,14 +33,23 @@ function signupDriver() {
 const page = { waitForTimeout: async () => undefined } as unknown as Page
 
 function input(permit: () => Promise<"allow" | "ask" | "deny">) {
-  const create = vi.fn(async () => ({ email: "a@b.c", password: "x", created: true }))
+  const create = vi.fn(async () => ({
+    email: "a@b.c",
+    password: "x",
+    created: true,
+  }))
   return {
     create,
     segment: {
       page,
       driver: signupDriver(),
       url: "https://acme.gupy.io/vaga",
-      ctx: { payload: samplePayload(), runAnswers: {}, cvPath: null },
+      ctx: {
+        payload: samplePayload(),
+        runAnswers: {},
+        cvPath: null,
+        salaryTarget: null,
+      },
       deadline: Date.now() + 60_000,
       humanWaitMs: 0,
       account: { get: async () => null, create },
@@ -51,7 +64,9 @@ describe("runner permission gate", () => {
     const out = await runSegment(segment as never)
     expect(out.kind).toBe("needs_answers")
     if (out.kind !== "needs_answers") return
-    expect(out.questions[0]?.permission).toEqual({ action: "create_site_account" })
+    expect(out.questions[0]?.permission).toEqual({
+      action: "create_site_account",
+    })
     expect(create).not.toHaveBeenCalled()
   })
   it("creates the account when permitted", async () => {
@@ -69,13 +84,20 @@ describe("runner permission gate", () => {
 
 describe("decide", () => {
   it("marketing default deny asks instead of failing the run", () => {
-    expect(decide(EMPTY_PERMISSIONS, "accept_marketing_optin", "x.com", ["marketing"]).decision).toBe("ask")
+    expect(
+      decide(EMPTY_PERMISSIONS, "accept_marketing_optin", "x.com", [
+        "marketing",
+      ]).decision
+    ).toBe("ask")
     const explicit: PermissionState = {
       ...EMPTY_PERMISSIONS,
       settings: { accept_marketing_optin: { mode: "deny" } },
       explicit: new Set(["accept_marketing_optin"]),
     }
-    expect(decide(explicit, "accept_marketing_optin", "x.com", ["marketing"]).decision).toBe("deny")
+    expect(
+      decide(explicit, "accept_marketing_optin", "x.com", ["marketing"])
+        .decision
+    ).toBe("deny")
   })
   it("admin high-risk level blocks auto", () => {
     const s: PermissionState = {
@@ -83,6 +105,8 @@ describe("decide", () => {
       siteRisk: "alto",
       settings: { accept_site_terms: { mode: "auto", categories: ["termos"] } },
     }
-    expect(decide(s, "accept_site_terms", "x.com", ["termos"]).reason).toBe("high_risk_site")
+    expect(decide(s, "accept_site_terms", "x.com", ["termos"]).reason).toBe(
+      "high_risk_site"
+    )
   })
 })

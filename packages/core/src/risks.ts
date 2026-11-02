@@ -88,16 +88,16 @@ export const RISK_CATALOG: readonly Risk[] = [
     severity: "alto",
     title: "Automação no SEU navegador e nas SUAS contas",
     short:
-      "Por padrão, a automação roda no seu próprio Chrome, logado nas suas contas reais (LinkedIn, Gupy e outras). Usamos isso porque sites bloqueiam menos um navegador real do que um robô na nuvem — mas o risco não some: sua conta pode ser limitada, suspensa ou bloqueada.",
-    more: "O VagaPilot não garante nenhuma conta sua e não se responsabiliza por bloqueios, limitações ou perda de acesso. Ao continuar, você assume esse risco. Se o seu navegador local não estiver disponível, usamos um navegador na nuvem (Browserbase) como alternativa; ele também pode ser detectado e bloqueado, e seus dados passam por servidores nos EUA. Prefere não arriscar? Candidate-se manualmente.",
+      "Por padrão, a automação roda no seu próprio Chrome no seu computador, logado nas suas contas reais (LinkedIn, Gupy e outras). Sites bloqueiam menos um navegador real — mas o risco não some: sua conta pode ser limitada, suspensa ou bloqueada.",
+    more: "O VagaPilot não garante nenhuma conta sua e não se responsabiliza por bloqueios, limitações ou perda de acesso. Ao continuar, você assume esse risco. A candidatura automatizada só roda no Chrome local da sua máquina; não há navegador na nuvem como alternativa automática. Prefere não arriscar? Candidate-se manualmente.",
   },
   {
     id: "provedores_exterior",
     severity: "atencao",
-    title: "Navegador na nuvem e provedores nos EUA",
+    title: "Provedores de infraestrutura e IA nos EUA",
     short:
-      "Seus dados de candidatura passam por provedores (Browserbase, Kernel, Steel, Browserless) nos Estados Unidos.",
-    more: "Também usamos Supabase, Upstash, Netlify e Google Gemini. Detalhes e transferência internacional na Política de Privacidade.",
+      "Seus dados passam por provedores de infraestrutura e de IA (Supabase, Upstash, Netlify, Google Gemini) nos Estados Unidos.",
+    more: "Detalhes e transferência internacional na Política de Privacidade. A automação de candidatura em sites roda no seu Chrome local; conexão de sites pelo painel administrativo pode usar navegador na nuvem quando configurado.",
   },
   {
     id: "cotas",
@@ -190,7 +190,7 @@ export function riskAlerts(ctx: AlertContext): RiskAlert[] {
       detail:
         ctx.browserProvider === "local"
           ? "Esta execução vai usar o seu Chrome local, nas suas contas reais. Você assume o risco de bloqueio."
-          : "Esta execução vai usar um navegador na nuvem (Browserbase). Também pode haver bloqueio; você assume o risco.",
+          : "Esta execução usa navegador na nuvem apenas se o administrador tiver ativado essa configuração. Você assume o risco de bloqueio.",
     })
   if (ctx.siteLevel === "alto" || ctx.siteLevel === "medio")
     out.push({

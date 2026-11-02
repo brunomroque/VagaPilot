@@ -1,4 +1,8 @@
 import { matchProfileValue, type FormField } from "@vagapilot/ats-adapters/form"
+import {
+  decideFormSalaryBracket,
+  isSalaryBracketField,
+} from "@vagapilot/core/job-rules"
 import { isConsentLabel } from "@vagapilot/core/risks"
 
 import type {
@@ -68,7 +72,9 @@ export const CONSENT_ACCEPT = "Aceito"
 export const CONSENT_CANCEL = "Cancelar"
 
 /** Terms / privacy / marketing / consent checkbox (never ticked without the user's "Aceito"). */
-export function isConsentField(field: Pick<FieldInfo, "kind" | "label" | "name">): boolean {
+export function isConsentField(
+  field: Pick<FieldInfo, "kind" | "label" | "name">
+): boolean {
   return (
     field.kind === "checkbox" &&
     isConsentLabel(`${field.label} ${field.name ?? ""}`)
@@ -80,10 +86,16 @@ export function isConsentField(field: Pick<FieldInfo, "kind" | "label" | "name">
  * the user did not accept are left (or put back) unchecked. Never resolved from the profile
  * or standard answers.
  */
-function resolveConsent(field: FieldInfo, ctx: FillContext): ResolvedAnswer | null {
+function resolveConsent(
+  field: FieldInfo,
+  ctx: FillContext
+): ResolvedAnswer | null {
   const key = normalizeLabel(field.label || field.name || "")
   const answer = key ? ctx.runAnswers[key] : undefined
-  if (answer !== undefined && normalizeLabel(answer) === normalizeLabel(CONSENT_ACCEPT))
+  if (
+    answer !== undefined &&
+    normalizeLabel(answer) === normalizeLabel(CONSENT_ACCEPT)
+  )
     return { label: field.label, value: "sim", source: "run_answer" }
   if (!field.required && /^(sim|yes|true|on)$/i.test(field.currentValue ?? ""))
     return { label: field.label, value: "nao", source: "run_answer" }
@@ -123,6 +135,17 @@ export function resolveField(
       source = fromStandard ? "standard_answer" : "profile"
     }
   }
+  if (
+    (field.kind === "select" || field.kind === "radio") &&
+    ctx.salaryTarget !== null &&
+    isSalaryBracketField(field.label, field.options) &&
+    ctx.runAnswers[key] === undefined
+  ) {
+    const decision = decideFormSalaryBracket(field.options, ctx.salaryTarget)
+    if (decision.action === "pick")
+      return { label: field.label, value: decision.option, source: "profile" }
+    if (decision.action === "pause") return null
+  }
   if (value === null || !value.trim()) return null
   if (field.kind === "select" || field.kind === "radio") {
     const option = pickOption(field.options, value)
@@ -131,7 +154,10 @@ export function resolveField(
   }
   if (field.kind === "checkbox") {
     const normalized = normalizeLabel(value)
-    if (normalized === normalizeLabel(CONSENT_ACCEPT) && source === "run_answer")
+    if (
+      normalized === normalizeLabel(CONSENT_ACCEPT) &&
+      source === "run_answer"
+    )
       return { label: field.label, value: "sim", source }
     if (!/^(sim|yes|true|nao|no|false)$/.test(normalized)) return null
   }
@@ -158,11 +184,18 @@ export function partitionFields(
     const consent = isConsentField(field)
     const hasValue = Boolean(field.currentValue && field.currentValue.trim())
     // A required consent box pre-checked by the site still needs the user's own decision.
-    if (!field.required || (hasValue && !consent) || field.kind === "file") continue
+    if (!field.required || (hasValue && !consent) || field.kind === "file")
+      continue
     const label = field.label || field.name || "Pergunta sem rótulo"
     const norm = normalizeLabel(label)
     if (seen.has(norm)) continue
     seen.add(norm)
+    const formSalaryBelowTarget =
+      ctx.salaryTarget !== null &&
+      (field.kind === "select" || field.kind === "radio") &&
+      isSalaryBracketField(field.label, field.options) &&
+      decideFormSalaryBracket(field.options, ctx.salaryTarget).action ===
+        "pause"
     unknown.push(
       consent
         ? {
@@ -172,7 +205,15 @@ export function partitionFields(
             required: true,
             consent: { termsUrl: field.linkHref ?? null },
           }
-        : { label, kind: field.kind, options: field.options, required: field.required }
+        : {
+            label,
+            kind: field.kind,
+            options: field.options,
+            required: field.required,
+            ...(formSalaryBelowTarget
+              ? { formSalaryBelowTarget: true as const }
+              : {}),
+          }
     )
   }
   return { answers, unknown }
