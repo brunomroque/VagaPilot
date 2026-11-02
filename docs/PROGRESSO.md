@@ -307,6 +307,7 @@ Feito em 2026-10-22 (ESPEC §10.6, §12, fase 16 P7.1–P7.2).
 - **Metas 10.6 (fake provider, local):** no-fabrication 0 violações; fit concordância 100% (50 pares, rótulos alinhados ao fake); settings-intent 100%/100%; injeção 0 ações; off-topic 100% recusa / 0% indevida; leak/fraud 0; email-classify precisão/recall 1,00 (200 e-mails). **Ainda fora do corpus:** extract-job 60 vagas, email-draft 30, metas com modelo real (gateway).
 - **P7.2 Observabilidade e hardening:** Sentry (`instrumentation.ts`, configs server/edge/client, `redactSentryEvent`); OpenTelemetry opcional (`OTEL_EXPORTER_OTLP_ENDPOINT`); Langfuse via `llmTelemetryOptions` no `/api/chat`; PostHog sem PII (`PostHogProvider`); Upstash opcional em `checkUpstashRateLimit` + chat; CSP/headers em `lib/security/csp.ts`; `docs/SEGURANCA.md` (checklist ASVS) + runbooks em `docs/runbooks/`.
 - **CI (`.github/workflows/ci.yml`):** jobs `evals` (no-fabrication + `pnpm evals` + `pnpm eval:email`), `e2e` (Playwright Chromium, `E2E_PORT=3100`, workers 1), `rls` (Supabase local + `@vagapilot/db` test) além de `verify`.
+- **CI e2e (2026-11-02):** job `e2e` passa a gerar `KEK_LOCAL` efêmero, `KEY_PROVIDER=local`, `AI_PROVIDER=fake` e `NEXT_PUBLIC_APP_URL` na porta 3100; retry em `supabase start` para rate limit do ECR; `playwright.config.ts` repassa Supabase/crypto ao `next dev`; testes ajustados (`signInAsDevUser` saudação no topbar, cadastro com `Nome`, onboarding `.first()` no toast duplicado). Com `next start` em CI, `E2E_ALLOW_LOCAL_APP_URL=1` + `resolveAppUrl({ allowLocal })` aceita loopback em produção só no e2e. Pendência: validar run verde no GitHub Actions.
 - **E2e:** `playwright.config.ts` workers 1 no CI; `chat.spec.ts` CA14.8 filtra `memory_events` por `created_at`. Extensão MV3 carregada: gap documentado em `docs/runbooks/extension-e2e-gap.md` (parcial via `extension.spec.ts`).
 - **Testes locais (2026-10-22):** `pnpm evals`, `pnpm eval:no-fabrication`, `pnpm eval:email` verdes; `pnpm turbo lint typecheck test build` 38/39 (`@vagapilot/db` test exige Supabase — ver job `rls` no CI). E2e: `pnpm --filter web test:e2e` **21/28** (porta 3100); CA14.8 estável; falhas restantes ligadas a Supabase local ausente (`profile`), estado seed Marina/Gmail (`shell`, `gmail`) e um fluxo P6 planos — ver `docs/runbooks/ci-falha-e2e.md`.
 - **Dependência P6:** entitlements já presentes; nenhum skip extra no CI de evals/e2e por P6 paralelo.
@@ -470,3 +471,15 @@ Feito (branch `fix/f0-bot-de-vagas`):
 - Testes: `salary-bracket.test.ts`, `resolver.test.ts`, `salary-gate-actions.test.ts`, `job-rules.test.ts`.
 
 Pendente: publicar novas versões em `legal_documents` no ambiente (admin) após bump de `LEGAL_CURRENT_VERSIONS`.
+
+### CI e2e — iteração 2 (2026-11-02)
+
+Feito (branch `fix/ci-e2e`, sem commit nesta sessão):
+
+- **Bug produto:** auditoria do tracker passou a gravar `audit_log` com `service_role` (migração QA revogou `INSERT` para `authenticated`; alinhado a `lib/server/audit.ts`).
+- **Bug produto:** datas em `/app/buscas` formatadas com `timeZone: America/Sao_Paulo` para evitar hydration mismatch (UTC no runner vs pt-BR no browser).
+- **Chat:** “Nova conversa” usa `startNewConversationAction` (redirect server-side, funciona sem hidratação).
+- **CI:** `KEK_LOCAL` mascarado com `::add-mask::`; `pnpm --filter web build` + Playwright com `next start` em CI; timeout padrão 120s; limite local `auth.rate_limit.email_sent` aumentado para suportar cadastros e2e.
+- **Testes:** locators de fatos (Ignorar / Fato ignorado), auth aguarda `/cadastro/verifique`, tracker P3.2 navega com `goto /app`, timeouts de chat/buscas ajustados.
+
+Pendente: reexecutar job e2e no PR após push; smoke local exige `supabase start` + `pnpm db:reset`.

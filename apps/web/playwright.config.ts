@@ -17,6 +17,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // The dev server compiles routes on first hit; keep parallelism and timeouts dev-friendly.
   workers: process.env.CI ? 1 : 2,
+  timeout: process.env.CI ? 120_000 : 30_000,
   expect: { timeout: 15_000 },
   use: {
     baseURL,
@@ -31,17 +32,46 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm exec next dev --port ${port}`,
+    command: process.env.CI
+      ? `pnpm exec next start --port ${port}`
+      : `pnpm exec next dev --port ${port}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
     env: {
+      NODE_ENV: process.env.CI ? "production" : "development",
       // Dev-only fake session for the shell smoke (see lib/auth/dev-bypass.ts). Inert in production.
       VAGAPILOT_DEV_AUTH_BYPASS: "1",
       // Job links are served from FICTITIOUS recorded fixtures (packages/ats-adapters/fixtures), never the network.
       VAGAPILOT_ATS_FIXTURES: "1",
       // Fixture Gmail backend for the P4 e2e (packages/gmail/src/mock.ts). Never in production.
       VAGAPILOT_GMAIL_MOCK: "1",
+      KEY_PROVIDER: process.env.KEY_PROVIDER ?? "local",
+      AI_PROVIDER: process.env.AI_PROVIDER ?? "fake",
+      ...(process.env.KEK_LOCAL ? { KEK_LOCAL: process.env.KEK_LOCAL } : {}),
+      ...(process.env.SUPABASE_URL
+        ? { SUPABASE_URL: process.env.SUPABASE_URL }
+        : {}),
+      ...(process.env.SUPABASE_SERVICE_ROLE_KEY
+        ? { SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? { NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        ? {
+            NEXT_PUBLIC_SUPABASE_ANON_KEY:
+              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+          }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_APP_URL
+        ? { NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL }
+        : {}),
+      ...(process.env.E2E_ALLOW_LOCAL_APP_URL
+        ? {
+            E2E_ALLOW_LOCAL_APP_URL: process.env.E2E_ALLOW_LOCAL_APP_URL,
+          }
+        : {}),
     },
   },
 })
