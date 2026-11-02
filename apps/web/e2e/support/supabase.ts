@@ -68,6 +68,42 @@ export async function createFictitiousUser(
   return { id: data.user.id, email }
 }
 
+/** Scroll-to-end + per-document clickwrap on /aceite (LegalAcceptanceCard). */
+export async function acceptSignupLegalDocuments(page: Page) {
+  const deadline = Date.now() + 120_000
+  while (new URL(page.url()).pathname === "/aceite") {
+    if (Date.now() > deadline) {
+      throw new Error("acceptSignupLegalDocuments timed out on /aceite")
+    }
+
+    await page
+      .locator('[aria-label^="Texto completo:"]')
+      .evaluateAll((elements) => {
+        for (const el of elements) {
+          el.scrollTop = el.scrollHeight
+          el.dispatchEvent(new Event("scroll", { bubbles: true }))
+        }
+      })
+
+    const acceptButton = page
+      .getByRole("button", { name: "Li e aceito" })
+      .first()
+    if (!(await acceptButton.isVisible())) break
+
+    await expect(acceptButton).toBeEnabled({ timeout: 15_000 })
+
+    const fieldset = page.locator("fieldset:not([disabled])").first()
+    const boxes = fieldset.locator('input[type="checkbox"]')
+    for (let i = 0; i < (await boxes.count()); i++) {
+      await boxes.nth(i).check()
+    }
+
+    await Promise.all([page.waitForLoadState("load"), acceptButton.click()])
+  }
+
+  await expect(page).toHaveURL(/\/app\/onboarding$/, { timeout: 60_000 })
+}
+
 /** Logs in through the real form and accepts the terms; ends on the onboarding wizard. */
 export async function signInAndAccept(page: Page, email: string) {
   await page.goto("/entrar")
@@ -75,12 +111,5 @@ export async function signInAndAccept(page: Page, email: string) {
   await page.getByLabel("Senha").fill(FICTITIOUS_PASSWORD)
   await page.getByRole("button", { name: "Entrar", exact: true }).click()
   await expect(page).toHaveURL(/\/aceite$/)
-  await page
-    .getByRole("checkbox", { name: "Li e aceito os Termos de uso" })
-    .check()
-  await page
-    .getByRole("checkbox", { name: "Li e aceito a Política de privacidade" })
-    .check()
-  await page.getByRole("button", { name: "Aceitar e continuar" }).click()
-  await expect(page).toHaveURL(/\/app\/onboarding$/)
+  await acceptSignupLegalDocuments(page)
 }

@@ -484,6 +484,8 @@ Feito (branch `fix/ci-e2e`, sem commit nesta sessão):
 
 Pendente: reexecutar job e2e no PR após push; smoke local exige `supabase start` + `pnpm db:reset`.
 
+- **E2E aceite (2026-11-02):** helper `acceptSignupLegalDocuments` (scroll até o fim + clickwrap por documento) substitui checkboxes globais / botão “Aceitar e continuar” obsoleto após `LegalAcceptanceCard` em `/aceite`.
+
 ### Reteste QA c3404f7 (2026-11-02)
 
 Feito (branch `fix/qa-c3404f7`, ESPEC § legal / aceite / auditoria):
