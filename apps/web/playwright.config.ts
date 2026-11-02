@@ -42,6 +42,22 @@ export default defineConfig({
       VAGAPILOT_ATS_FIXTURES: "1",
       // Fixture Gmail backend for the P4 e2e (packages/gmail/src/mock.ts). Never in production.
       VAGAPILOT_GMAIL_MOCK: "1",
+      KEY_PROVIDER: process.env.KEY_PROVIDER ?? "local",
+      AI_PROVIDER: process.env.AI_PROVIDER ?? "fake",
+      ...(process.env.KEK_LOCAL ? { KEK_LOCAL: process.env.KEK_LOCAL } : {}),
+      ...(process.env.SUPABASE_URL ? { SUPABASE_URL: process.env.SUPABASE_URL } : {}),
+      ...(process.env.SUPABASE_SERVICE_ROLE_KEY
+        ? { SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? { NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        ? { NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_APP_URL
+        ? { NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL }
+        : {}),
     },
   },
 })

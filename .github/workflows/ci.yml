@@ -65,6 +65,8 @@ jobs:
       CI: "1"
       E2E_PORT: "3100"
       VAGAPILOT_REQUIRE_SUPABASE: "1"
+      KEY_PROVIDER: local
+      AI_PROVIDER: fake
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,9 +88,26 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Ephemeral crypto key for e2e (not a production secret)
+        run: |
+          echo "KEK_LOCAL=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_APP_URL=http://127.0.0.1:${E2E_PORT}" >> "$GITHUB_ENV"
+
       - name: Start Supabase and reset DB
         run: |
-          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,mailpit
+          set -euo pipefail
+          EXCLUDES="-x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,mailpit"
+          for attempt in 1 2 3 4 5; do
+            if supabase start $EXCLUDES; then
+              break
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "supabase start failed after 5 attempts"
+              exit 1
+            fi
+            echo "supabase start failed (attempt ${attempt}); retrying in 30s..."
+            sleep 30
+          done
           pnpm db:reset
 
       - name: Export Supabase env for Playwright

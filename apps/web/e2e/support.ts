@@ -66,7 +66,7 @@ export async function signInAsDevUser(page: Page, next = "/app") {
   )
   await expect(page).toHaveURL(new RegExp(`${next.replace("/", "\\/")}$`))
   await expect(
-    page.getByRole("heading", { level: 1, name: /Olá, Marina/ })
+    page.locator("header").getByText(/Olá, Marina/)
   ).toBeVisible()
 }
 
