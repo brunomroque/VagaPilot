@@ -11,6 +11,8 @@ import {
   mergeDuplicateWithGmail,
   recommendCv,
   suggestSalary,
+  evaluateSalaryApplyGate,
+  SALARY_APPLY_BLOCK_REASON,
   titleSimilarity,
   type ProfileForAlerts,
   type SalaryRule,
@@ -231,6 +233,58 @@ describe("suggestSalary (RF6.3, deterministic)", () => {
     expect(
       suggestSalary(rules, { seniority: "diretor", regime: "clt" }).status
     ).toBe("no_rule")
+  })
+})
+
+describe("evaluateSalaryApplyGate", () => {
+  it("proceeds when the posting has no salary max", () => {
+    expect(
+      evaluateSalaryApplyGate(rules, {
+        seniority: "gerente",
+        regime: "clt",
+        jobRange: { min: 10000, max: null, currency: "BRL" },
+      }).proceed
+    ).toBe(true)
+    expect(
+      evaluateSalaryApplyGate(rules, {
+        seniority: "gerente",
+        regime: "clt",
+        jobRange: null,
+      }).proceed
+    ).toBe(true)
+  })
+
+  it("blocks when max is below the user's target for seniority × regime", () => {
+    const blocked = evaluateSalaryApplyGate(rules, {
+      seniority: "gerente",
+      regime: "clt",
+      jobRange: { min: 18000, max: 24000, currency: "BRL" },
+    })
+    expect(blocked.proceed).toBe(false)
+    if (blocked.proceed) return
+    expect(blocked.reason).toBe(SALARY_APPLY_BLOCK_REASON)
+    expect(blocked.target).toBe(32000)
+    expect(blocked.jobMax).toBe(24000)
+  })
+
+  it("uses inferred seniority from the role title when posting seniority is missing", () => {
+    const blocked = evaluateSalaryApplyGate(rules, {
+      seniority: null,
+      roleTitle: "Engineering Manager",
+      regime: "clt",
+      jobRange: { min: null, max: 20000, currency: "BRL" },
+    })
+    expect(blocked.proceed).toBe(false)
+  })
+
+  it("proceeds when max meets or exceeds the target", () => {
+    expect(
+      evaluateSalaryApplyGate(rules, {
+        seniority: "coordenador",
+        regime: "clt",
+        jobRange: { min: 18000, max: 22000, currency: "BRL" },
+      }).proceed
+    ).toBe(true)
   })
 })
 

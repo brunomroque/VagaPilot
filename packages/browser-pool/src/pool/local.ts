@@ -13,13 +13,13 @@ type Env = Record<string, string | undefined>
  * - `local` (default): the user's own Chrome, started with `--remote-debugging-port` on the
  *   machine that runs the worker. Real IP, real fingerprint, real profile: lower chance of
  *   bot detection than a datacenter browser, but it acts on the user's REAL accounts.
- * - `browserbase`: cloud browser pool (Browserbase first). Used directly, or as automatic
- *   fallback when the local browser is unreachable.
+ * - `browserbase`: cloud browser pool (explicit opt-in via BROWSER_PROVIDER=browserbase).
  */
 export type BrowserProviderMode = "local" | "browserbase"
 
 export const LOCAL_PROVIDER_ID = "local"
-export const DEFAULT_LOCAL_CDP_URL = "http://127.0.0.1:9222"
+export const DEFAULT_LOCAL_CDP_URL = "http://127.0.0.1:9223"
+export const DEFAULT_LOCAL_CHROME_PROFILE = "C:\\Users\\bruno\\chrome-vagas"
 
 export function browserProviderFromEnv(
   env: Env = process.env
@@ -29,16 +29,26 @@ export function browserProviderFromEnv(
     : "local"
 }
 
-/** Fallback to the cloud pool is on unless BROWSER_FALLBACK=none. */
-export function cloudFallbackEnabled(env: Env = process.env): boolean {
-  return env.BROWSER_FALLBACK?.trim().toLowerCase() !== "none"
-}
-
 export function localCdpUrlFromEnv(env: Env = process.env): string {
   return (env.LOCAL_BROWSER_CDP_URL?.trim() || DEFAULT_LOCAL_CDP_URL).replace(
     /\/$/,
     ""
   )
+}
+
+export function localChromeProfileFromEnv(env: Env = process.env): string {
+  return (
+    env.LOCAL_BROWSER_PROFILE_DIR?.trim() || DEFAULT_LOCAL_CHROME_PROFILE
+  ).replace(/\/$/, "")
+}
+
+/** User-facing message when the job-applications Chrome is not reachable via CDP. */
+export function localChromeUnavailableMessage(
+  cdpUrl: string,
+  env: Env = process.env
+): string {
+  const profile = localChromeProfileFromEnv(env)
+  return `Chrome local indisponível em ${cdpUrl}. Abra o Chrome de vagas (porta 9223, perfil ${profile}) e tente de novo.`
 }
 
 /**

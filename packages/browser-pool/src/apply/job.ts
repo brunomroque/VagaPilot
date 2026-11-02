@@ -47,6 +47,12 @@ import {
 } from "./permissions.js"
 import { checkTransition, type ApplicationStatus } from "@vagapilot/core/status"
 import {
+  evaluateSalaryApplyGate,
+  type Regime,
+  type SalaryRule,
+  type Seniority,
+} from "@vagapilot/core/job-rules"
+import {
   fromBytea,
   SupabaseAuditSink,
   SupabaseDekStore,
@@ -249,6 +255,75 @@ async function loadPayload(
   )
   const parsed = applicationPackagePayloadSchema.safeParse(raw)
   return parsed.success ? parsed.data : null
+}
+
+async function salaryApplyGateForRun(ctx: Ctx, run: RunRow) {
+  const { data: appRow } = await ctx.admin
+    .from("applications")
+    .select(
+      "job_posting_id, job_postings(salary_min, salary_max, salary_currency, seniority, regime, title)"
+    )
+    .eq("id", run.application_id)
+    .eq("user_id", run.user_id)
+    .maybeSingle()
+  if (!appRow) return { proceed: true as const }
+  const posting = (
+    appRow as {
+      job_postings:
+        | {
+            salary_min: number | string | null
+            salary_max: number | string | null
+            salary_currency: string | null
+            seniority: Seniority | null
+            regime: Regime | null
+            title: string | null
+          }
+        | {
+            salary_min: number | string | null
+            salary_max: number | string | null
+            salary_currency: string | null
+            seniority: Seniority | null
+            regime: Regime | null
+            title: string | null
+          }[]
+        | null
+    }
+  ).job_postings
+  const job = Array.isArray(posting) ? posting[0] : posting
+  if (!job) return { proceed: true as const }
+  const { data: salaryRows } = await ctx.admin
+    .from("salary_rules")
+    .select("seniority, regime, amount_min, amount_target, currency, period")
+    .eq("user_id", run.user_id)
+  const rules: SalaryRule[] = (
+    (salaryRows ?? []) as {
+      seniority: Seniority
+      regime: Regime
+      amount_min: number | string | null
+      amount_target: number | string
+      currency: string | null
+      period: string | null
+    }[]
+  ).map((row) => ({
+    seniority: row.seniority,
+    regime: row.regime,
+    min: row.amount_min == null ? null : Number(row.amount_min),
+    target: Number(row.amount_target),
+    currency: row.currency ?? "BRL",
+    period: row.period ?? "mensal",
+  }))
+  const toNum = (v: number | string | null) =>
+    v == null ? null : typeof v === "number" ? v : Number(v)
+  return evaluateSalaryApplyGate(rules, {
+    seniority: job.seniority,
+    roleTitle: job.title,
+    regime: job.regime,
+    jobRange: {
+      min: toNum(job.salary_min),
+      max: toNum(job.salary_max),
+      currency: job.salary_currency,
+    },
+  })
 }
 
 /** Answers the user gave to this application's pending questions (status respondida). */
@@ -693,33 +768,23 @@ async function requestApproval(
   return approvalId
 }
 
-/** final_submit under a confirmed standing permission: approve the exact preview just created. */
-async function autoApproveSubmit(
-  ctx: Ctx,
-  run: RunRow,
-  approvalId: string,
-  reason: string,
-  ruleId?: string
-) {
+async function flagSalaryApplyReview(ctx: Ctx, run: RunRow, reason: string) {
   await ctx.admin
-    .from("approvals")
+    .from("applications")
     .update({
-      status: "aprovada",
-      decided_at: new Date().toISOString(),
-      decided_via: "agent_permission",
+      next_action: reason,
+      updated_at: new Date().toISOString(),
     })
-    .eq("id", approvalId)
+    .eq("id", run.application_id)
     .eq("user_id", run.user_id)
-    .eq("status", "pendente")
   await ctx.update(run.id, {
-    phase: "submit_approved",
-    approval_id: approvalId,
+    phase: "failed",
+    last_error: reason,
+    lease_until: null,
   })
-  await audit(ctx, run.user_id, "agent_permission.auto_used", run.id, {
-    action: "final_submit",
-    approval_id: approvalId,
-    reason,
-    rule_id: ruleId ?? null,
+  await audit(ctx, run.user_id, "apply.run_paused", run.id, {
+    reason: "salary_below_expectation",
+    message: reason,
   })
 }
 
@@ -952,6 +1017,11 @@ export async function runApplyJob(
     ats: driver.ats,
     phase: run.phase,
   })
+  const salaryGate = await salaryApplyGateForRun(ctx, run)
+  if (!salaryGate.proceed) {
+    await flagSalaryApplyReview(ctx, run, salaryGate.reason)
+    return { runId, phase: "failed", segments: 0 }
+  }
   const dir = await mkdtemp(join(tmpdir(), "vp-apply-"))
   let segments = run.segments
   let phase: ApplyRunPhase = run.phase
@@ -1295,36 +1365,7 @@ export async function runApplyJob(
           return { runId, phase, segments }
         case "review":
           phase = "review_ready"
-          {
-            const approvalId = await requestApproval(ctx, run, outcome)
-            const d = decide(
-              perms,
-              "final_submit",
-              host,
-              categoriesForLabels(outcome.summary.map((f) => f.label))
-            )
-            if (d.decision === "allow" && approvalId && autoRounds++ < 4) {
-              await autoApproveSubmit(
-                ctx,
-                run,
-                approvalId,
-                d.reason,
-                d.rule?.id
-              )
-              await recordPermissionUse(admin, {
-                user_id: run.user_id,
-                run_id: run.id,
-                action_type: "final_submit",
-                site: host,
-                decision: "allow",
-                reason: d.reason,
-                rule_id: d.rule?.id ?? null,
-              })
-              run.phase = "submit_approved"
-              run.approval_id = approvalId
-              continue
-            }
-          }
+          await requestApproval(ctx, run, outcome)
           return { runId, phase, segments }
         case "submitted":
           phase = "submitted"

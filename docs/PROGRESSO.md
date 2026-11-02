@@ -431,6 +431,7 @@ Esteiras SAST, SCA, DAST, pentest, e2e e build completo do monorepo não rodaram
 - **Correção:** `effectiveSettingConfirmed` + `chatToolMustWaitForConfirmation` em `packages/core/src/policy.ts`; `applySettingChange` força pendente para médio/alto com origem `chat`. Prompt orquestrador + descrições de ferramenta reforçam confirmação e `ask_clarification` para “prefiro vagas em inglês” sem cargo/local.
 - **Auditoria:** `data-actions`, `extended-tools` e `approvals/*` não gravam buscas/preferências fora de `applySettingChange` / `confirmPendingChange`.
 - **Pendente:** deploy + smoke manual no chat de produção (“prefiro vagas em inglês” → clarificação ou cartão, nunca `applied` sem clique).
+
 ### UX — Auditoria Leis de UX (2026-11-01)
 
 Feito (somente leitura, sem alteração de UI):
@@ -447,3 +448,14 @@ Feito (`docs/ux/prompt-impl1.md`, `apps/web`):
 - Testes: `pnpm --filter web typecheck`, `lint`, `vitest run` (incl. `lib/onboarding/completion.test.ts`).
 
 Pendente (decisão de produto ou fora do lote): UX02, UX03, UX05, UX06, UX09, UX15, UX16, UX28, demais achados do relatório.
+
+### Bot de vagas — navegador local, salário e envio (2026-11-01)
+
+Feito (branch `fix/f0-bot-de-vagas`, ESPEC § navegador / RF6.3 / DA-01):
+
+- Chrome de vagas: CDP padrão `9223`, perfil `C:\Users\bruno\chrome-vagas` (`LOCAL_BROWSER_PROFILE_DIR`), `scripts/start-chrome-debug.bat`, runbook e `.env.example` alinhados; sem fallback automático para Browserbase quando `BROWSER_PROVIDER=local`.
+- `evaluateSalaryApplyGate` em `@vagapilot/core/job-rules` + bloqueio no início de `runApplyJob` com `next_action` e run `failed` + auditoria `apply.salary_review`.
+- Envio final: removido auto-approve de `final_submit` por permissão permanente; testes `submit-approval.test.ts`.
+- Seed: pretensões Coordenador/Gerente CLT e PJ conforme pedido.
+
+Pendente: revisar copy de risco/UI que ainda menciona “Browserbase como fallback”; smoke manual com Chrome local na máquina do worker.

@@ -10,9 +10,9 @@ import { scrub } from "./http.js"
 import {
   acquireLocalBrowser,
   browserProviderFromEnv,
-  cloudFallbackEnabled,
   LOCAL_PROVIDER_ID,
   localCdpUrlFromEnv,
+  localChromeUnavailableMessage,
   probeLocalBrowser,
 } from "./local.js"
 import { quotaPeriod, roundUnits, unitsForDuration } from "./quota.js"
@@ -115,16 +115,17 @@ export async function acquireTrackedBrowser(
     purpose?: "apply" | "test" | "login"
   }
 ): Promise<TrackedBrowser> {
-  // Primary: the user's own Chrome (remote debugging). Fallback: cloud pool, Browserbase first.
+  // Primary (default): the user's own Chrome via remote debugging — no automatic cloud fallback.
   const env = runtime.env ?? process.env
   if (browserProviderFromEnv(env) === "local") {
+    const cdpUrl = localCdpUrlFromEnv(env)
     const canProbeLocal =
       !options.exclude?.includes(LOCAL_PROVIDER_ID) &&
       (!runtime.adapterFor ||
         Boolean(runtime.fetch) ||
         Boolean(env.LOCAL_BROWSER_CDP_URL))
     if (canProbeLocal) {
-      const ws = await probeLocalBrowser(localCdpUrlFromEnv(env), runtime.fetch)
+      const ws = await probeLocalBrowser(cdpUrl, runtime.fetch)
       if (ws) {
         const local = acquireLocalBrowser(ws, options.timeoutSeconds)
         return {
@@ -136,11 +137,10 @@ export async function acquireTrackedBrowser(
         }
       }
     }
-    if (!cloudFallbackEnabled(env))
-      throw new ProviderError(
-        "unavailable",
-        "Navegador local indisponivel: abra o Chrome com --remote-debugging-port (BROWSER_FALLBACK=none)."
-      )
+    throw new ProviderError(
+      "unavailable",
+      localChromeUnavailableMessage(cdpUrl, env)
+    )
   }
   options = { ...options, prefer: options.prefer ?? ["browserbase"] }
   const deps = await buildPoolDeps(runtime)
