@@ -483,3 +483,14 @@ Feito (branch `fix/ci-e2e`, sem commit nesta sessão):
 - **Testes:** locators de fatos (Ignorar / Fato ignorado), auth aguarda `/cadastro/verifique`, tracker P3.2 navega com `goto /app`, timeouts de chat/buscas ajustados.
 
 Pendente: reexecutar job e2e no PR após push; smoke local exige `supabase start` + `pnpm db:reset`.
+
+### Reteste QA c3404f7 (2026-11-02)
+
+Feito (branch `fix/qa-c3404f7`, ESPEC § legal / aceite / auditoria):
+
+- Migração `20261102000000_service_role_grants.sql`: `GRANT` em tabelas pós-fundação para `service_role` + default privileges.
+- Migração `20261102000100_legal_terms_local_browser.sql`: termos e termo de riscos `2026-11-02.1` (Chrome local, sem nuvem).
+- `loadCurrentLegalDocuments` loga erro de query; reaceite via `legal_acceptances` + `/aceite` com cards; fail-open só se docs não carregarem.
+- Auditoria do tracker (`next_action`, notas, import CSV); toasts distintos no gate de salário; aviso ao trocar conversa com rascunho no composer.
+
+Pendente: **aplicar as duas migrações no Supabase de produção** antes do deploy que depende de `LEGAL_CURRENT_VERSIONS` novos.

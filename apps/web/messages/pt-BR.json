@@ -84,11 +84,15 @@
     "version": "Versão {version}",
     "submit": "Aceitar e continuar",
     "required": "Marque as duas opções para continuar.",
-    "error": "Não foi possível registrar o aceite. Tente de novo."
+    "error": "Não foi possível registrar o aceite. Tente de novo.",
+    "legalPending": "Leia e aceite {count, plural, one {# documento} other {# documentos}} abaixo (versão vigente).",
+    "legalComplete": "Aceites registrados. Você será redirecionado ao continuar.",
+    "legalVersionChanged": "Atualizamos este documento (antes: v{from}, agora: v{to}). Leia e aceite a nova versão."
   },
   "Legal": {
     "termsTitle": "Termos de uso",
     "privacyTitle": "Política de privacidade",
+    "risksTitle": "Termo de riscos da automação",
     "aiTitle": "Como usamos IA",
     "draft": "Rascunho jurídico em revisão. O texto definitivo entra antes do lançamento público.",
     "back": "Voltar"
@@ -353,7 +357,9 @@
     "salaryGateTitle": "Faixa da vaga abaixo da pretensão",
     "salaryGateBody": "A faixa salarial publicada está abaixo da sua pretensão para esta vaga. Você pode cancelar ou candidatar mesmo assim só nesta candidatura.",
     "salaryGateProceed": "Candidatar mesmo assim",
-    "salaryGateCancel": "Cancelar"
+    "salaryGateCancel": "Cancelar",
+    "salaryGateProceedSuccess": "Seguindo com a candidatura",
+    "salaryGateCancelSuccess": "Candidatura cancelada"
   },
   "Tasks": {
     "title": "Suas ações",
@@ -1572,6 +1578,7 @@
       "archive": "Arquivar"
     },
     "newConversation": "Nova conversa",
+    "newConversationDraftNotice": "Você digitou texto no campo. Envie ou apague antes de abrir uma nova conversa.",
     "sheet": {
       "fab": "Perguntar ao VagaPilot",
       "fabShort": "Chat",
@@ -1712,11 +1719,11 @@
       "riskNoticeTitle": "Chrome local no seu PC — você assume o risco:",
       "riskNoticeBody": "A automação roda somente no seu Chrome local, no seu computador, nas suas contas reais. Não há navegador na nuvem como fallback. Sites como LinkedIn, Gupy e outros podem limitar, suspender ou bloquear sua conta. Ao iniciar, você assume integralmente esse risco.",
       "riskNoticeLink": "Riscos e responsabilidades",
-      "start": "Candidatar na nuvem",
+      "start": "Candidatar automaticamente",
       "cancel": "Cancelar",
       "resume": "Já resolvi, continuar",
       "openLiveView": "Abrir navegador ao vivo",
-      "liveViewTitle": "Navegador na nuvem",
+      "liveViewTitle": "Chrome local (seu computador)",
       "loginHelp": "Faça login no navegador abaixo. Depois eu continuo sozinho.",
       "captchaHelp": "Resolva a verificação no navegador abaixo. Depois eu continuo.",
       "questionsHelp": "O formulário pediu informações que não estão no seu perfil. Não vou inventar nada.",
@@ -1742,7 +1749,7 @@
         "cancelled": "Cancelada"
       },
       "unavailable": {
-        "pool_disabled": "A candidatura na nuvem está desativada.",
+        "pool_disabled": "A candidatura automatizada está desativada.",
         "no_url": "Esta vaga não tem link de candidatura.",
         "unsupported_ats": "Ainda não sei preencher este site automaticamente."
       },
@@ -1887,8 +1894,8 @@
         "denied": "Essa mudança não pode ser feita a partir daqui."
       }
     },
-    "cloudApplyOffer": "A vaga está pronta para candidatura na nuvem. Clique em “Candidatar na nuvem” para começar.",
-    "cloudApplyUnavailable": "Não dá para candidatar na nuvem a esta vaga agora."
+    "cloudApplyOffer": "A vaga está pronta para candidatura automática no seu Chrome. Clique em “Candidatar automaticamente” para começar.",
+    "cloudApplyUnavailable": "Não dá para candidatar automaticamente a esta vaga agora."
   },
   "Jobs": {
     "unknownCompany": "Empresa não informada",

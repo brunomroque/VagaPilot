@@ -42,8 +42,13 @@ export function SalaryGateActions({
         questionId,
         answer: choice,
       })
-      if (result.ok) toast.success(t("salaryGateTitle"))
-      else toast.error(t("saveError"))
+      if (result.ok) {
+        toast.success(
+          choice === SALARY_APPLY_OVERRIDE_CHOICE
+            ? t("salaryGateProceedSuccess")
+            : t("salaryGateCancelSuccess")
+        )
+      } else toast.error(t("saveError"))
     })
   }
 

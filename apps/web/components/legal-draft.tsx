@@ -16,7 +16,7 @@ import {
 export function LegalDraft({
   title,
 }: {
-  title: "termsTitle" | "privacyTitle" | "aiTitle"
+  title: "termsTitle" | "privacyTitle" | "aiTitle" | "risksTitle"
 }) {
   const t = useTranslations("Legal")
 

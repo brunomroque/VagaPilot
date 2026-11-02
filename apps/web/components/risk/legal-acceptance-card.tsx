@@ -22,7 +22,10 @@ type Doc = {
 }
 
 function fmt(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) + " (Brasília)"
+  return (
+    new Date(iso).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) +
+    " (Brasília)"
+  )
 }
 
 /**
@@ -35,12 +38,14 @@ export function LegalAcceptanceCard({
   accepted,
   gmailSend,
   history,
+  compact = false,
 }: {
   doc: Doc
   clauses: { id: string; label: string }[]
   accepted: boolean
   gmailSend: boolean
   history: { id: string; action: string; version: string; at: string }[]
+  compact?: boolean
 }) {
   const [scrolled, setScrolled] = useState(false)
   const [checks, setChecks] = useState<Record<string, boolean>>({})
@@ -57,7 +62,9 @@ export function LegalAcceptanceCard({
         slug: doc.slug,
         version: doc.version,
         sha256: doc.sha256,
-        checkboxes: Object.fromEntries(clauses.map((c) => [c.id, checks[c.id] === true])),
+        checkboxes: Object.fromEntries(
+          clauses.map((c) => [c.id, checks[c.id] === true])
+        ),
         typedConfirmation: typed.trim() || null,
         scrolledToEnd: scrolled,
       })
@@ -72,13 +79,21 @@ export function LegalAcceptanceCard({
   }
 
   function revoke() {
-    if (!window.confirm("Revogar o aceite? A candidatura na nuvem será desativada e as em andamento canceladas."))
+    if (
+      !window.confirm(
+        compact
+          ? "Revogar o aceite? A candidatura automatizada será desativada."
+          : "Revogar o aceite? A candidatura automatizada será desativada e as em andamento canceladas."
+      )
+    )
       return
     start(async () => {
       const r = await revokeLegalAcceptanceAction({ slug: doc.slug })
       if (!r.ok) toast.error(r.error)
       else {
-        toast.success(`Aceite revogado. ${r.data.cancelledRuns} candidatura(s) cancelada(s).`)
+        toast.success(
+          `Aceite revogado. ${r.data.cancelledRuns} candidatura(s) cancelada(s).`
+        )
         window.location.reload()
       }
     })
@@ -86,7 +101,11 @@ export function LegalAcceptanceCard({
 
   function sendCopy(recordId: string) {
     start(async () => {
-      const r = await sendAcceptanceCopyAction({ recordId, via, approved: true })
+      const r = await sendAcceptanceCopyAction({
+        recordId,
+        via,
+        approved: true,
+      })
       if (!r.ok) toast.error(r.error)
       else toast.success("Cópia enviada para o seu e-mail.")
     })
@@ -107,7 +126,8 @@ export function LegalAcceptanceCard({
       ) : null}
       {accepted ? (
         <p className="text-xs text-emerald-700 dark:text-emerald-400">
-          Você aceitou esta versão{lastAccept ? ` em ${fmt(lastAccept.at)}` : ""}.
+          Você aceitou esta versão
+          {lastAccept ? ` em ${fmt(lastAccept.at)}` : ""}.
         </p>
       ) : null}
       <div
@@ -116,7 +136,8 @@ export function LegalAcceptanceCard({
         className="max-h-72 overflow-y-auto rounded border bg-muted/30 p-2 text-xs leading-relaxed whitespace-pre-wrap"
         onScroll={(e) => {
           const el = e.currentTarget
-          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8) setScrolled(true)
+          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8)
+            setScrolled(true)
         }}
       >
         <LegalText text={doc.text} />
@@ -124,16 +145,23 @@ export function LegalAcceptanceCard({
       {!accepted ? (
         <>
           {!scrolled ? (
-            <p className="text-xs text-muted-foreground">Role o texto até o fim para liberar o aceite.</p>
+            <p className="text-xs text-muted-foreground">
+              Role o texto até o fim para liberar o aceite.
+            </p>
           ) : null}
-          <fieldset disabled={!scrolled || busy || !doc.publishable} className="flex flex-col gap-1">
+          <fieldset
+            disabled={!scrolled || busy || !doc.publishable}
+            className="flex flex-col gap-1"
+          >
             <legend className="sr-only">Itens do aceite</legend>
             {clauses.map((c) => (
               <label key={c.id} className="flex items-start gap-2 text-xs">
                 <input
                   type="checkbox"
                   checked={checks[c.id] === true}
-                  onChange={(e) => setChecks((v) => ({ ...v, [c.id]: e.target.checked }))}
+                  onChange={(e) =>
+                    setChecks((v) => ({ ...v, [c.id]: e.target.checked }))
+                  }
                   className="mt-0.5"
                 />
                 <span>{c.label}</span>
@@ -141,37 +169,60 @@ export function LegalAcceptanceCard({
             ))}
             <label className="mt-1 flex flex-col gap-1 text-xs">
               Opcional: digite ACEITO ou seu nome completo
-              <Input value={typed} onChange={(e) => setTyped(e.target.value)} maxLength={200} />
+              <Input
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                maxLength={200}
+              />
             </label>
             <div className="mt-1">
-              <Button size="sm" onClick={accept} disabled={!scrolled || !allChecked || busy}>
+              <Button
+                size="sm"
+                onClick={accept}
+                disabled={!scrolled || !allChecked || busy}
+              >
                 Li e aceito
               </Button>
             </div>
           </fieldset>
           {needsReauth ? (
             <p role="alert" className="text-xs">
-              Por segurança, o aceite exige um login recente (últimos 5 minutos).{" "}
-              <a href="/entrar?next=/app/configuracoes/riscos" className="underline">
+              Por segurança, o aceite exige um login recente (últimos 5
+              minutos).{" "}
+              <a
+                href="/entrar?next=/app/configuracoes/riscos"
+                className="underline"
+              >
                 Entrar de novo
               </a>
             </p>
           ) : null}
         </>
       ) : null}
-      {history.length ? (
+      {history.length && !compact ? (
         <details className="text-xs">
-          <summary className="cursor-pointer">Comprovantes ({history.length})</summary>
+          <summary className="cursor-pointer">
+            Comprovantes ({history.length})
+          </summary>
           <ul className="mt-1 flex flex-col gap-1">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center gap-2">
                 <span>
-                  {h.action === "accept" ? "Aceite" : "Revogação"} v{h.version} · {fmt(h.at)}
+                  {h.action === "accept" ? "Aceite" : "Revogação"} v{h.version}{" "}
+                  · {fmt(h.at)}
                 </span>
-                <a href={`/api/legal/certificate/${h.id}`} className="underline">
+                <a
+                  href={`/api/legal/certificate/${h.id}`}
+                  className="underline"
+                >
                   Baixar (JSON)
                 </a>
-                <Button size="sm" variant="ghost" disabled={busy} onClick={() => sendCopy(h.id)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => sendCopy(h.id)}
+                >
                   Enviar cópia por e-mail
                 </Button>
               </li>
@@ -181,16 +232,20 @@ export function LegalAcceptanceCard({
             Enviar por
             <select
               value={via}
-              onChange={(e) => setVia(e.target.value as "transacional" | "gmail")}
+              onChange={(e) =>
+                setVia(e.target.value as "transacional" | "gmail")
+              }
               className="rounded border bg-background px-1"
             >
               <option value="transacional">E-mail do VagaPilot</option>
-              {gmailSend ? <option value="gmail">Meu Gmail (para mim mesmo)</option> : null}
+              {gmailSend ? (
+                <option value="gmail">Meu Gmail (para mim mesmo)</option>
+              ) : null}
             </select>
           </label>
         </details>
       ) : null}
-      {accepted ? (
+      {accepted && !compact ? (
         <div>
           <Button size="sm" variant="outline" onClick={revoke} disabled={busy}>
             Revogar aceite

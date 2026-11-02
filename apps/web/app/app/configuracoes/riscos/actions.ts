@@ -7,8 +7,10 @@ import { GMAIL_SEND_SCOPE, sendGmailMessage } from "@vagapilot/gmail"
 import { createMailerFromEnv } from "@vagapilot/jobs"
 import {
   LEGAL_CURRENT_VERSIONS,
+  SIGNUP_REQUIRED_LEGAL_DOCS,
   allClausesChecked,
   sessionIsFresh,
+  signupLegalComplete,
   typedConfirmationOk,
   type LegalSlug,
 } from "@vagapilot/core/legal"
@@ -17,18 +19,23 @@ import { getGmailRuntime } from "@/lib/gmail/runtime"
 import {
   appendEvidence,
   buildCertificate,
+  latestByDocument,
   loadCurrentLegalDocuments,
+  loadEvidence,
   requestMeta,
   sessionIdFromClaims,
 } from "@/lib/legal/server"
 import { cancelActiveApplyRuns } from "@/lib/apply/server"
+import { getCurrentUser, recordLegacySignupConsents } from "@/lib/auth/session"
 import { audit } from "@/lib/server/audit"
 import { getUserContext } from "@/lib/server/context"
 import { getFieldCrypto } from "@/lib/server/field-crypto"
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string }
 
-const slugSchema = z.enum(Object.keys(LEGAL_CURRENT_VERSIONS) as [LegalSlug, ...LegalSlug[]])
+const slugSchema = z.enum(
+  Object.keys(LEGAL_CURRENT_VERSIONS) as [LegalSlug, ...LegalSlug[]]
+)
 
 const acceptSchema = z.object({
   slug: slugSchema,
@@ -44,7 +51,8 @@ export async function acceptLegalDocumentAction(
   input: unknown
 ): Promise<Result<{ recordId: string }>> {
   const parsed = acceptSchema.safeParse(input)
-  if (!parsed.success) return { ok: false, error: "Leia o texto até o fim e marque cada item." }
+  if (!parsed.success)
+    return { ok: false, error: "Leia o texto até o fim e marque cada item." }
   const auth = await getUserContext()
   if (!auth.ok) return { ok: false, error: "Entre novamente." }
   const { ctx } = auth
@@ -53,14 +61,28 @@ export async function acceptLegalDocumentAction(
     return { ok: false, error: "reauth_required" }
   const docs = await loadCurrentLegalDocuments()
   const doc = docs[parsed.data.slug]
-  if (!doc || doc.version !== parsed.data.version || doc.sha256 !== parsed.data.sha256)
-    return { ok: false, error: "O texto mudou. Recarregue a página e leia a nova versão." }
+  if (
+    !doc ||
+    doc.version !== parsed.data.version ||
+    doc.sha256 !== parsed.data.sha256
+  )
+    return {
+      ok: false,
+      error: "O texto mudou. Recarregue a página e leia a nova versão.",
+    }
   if (!doc.publishable)
-    return { ok: false, error: "Esta versão ainda não foi publicada (dados da empresa pendentes)." }
+    return {
+      ok: false,
+      error:
+        "Esta versão ainda não foi publicada (dados da empresa pendentes).",
+    }
   if (!allClausesChecked(doc.slug, parsed.data.checkboxes))
     return { ok: false, error: "Marque cada item separadamente para aceitar." }
   if (!typedConfirmationOk(parsed.data.typedConfirmation, ctx.user.displayName))
-    return { ok: false, error: "Digite ACEITO ou seu nome completo, ou deixe em branco." }
+    return {
+      ok: false,
+      error: "Digite ACEITO ou seu nome completo, ou deixe em branco.",
+    }
   const { data: claims } = await ctx.supabase.auth.getClaims()
   const meta = await requestMeta()
   const record = await appendEvidence({
@@ -75,10 +97,25 @@ export async function acceptLegalDocumentAction(
     typed_confirmation: parsed.data.typedConfirmation?.trim() || null,
     ip: meta.ip,
     user_agent: meta.userAgent,
-    session_id: sessionIdFromClaims(claims?.claims as Record<string, unknown> | undefined),
+    session_id: sessionIdFromClaims(
+      claims?.claims as Record<string, unknown> | undefined
+    ),
     locale: meta.locale,
   })
-  if (!record) return { ok: false, error: "Não foi possível registrar o aceite." }
+  if (!record)
+    return { ok: false, error: "Não foi possível registrar o aceite." }
+  const evidenceRows = await loadEvidence(ctx.user.id)
+  const latest = latestByDocument(evidenceRows)
+  const current = Object.fromEntries(
+    SIGNUP_REQUIRED_LEGAL_DOCS.filter((s) => docs[s]).map((s) => [
+      s,
+      { version: docs[s]!.version, sha256: docs[s]!.sha256 },
+    ])
+  )
+  if (signupLegalComplete(latest, current)) {
+    const user = await getCurrentUser()
+    if (user) await recordLegacySignupConsents(user)
+  }
   await audit({
     userId: ctx.user.id,
     actor: "usuario",
@@ -92,7 +129,9 @@ export async function acceptLegalDocumentAction(
 }
 
 /** LGPD revocation at any time: disables cloud apply (new and paused runs) and is logged. */
-export async function revokeLegalAcceptanceAction(input: unknown): Promise<Result<{ cancelledRuns: number }>> {
+export async function revokeLegalAcceptanceAction(
+  input: unknown
+): Promise<Result<{ cancelledRuns: number }>> {
   const parsed = z.object({ slug: slugSchema }).safeParse(input)
   if (!parsed.success) return { ok: false, error: "Documento inválido." }
   const auth = await getUserContext()
@@ -114,10 +153,13 @@ export async function revokeLegalAcceptanceAction(input: unknown): Promise<Resul
     typed_confirmation: null,
     ip: meta.ip,
     user_agent: meta.userAgent,
-    session_id: sessionIdFromClaims(claims?.claims as Record<string, unknown> | undefined),
+    session_id: sessionIdFromClaims(
+      claims?.claims as Record<string, unknown> | undefined
+    ),
     locale: meta.locale,
   })
-  if (!record) return { ok: false, error: "Não foi possível registrar a revogação." }
+  if (!record)
+    return { ok: false, error: "Não foi possível registrar a revogação." }
   const cancelled = await cancelActiveApplyRuns(ctx.user.id)
   await audit({
     userId: ctx.user.id,
@@ -125,13 +167,19 @@ export async function revokeLegalAcceptanceAction(input: unknown): Promise<Resul
     action: "legal.revoked",
     targetType: "legal_acceptance",
     targetId: record.id,
-    details: { slug: doc.slug, version: doc.version, cancelled_runs: cancelled },
+    details: {
+      slug: doc.slug,
+      version: doc.version,
+      cancelled_runs: cancelled,
+    },
   }).catch(() => undefined)
   revalidatePath("/app/configuracoes/riscos")
   return { ok: true, data: { cancelledRuns: cancelled } }
 }
 
-function certificateText(cert: NonNullable<Awaited<ReturnType<typeof buildCertificate>>>): string {
+function certificateText(
+  cert: NonNullable<Awaited<ReturnType<typeof buildCertificate>>>
+): string {
   const r = cert.record
   return [
     `Cópia do seu ${r.action === "accept" ? "aceite" : "registro de revogação"} — ${cert.document?.title ?? r.document_slug}`,
@@ -140,7 +188,12 @@ function certificateText(cert: NonNullable<Awaited<ReturnType<typeof buildCertif
     `Hash SHA-256 do texto: ${r.document_sha256}`,
     `Data/hora (UTC): ${r.accepted_at}`,
     `Registro: ${r.id} · hash ${r.record_hash}`,
-    `Itens marcados: ${Object.entries(r.checkboxes).filter(([, v]) => v).map(([k]) => k).join(", ") || "-"}`,
+    `Itens marcados: ${
+      Object.entries(r.checkboxes)
+        .filter(([, v]) => v)
+        .map(([k]) => k)
+        .join(", ") || "-"
+    }`,
     "",
     cert.disclaimer,
     "",
@@ -155,9 +208,15 @@ function certificateText(cert: NonNullable<Awaited<ReturnType<typeof buildCertif
  * Default: transactional e-mail (Resend) to the account e-mail. "gmail" uses the user's own
  * Gmail send flow and requires the gmail.send scope already granted.
  */
-export async function sendAcceptanceCopyAction(input: unknown): Promise<Result<{ via: string }>> {
+export async function sendAcceptanceCopyAction(
+  input: unknown
+): Promise<Result<{ via: string }>> {
   const parsed = z
-    .object({ recordId: z.uuid(), via: z.enum(["transacional", "gmail"]), approved: z.literal(true) })
+    .object({
+      recordId: z.uuid(),
+      via: z.enum(["transacional", "gmail"]),
+      approved: z.literal(true),
+    })
     .safeParse(input)
   if (!parsed.success) return { ok: false, error: "Confirme o envio da cópia." }
   const auth = await getUserContext()
@@ -169,9 +228,14 @@ export async function sendAcceptanceCopyAction(input: unknown): Promise<Result<{
   const text = certificateText(cert)
   if (parsed.data.via === "gmail") {
     const runtime = getGmailRuntime()
-    const connection = runtime ? await runtime.store.getConnection(ctx.user.id) : null
+    const connection = runtime
+      ? await runtime.store.getConnection(ctx.user.id)
+      : null
     if (!runtime?.oauth || !connection?.scopes.includes(GMAIL_SEND_SCOPE))
-      return { ok: false, error: "Seu Gmail não tem permissão de envio. Use o e-mail do sistema." }
+      return {
+        ok: false,
+        error: "Seu Gmail não tem permissão de envio. Use o e-mail do sistema.",
+      }
     const sealed = await runtime.store.readRefreshToken(ctx.user.id)
     if (!sealed) return { ok: false, error: "Reconecte o Gmail." }
     const refresh = await getFieldCrypto().decryptFieldText(ctx.user.id, sealed)
@@ -186,14 +250,18 @@ export async function sendAcceptanceCopyAction(input: unknown): Promise<Result<{
   } else {
     const mailer = createMailerFromEnv()
     if (mailer.kind !== "resend")
-      return { ok: false, error: "E-mail do sistema não configurado. Baixe a cópia em JSON." }
+      return {
+        ok: false,
+        error: "E-mail do sistema não configurado. Baixe a cópia em JSON.",
+      }
     const sent = await mailer.send({
       to: ctx.user.email,
       subject,
       text,
       idempotencyKey: `legal-copy-${cert.record.id}`,
     })
-    if (sent.status !== "sent") return { ok: false, error: "Falha ao enviar. Baixe a cópia em JSON." }
+    if (sent.status !== "sent")
+      return { ok: false, error: "Falha ao enviar. Baixe a cópia em JSON." }
   }
   await audit({
     userId: ctx.user.id,
@@ -207,9 +275,14 @@ export async function sendAcceptanceCopyAction(input: unknown): Promise<Result<{
 }
 
 /** Domain → risk level list (admin-editable) for the job-card badge. Non-sensitive. */
-export async function listSiteRiskLevelsAction(): Promise<{ domain: string; level: "baixo" | "medio" | "alto" }[]> {
+export async function listSiteRiskLevelsAction(): Promise<
+  { domain: string; level: "baixo" | "medio" | "alto" }[]
+> {
   const auth = await getUserContext()
   if (!auth.ok) return []
   const { loadSiteRiskLevels } = await import("@/lib/legal/server")
-  return (await loadSiteRiskLevels()).map(({ domain, level }) => ({ domain, level }))
+  return (await loadSiteRiskLevels()).map(({ domain, level }) => ({
+    domain,
+    level,
+  }))
 }

@@ -184,6 +184,15 @@ export async function setNextAction(input: unknown): Promise<ActionResult> {
     p_source: "usuario",
   })
   if (error) return rpcError(error.message)
+
+  await audit(ctx.supabase, {
+    userId: ctx.user.id,
+    actor: "usuario",
+    action: "application.next_action_set",
+    targetType: "application",
+    targetId: parsed.data.id,
+    details: { action: parsed.data.action, due_at: parsed.data.dueAt ?? null },
+  })
   refresh()
   return { ok: true, data: null }
 }
@@ -201,6 +210,15 @@ export async function completeNextAction(
     p_source: "usuario",
   })
   if (error) return rpcError(error.message)
+
+  await audit(ctx.supabase, {
+    userId: ctx.user.id,
+    actor: "usuario",
+    action: "application.next_action_completed",
+    targetType: "application",
+    targetId: parsed.data.id,
+    details: {},
+  })
   refresh()
   return { ok: true, data: null }
 }
@@ -227,6 +245,15 @@ export async function updateNotes(input: unknown): Promise<ActionResult> {
     type: "note",
     source: "usuario",
     payload: { cleared: parsed.data.notes === null },
+  })
+
+  await audit(ctx.supabase, {
+    userId: ctx.user.id,
+    actor: "usuario",
+    action: "application.notes_updated",
+    targetType: "application",
+    targetId: parsed.data.id,
+    details: { cleared: parsed.data.notes === null },
   })
   refresh()
   return { ok: true, data: null }
@@ -327,6 +354,19 @@ export async function importApplications(
     }
     inserted += createdRows.length
   }
+
+  await audit(ctx.supabase, {
+    userId: ctx.user.id,
+    actor: "usuario",
+    action: "applications.imported",
+    targetType: "application",
+    details: {
+      inserted,
+      total_rows: result.totalRows,
+      rejected: result.rejected.length,
+      truncated: result.truncated,
+    },
+  })
 
   refresh()
   return {
