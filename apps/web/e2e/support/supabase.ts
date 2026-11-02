@@ -2,7 +2,7 @@ import { execSync } from "node:child_process"
 import { randomUUID } from "node:crypto"
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
-import { expect, type Page } from "@playwright/test"
+import { expect, type Locator, type Page } from "@playwright/test"
 
 /** Local Supabase admin access for e2e setup and assertions. Never fakes a session. */
 export type AdminEnv = { url: string; serviceRoleKey: string }
@@ -68,32 +68,24 @@ export async function createFictitiousUser(
   return { id: data.user.id, email }
 }
 
-async function scrollLegalTextContainersToEnd(page: Page) {
-  const containers = page.locator('[aria-label^="Texto completo:"]')
-  const count = await containers.count()
-  for (let i = 0; i < count; i++) {
-    const container = containers.nth(i)
-    await container.scrollIntoViewIfNeeded()
-    await container.hover()
-    for (let step = 0; step < 32; step++) {
-      await container.evaluate((el) => {
-        const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
-        el.scrollTop = Math.min(el.scrollTop + el.clientHeight, maxTop)
-      })
-      await container.dispatchEvent("scroll")
-      await page.mouse.wheel(0, 600)
-    }
-    await container.evaluate((el) => {
-      const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
-      el.scrollTop = maxTop
-    })
-    await container.dispatchEvent("scroll")
-  }
+function textContainerForAcceptButton(acceptButton: Locator): Locator {
+  return acceptButton.locator(
+    'xpath=ancestor::div[contains(@class,"rounded-md")][1]//div[starts-with(@aria-label,"Texto completo:")]'
+  )
+}
+
+async function scrollTextContainerToEnd(container: Locator) {
+  await container.evaluate((el) => {
+    const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
+    el.scrollTop = maxTop
+  })
+  await container.dispatchEvent("scroll")
 }
 
 /** Scroll-to-end + per-document clickwrap on /aceite (LegalAcceptanceCard). */
 export async function acceptSignupLegalDocuments(page: Page) {
   const deadline = Date.now() + 120_000
+
   while (new URL(page.url()).pathname === "/aceite") {
     if (Date.now() > deadline) {
       throw new Error("acceptSignupLegalDocuments timed out on /aceite")
@@ -105,20 +97,24 @@ export async function acceptSignupLegalDocuments(page: Page) {
     if (!(await acceptButton.isVisible())) break
 
     const fieldset = acceptButton.locator("xpath=ancestor::fieldset[1]")
-    const enableDeadline = Date.now() + 15_000
+    const textContainer = textContainerForAcceptButton(acceptButton)
+
+    const enableDeadline = Date.now() + 20_000
     while (Date.now() < enableDeadline) {
-      await scrollLegalTextContainersToEnd(page)
       if (!(await fieldset.isDisabled())) break
+      await scrollTextContainerToEnd(textContainer)
       await page.waitForTimeout(100)
     }
-    await expect(fieldset).toBeEnabled({ timeout: 2_000 })
+    await expect(fieldset).toBeEnabled({ timeout: 5_000 })
+
     const boxes = fieldset.locator('input[type="checkbox"]')
     for (let i = 0; i < (await boxes.count()); i++) {
       await boxes.nth(i).check()
     }
 
     await expect(acceptButton).toBeEnabled({ timeout: 5_000 })
-    await Promise.all([page.waitForLoadState("load"), acceptButton.click()])
+    await acceptButton.click()
+    await page.waitForLoadState("load", { timeout: 60_000 })
   }
 
   await expect(page).toHaveURL(/\/app\/onboarding$/, { timeout: 60_000 })
