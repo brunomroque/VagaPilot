@@ -18,6 +18,8 @@ export type AppUrlResolution =
 export function resolveAppUrl(input: {
   configured?: string | null
   nodeEnv?: string | null
+  /** E2E only: allow http(s) localhost/127.0.0.1 in production. */
+  allowLocal?: boolean
 }): AppUrlResolution {
   const raw = input.configured?.trim().replace(/\/$/, "") ?? ""
   const production = input.nodeEnv === "production"
@@ -33,8 +35,11 @@ export function resolveAppUrl(input: {
   }
   const local =
     parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1"
-  if (production && local) return { ok: false, reason: "local_in_production" }
-  if (production && parsed.protocol !== "https:") {
+  const localOkInProduction = Boolean(input.allowLocal && local)
+  if (production && local && !localOkInProduction) {
+    return { ok: false, reason: "local_in_production" }
+  }
+  if (production && parsed.protocol !== "https:" && !localOkInProduction) {
     return { ok: false, reason: "invalid" }
   }
   return { ok: true, url: parsed.origin }

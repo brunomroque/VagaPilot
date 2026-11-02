@@ -67,6 +67,11 @@ export default defineConfig({
       ...(process.env.NEXT_PUBLIC_APP_URL
         ? { NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL }
         : {}),
+      ...(process.env.E2E_ALLOW_LOCAL_APP_URL
+        ? {
+            E2E_ALLOW_LOCAL_APP_URL: process.env.E2E_ALLOW_LOCAL_APP_URL,
+          }
+        : {}),
     },
   },
 })
