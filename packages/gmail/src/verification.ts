@@ -70,7 +70,7 @@ export function extractOtp(text: string): string | null {
       continue
     const prev = flat.slice(Math.max(0, at - 3), at)
     const next = flat.slice(at + token.length, at + token.length + 2)
-    if (/R\$|\$|\+|\(|[/:#]$/.test(prev) || /^[.,/:@]\w|^\)/.test(next))
+    if (/(?:R\$|\$|\+|\(|[/:#]$)/.test(prev) || /^(?:[.,/:@]\w|\))/.test(next))
       continue // money, phone, url, date
     let score = KEYWORD.test(before) ? 2 : 0
     if (/:\s*$|é\s*$|is\s*$/i.test(before)) score += 1

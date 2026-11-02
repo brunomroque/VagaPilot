@@ -164,7 +164,11 @@ export function renderLegal(
       }
       return value
     })
-  return { text, missing: [...missing].sort(), sha256: sha256Hex(text) }
+  return {
+    text,
+    missing: [...missing].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
+    sha256: sha256Hex(text),
+  }
 }
 
 /** Drafts with unfilled tags can only be accepted when explicitly allowed (dev/staging). */

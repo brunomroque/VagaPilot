@@ -90,9 +90,9 @@ export function ConnectedSites({
           </p>
           <p className="mt-1 text-muted-foreground">
             Por padrão, a automação de candidatura roda no{" "}
-            <strong>seu próprio Chrome local, no seu computador</strong>. Não há
-            fallback automático para navegador na nuvem. Mesmo no seu navegador,
-            usar automação na sua conta real pode gerar{" "}
+            <strong>Chrome no seu PC</strong>. Não há outro navegador além do
+            seu Chrome. Mesmo no seu navegador, usar automação na sua conta real
+            pode gerar{" "}
             <strong>
               limitação, suspensão ou bloqueio permanente da conta
             </strong>
@@ -153,7 +153,7 @@ export function ConnectedSites({
         <SiteAccounts />
         {!poolEnabled ? (
           <p className="text-xs text-muted-foreground">
-            O navegador na nuvem está desligado neste ambiente.
+            Login no Chrome do seu PC está desligado neste ambiente.
           </p>
         ) : connecting ? (
           <SiteLoginCard

@@ -14,7 +14,7 @@ import { Button } from "@workspace/ui/components/button"
 const POLL_MS = 3000
 const FINAL = ["saved", "cancelled", "expired", "failed"]
 const LABEL: Record<string, string> = {
-  starting: "Abrindo navegador (local ou nuvem)…",
+  starting: "Abrindo Chrome no seu PC…",
   opening: "Abrindo a página de login…",
   waiting_user: "Faça o login para continuar",
   confirm_requested: "Salvando a sessão…",
@@ -163,7 +163,7 @@ export function SiteLoginCard({
           </a>
           <iframe
             src={view.liveViewUrl}
-            title="Login no navegador na nuvem"
+            title="Login no Chrome do seu PC"
             className="h-[460px] w-full rounded border"
             sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock"
           />

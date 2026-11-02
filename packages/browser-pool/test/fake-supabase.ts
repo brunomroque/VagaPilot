@@ -37,6 +37,7 @@ export function fakeSupabase(tables: Record<string, Row[]> = {}) {
       single: () => ((mode = "single"), builder),
       maybeSingle: () => ((mode = "maybe"), builder),
       then(resolve: (v: { data: unknown; error: null }) => void) {
+        // NOSONAR S7739 — thenable fake so await/query chains match Supabase client in tests
         const rows = db[table]!
         let out: Row[] = []
         if (op === "select")

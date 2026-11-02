@@ -496,3 +496,14 @@ Feito (branch `fix/qa-c3404f7`, ESPEC § legal / aceite / auditoria):
 - Auditoria do tracker (`next_action`, notas, import CSV); toasts distintos no gate de salário; aviso ao trocar conversa com rascunho no composer.
 
 Pendente: **aplicar as duas migrações no Supabase de produção** antes do deploy que depende de `LEGAL_CURRENT_VERSIONS` novos.
+
+### Reteste QA 64b16df (2026-11-02)
+
+Feito (branch `fix/qa-64b16df`, worktree QA):
+
+- **F2/F6:** copy pt-BR sem “nuvem” em painel de candidatura, login de sites e sites conectados (Chrome local no PC).
+- **F8:** `hasAcceptedTerms` fail-closed (admin indisponível, docs ausentes ou erro de carga → `false`); testes em `apps/web/lib/auth/session.test.ts`.
+- **F7:** chaves `JobSheet.salaryGate*Success` e `Chat.newConversationDraftNotice` em `messages/en.json`.
+- **Sonar:** `sort` com `localeCompare`, `reduce` com valor inicial, regex agrupada em `gmail/verification`, pin `supabase/setup-cli` no CI, `NOSONAR` no fake Supabase thenable.
+
+Pendente: nenhum bloqueio local; commit/push ficam a cargo do operador do worktree.
