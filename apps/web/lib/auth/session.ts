@@ -122,10 +122,10 @@ export async function hasAcceptedTerms(user: CurrentUser): Promise<boolean> {
     return false
   }
 
-  let docs: Awaited<ReturnType<typeof loadCurrentLegalDocuments>>
+  let loaded: Awaited<ReturnType<typeof loadCurrentLegalDocuments>>
   let rows: Awaited<ReturnType<typeof loadEvidence>>
   try {
-    ;[docs, rows] = await Promise.all([
+    ;[loaded, rows] = await Promise.all([
       loadCurrentLegalDocuments(),
       loadEvidence(user.id),
     ])
@@ -137,6 +137,14 @@ export async function hasAcceptedTerms(user: CurrentUser): Promise<boolean> {
     return false
   }
 
+  if (loaded.error) {
+    console.error(
+      `[hasAcceptedTerms] legal documents load failed (${loaded.error}); treating as not accepted (fail-closed)`
+    )
+    return false
+  }
+
+  const docs = loaded.docs
   const current: Partial<
     Record<LegalSlug, { version: string; sha256: string }>
   > = {}

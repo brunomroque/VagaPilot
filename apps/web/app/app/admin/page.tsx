@@ -19,13 +19,13 @@ export default async function AdminPage() {
   const context = await getUserContext()
   if (!context.ok) return <NotConfigured title="Administração" />
   if (!(await isAppAdmin(context.ctx.supabase))) notFound()
-  const [dashboard, levels, docs] = await Promise.all([
+  const [dashboard, levels, loaded] = await Promise.all([
     loadAdminDashboard(context.ctx),
     loadSiteRiskLevels(),
     loadCurrentLegalDocuments(),
   ])
   const docRows = await Promise.all(
-    Object.values(docs).map(async (d) => ({
+    Object.values(loaded.docs).map(async (d) => ({
       slug: d!.slug,
       title: d!.title,
       version: d!.version,
@@ -48,7 +48,11 @@ export default async function AdminPage() {
       </div>
       <BrowserPoolAdmin dashboard={dashboard} />
       <AtsRecipesAdmin />
-      <RiskLegalAdmin levels={levels} docs={docRows} draftAllowed={legalDraftAllowed()} />
+      <RiskLegalAdmin
+        levels={levels}
+        docs={docRows}
+        draftAllowed={legalDraftAllowed()}
+      />
     </section>
   )
 }

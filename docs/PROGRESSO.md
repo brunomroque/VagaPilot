@@ -507,3 +507,15 @@ Feito (branch `fix/qa-64b16df`, worktree QA):
 - **Sonar:** `sort` com `localeCompare`, `reduce` com valor inicial, regex agrupada em `gmail/verification`, pin `supabase/setup-cli` no CI, `NOSONAR` no fake Supabase thenable.
 
 Pendente: nenhum bloqueio local; commit/push ficam a cargo do operador do worktree.
+
+### Reteste QA 9a07cf1 (2026-11-02)
+
+Feito (branch `fix/qa-9a07cf1`, worktree QA):
+
+- **F9:** `loadCurrentLegalDocuments` retorna `{ docs, error? }` em falha de admin/query; callers atualizados; `/aceite` exibe erro + “Tentar de novo” (`router.refresh`); `hasAcceptedTerms` fail-closed em `error`; testes em `session.test.ts` e `load-current-documents.test.ts`.
+- **F10:** removido “(ESPEC §14)” do subtitle de `/precos` em `pt-BR.json`.
+- **F11:** locale da app só `pt-BR` em `i18n/locales.ts` (arquivo `en.json` mantido); loader em `i18n/request.ts` ajustado.
+- **Sonar S7739:** `FakeQuery` como classe `PromiseLike` em `packages/browser-pool/test/fake-supabase.ts` (sem `then` em object literal).
+- **CI browser-pool:** `FakeQuery.then` alinhado a `PromiseLike` (genéricos + delegação a `Promise.resolve(this.result())`); `pnpm --filter @vagapilot/browser-pool build`, testes (70) e `turbo run build --filter=@vagapilot/browser-pool` OK.
+
+Pendente: commit/push a cargo do operador.

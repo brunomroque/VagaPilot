@@ -87,7 +87,9 @@
     "error": "Não foi possível registrar o aceite. Tente de novo.",
     "legalPending": "Leia e aceite {count, plural, one {# documento} other {# documentos}} abaixo (versão vigente).",
     "legalComplete": "Aceites registrados. Você será redirecionado ao continuar.",
-    "legalVersionChanged": "Atualizamos este documento (antes: v{from}, agora: v{to}). Leia e aceite a nova versão."
+    "legalVersionChanged": "Atualizamos este documento (antes: v{from}, agora: v{to}). Leia e aceite a nova versão.",
+    "legalLoadFailed": "Não foi possível carregar os termos. Tente de novo.",
+    "retry": "Tentar de novo"
   },
   "Legal": {
     "termsTitle": "Termos de uso",
@@ -105,7 +107,7 @@
   },
   "Billing": {
     "title": "Planos",
-    "subtitle": "Limites aplicados no servidor antes de chamadas de IA (ESPEC §14).",
+    "subtitle": "Limites aplicados no servidor antes de chamadas de IA.",
     "legalDraft": "Preços e condições são rascunho até revisão jurídica.",
     "cta": "Assinar ou gerenciar",
     "publicCta": "Criar conta para assinar",

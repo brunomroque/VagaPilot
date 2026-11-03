@@ -4,7 +4,6 @@ import { defaultLocale, type AppLocale } from "./locales"
 
 const messageLoaders = {
   "pt-BR": () => import("../messages/pt-BR.json"),
-  en: () => import("../messages/en.json"),
 } satisfies Record<
   AppLocale,
   () => Promise<{ default: Record<string, unknown> }>

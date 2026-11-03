@@ -26,10 +26,11 @@ export default async function ConsentPage({
   const next = safeNextPath((await searchParams).next, "/app/onboarding")
   if (await hasAcceptedTerms(user)) redirect(next)
 
-  const [docs, evidence] = await Promise.all([
+  const [loaded, evidence] = await Promise.all([
     loadCurrentLegalDocuments(),
     loadEvidence(user.id),
   ])
+  const { docs, error: documentsLoadError } = loaded
   const latest = latestByDocument(evidence)
   const current = Object.fromEntries(
     SIGNUP_REQUIRED_LEGAL_DOCS.filter((s) => docs[s]).map((s) => [
@@ -47,6 +48,7 @@ export default async function ConsentPage({
     <AceiteLegalPanel
       next={next}
       pending={pending}
+      documentsLoadFailed={Boolean(documentsLoadError)}
       docs={SIGNUP_REQUIRED_LEGAL_DOCS.flatMap((slug) => {
         const doc = docs[slug]
         if (!doc) return []

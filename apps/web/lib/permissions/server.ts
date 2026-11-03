@@ -71,7 +71,9 @@ export type Actor = {
 const cleanCategories = (input: readonly string[]): DataCategory[] =>
   DATA_CATEGORY_KEYS.filter((c) => input.includes(c))
 
-export async function loadPermissionsView(userId: string): Promise<PermissionsView> {
+export async function loadPermissionsView(
+  userId: string
+): Promise<PermissionsView> {
   const admin = getAdminClient()
   const empty: PermissionsView = {
     settings: PERMISSION_ACTIONS.map((action) => ({
@@ -89,29 +91,41 @@ export async function loadPermissionsView(userId: string): Promise<PermissionsVi
   const [perms, rules, events, prefs] = await Promise.all([
     admin
       .from("agent_permissions")
-      .select("action_type, mode, categories, final_submit_confirmed_at, updated_at")
+      .select(
+        "action_type, mode, categories, final_submit_confirmed_at, updated_at"
+      )
       .eq("user_id", userId),
     admin
       .from("agent_permission_rules")
-      .select("id, action_type, domain_pattern, effect, categories, source, created_at, last_used_at")
+      .select(
+        "id, action_type, domain_pattern, effect, categories, source, created_at, last_used_at"
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false }),
     admin
       .from("agent_permission_events")
-      .select("id, action_type, site, decision, reason, categories, field_label, terms_url, terms_sha256, created_at")
+      .select(
+        "id, action_type, site, decision, reason, categories, field_label, terms_url, terms_sha256, created_at"
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50),
-    admin.from("agent_permission_prefs").select("notify_sensitive_email").eq("user_id", userId).maybeSingle(),
+    admin
+      .from("agent_permission_prefs")
+      .select("notify_sensitive_email")
+      .eq("user_id", userId)
+      .maybeSingle(),
   ])
   const byAction = new Map(
-    ((perms.data ?? []) as {
-      action_type: PermissionAction
-      mode: PermissionMode
-      categories: string[] | null
-      final_submit_confirmed_at: string | null
-      updated_at: string
-    }[]).map((r) => [r.action_type, r])
+    (
+      (perms.data ?? []) as {
+        action_type: PermissionAction
+        mode: PermissionMode
+        categories: string[] | null
+        final_submit_confirmed_at: string | null
+        updated_at: string
+      }[]
+    ).map((r) => [r.action_type, r])
   )
   return {
     settings: empty.settings.map((s) => {
@@ -126,16 +140,18 @@ export async function loadPermissionsView(userId: string): Promise<PermissionsVi
           }
         : s
     }),
-    rules: ((rules.data ?? []) as {
-      id: string
-      action_type: PermissionAction
-      domain_pattern: string
-      effect: "allow" | "deny"
-      categories: string[] | null
-      source: string
-      created_at: string
-      last_used_at: string | null
-    }[]).map((r) => ({
+    rules: (
+      (rules.data ?? []) as {
+        id: string
+        action_type: PermissionAction
+        domain_pattern: string
+        effect: "allow" | "deny"
+        categories: string[] | null
+        source: string
+        created_at: string
+        last_used_at: string | null
+      }[]
+    ).map((r) => ({
       id: r.id,
       action: r.action_type,
       pattern: r.domain_pattern,
@@ -145,18 +161,20 @@ export async function loadPermissionsView(userId: string): Promise<PermissionsVi
       createdAt: r.created_at,
       lastUsedAt: r.last_used_at,
     })),
-    events: ((events.data ?? []) as {
-      id: string
-      action_type: PermissionAction
-      site: string
-      decision: "allow" | "deny"
-      reason: string
-      categories: string[] | null
-      field_label: string | null
-      terms_url: string | null
-      terms_sha256: string | null
-      created_at: string
-    }[]).map((e) => ({
+    events: (
+      (events.data ?? []) as {
+        id: string
+        action_type: PermissionAction
+        site: string
+        decision: "allow" | "deny"
+        reason: string
+        categories: string[] | null
+        field_label: string | null
+        terms_url: string | null
+        terms_sha256: string | null
+        created_at: string
+      }[]
+    ).map((e) => ({
       id: e.id,
       action: e.action_type,
       site: e.site,
@@ -169,7 +187,8 @@ export async function loadPermissionsView(userId: string): Promise<PermissionsVi
       createdAt: e.created_at,
     })),
     notifySensitiveEmail: Boolean(
-      (prefs.data as { notify_sensitive_email?: boolean } | null)?.notify_sensitive_email
+      (prefs.data as { notify_sensitive_email?: boolean } | null)
+        ?.notify_sensitive_email
     ),
   }
 }
@@ -185,7 +204,7 @@ async function recordPermissionEvidence(
   categories: readonly DataCategory[],
   typed: string | null
 ): Promise<string | null> {
-  const doc = (await loadCurrentLegalDocuments())["termo-riscos-automacao"]
+  const doc = (await loadCurrentLegalDocuments()).docs["termo-riscos-automacao"]
   if (!doc) return null
   const meta = await requestMeta()
   const checkboxes: Record<string, boolean> = {
@@ -229,18 +248,33 @@ export async function validateGrant(
   grant: GrantInput
 ): Promise<Result<DataCategory[]>> {
   if (!grant.acknowledged)
-    return { ok: false, error: "Marque a ciência do mandato para ativar a permissão." }
+    return {
+      ok: false,
+      error: "Marque a ciência do mandato para ativar a permissão.",
+    }
   const categories = cleanCategories(grant.categories)
-  if (!categories.length) return { ok: false, error: "Marque ao menos uma categoria de dados." }
+  if (!categories.length)
+    return { ok: false, error: "Marque ao menos uma categoria de dados." }
   if (!categoryGrantOk(categories, grant.sensitiveConfirmation))
-    return { ok: false, error: "Dados sensíveis exigem digitar AUTORIZO DADOS SENSIVEIS." }
+    return {
+      ok: false,
+      error: "Dados sensíveis exigem digitar AUTORIZO DADOS SENSIVEIS.",
+    }
   if (
     ACTION_INFO[action].needsExtraConfirmation &&
-    grant.finalSubmitConfirmation?.trim().toUpperCase() !== FINAL_SUBMIT_CONFIRMATION
+    grant.finalSubmitConfirmation?.trim().toUpperCase() !==
+      FINAL_SUBMIT_CONFIRMATION
   )
-    return { ok: false, error: `Para o envio automático, digite ${FINAL_SUBMIT_CONFIRMATION}.` }
+    return {
+      ok: false,
+      error: `Para o envio automático, digite ${FINAL_SUBMIT_CONFIRMATION}.`,
+    }
   const consent = await cloudApplyConsent(userId)
-  if (!consent.ok) return { ok: false, error: "Aceite primeiro o Termo de Riscos em Configurações → Riscos." }
+  if (!consent.ok)
+    return {
+      ok: false,
+      error: "Aceite primeiro o Termo de Riscos em Configurações → Riscos.",
+    }
   return { ok: true, data: categories }
 }
 
@@ -255,7 +289,11 @@ export async function saveMode(
   let categories: DataCategory[] = []
   let hash: string | null = null
   if (isGrant(mode)) {
-    const valid = await validateGrant(actor.id, action, grant ?? { categories: [], acknowledged: false })
+    const valid = await validateGrant(
+      actor.id,
+      action,
+      grant ?? { categories: [], acknowledged: false }
+    )
     if (!valid.ok) return valid
     categories = valid.data
     hash = await recordPermissionEvidence(
@@ -265,9 +303,16 @@ export async function saveMode(
       categories,
       grant?.sensitiveConfirmation ?? grant?.finalSubmitConfirmation ?? null
     )
-    if (!hash) return { ok: false, error: "Não foi possível registrar a ciência." }
+    if (!hash)
+      return { ok: false, error: "Não foi possível registrar a ciência." }
   } else {
-    hash = await recordPermissionEvidence(actor, "permission_revoke", `perm:${action}:${mode}`, [], null)
+    hash = await recordPermissionEvidence(
+      actor,
+      "permission_revoke",
+      `perm:${action}:${mode}`,
+      [],
+      null
+    )
   }
   const { error } = await admin.from("agent_permissions").upsert(
     {
@@ -276,13 +321,17 @@ export async function saveMode(
       mode,
       categories,
       final_submit_confirmed_at:
-        action === "final_submit" && isGrant(mode) ? new Date().toISOString() : null,
+        action === "final_submit" && isGrant(mode)
+          ? new Date().toISOString()
+          : null,
       ack_record_hash: hash,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id,action_type" }
   )
-  return error ? { ok: false, error: "Não foi possível salvar." } : { ok: true, data: null }
+  return error
+    ? { ok: false, error: "Não foi possível salvar." }
+    : { ok: true, data: null }
 }
 
 export async function addRule(
@@ -296,11 +345,20 @@ export async function addRule(
   const admin = getAdminClient()
   if (!admin) return { ok: false, error: "Serviço indisponível." }
   const pattern = normalizePattern(rawPattern)
-  if (!pattern) return { ok: false, error: "Domínio inválido. Use, por exemplo, *.gupy.io ou vagas.empresa.com." }
+  if (!pattern)
+    return {
+      ok: false,
+      error:
+        "Domínio inválido. Use, por exemplo, *.gupy.io ou vagas.empresa.com.",
+    }
   let categories: DataCategory[] = []
   let hash: string | null = null
   if (effect === "allow") {
-    const valid = await validateGrant(actor.id, action, grant ?? { categories: [], acknowledged: false })
+    const valid = await validateGrant(
+      actor.id,
+      action,
+      grant ?? { categories: [], acknowledged: false }
+    )
     if (!valid.ok) return valid
     categories = valid.data
     hash = await recordPermissionEvidence(
@@ -310,7 +368,8 @@ export async function addRule(
       categories,
       grant?.sensitiveConfirmation ?? grant?.finalSubmitConfirmation ?? null
     )
-    if (!hash) return { ok: false, error: "Não foi possível registrar a ciência." }
+    if (!hash)
+      return { ok: false, error: "Não foi possível registrar a ciência." }
   }
   const { data, error } = await admin
     .from("agent_permission_rules")
@@ -328,11 +387,15 @@ export async function addRule(
     )
     .select("id")
     .single()
-  if (error || !data) return { ok: false, error: "Não foi possível salvar a regra." }
+  if (error || !data)
+    return { ok: false, error: "Não foi possível salvar a regra." }
   return { ok: true, data: { id: (data as { id: string }).id } }
 }
 
-export async function removeRule(actor: Actor, id: string): Promise<Result<null>> {
+export async function removeRule(
+  actor: Actor,
+  id: string
+): Promise<Result<null>> {
   const admin = getAdminClient()
   if (!admin) return { ok: false, error: "Serviço indisponível." }
   const { data } = await admin
@@ -342,10 +405,20 @@ export async function removeRule(actor: Actor, id: string): Promise<Result<null>
     .eq("user_id", actor.id)
     .select("action_type, domain_pattern, effect")
     .maybeSingle()
-  const row = data as { action_type: string; domain_pattern: string; effect: string } | null
+  const row = data as {
+    action_type: string
+    domain_pattern: string
+    effect: string
+  } | null
   if (!row) return { ok: false, error: "Regra não encontrada." }
   if (row.effect === "allow")
-    await recordPermissionEvidence(actor, "permission_revoke", `perm:${row.action_type}:allow:${row.domain_pattern}`, [], null)
+    await recordPermissionEvidence(
+      actor,
+      "permission_revoke",
+      `perm:${row.action_type}:allow:${row.domain_pattern}`,
+      [],
+      null
+    )
   return { ok: true, data: null }
 }
 
@@ -364,14 +437,24 @@ export async function revokeCategory(
       .eq("id", target.ruleId)
       .eq("user_id", actor.id)
       .maybeSingle()
-    const row = data as { action_type: string; domain_pattern: string; categories: string[] } | null
+    const row = data as {
+      action_type: string
+      domain_pattern: string
+      categories: string[]
+    } | null
     if (!row) return { ok: false, error: "Regra não encontrada." }
     await admin
       .from("agent_permission_rules")
       .update({ categories: row.categories.filter((c) => c !== category) })
       .eq("id", target.ruleId)
       .eq("user_id", actor.id)
-    await recordPermissionEvidence(actor, "permission_revoke", `perm:${row.action_type}:allow:${row.domain_pattern}`, [category], null)
+    await recordPermissionEvidence(
+      actor,
+      "permission_revoke",
+      `perm:${row.action_type}:allow:${row.domain_pattern}`,
+      [category],
+      null
+    )
     return { ok: true, data: null }
   }
   const { data } = await admin
@@ -384,10 +467,19 @@ export async function revokeCategory(
   if (!row) return { ok: false, error: "Permissão não encontrada." }
   await admin
     .from("agent_permissions")
-    .update({ categories: row.categories.filter((c) => c !== category), updated_at: new Date().toISOString() })
+    .update({
+      categories: row.categories.filter((c) => c !== category),
+      updated_at: new Date().toISOString(),
+    })
     .eq("user_id", actor.id)
     .eq("action_type", target.action)
-  await recordPermissionEvidence(actor, "permission_revoke", `perm:${target.action}:categoria`, [category], null)
+  await recordPermissionEvidence(
+    actor,
+    "permission_revoke",
+    `perm:${target.action}:categoria`,
+    [category],
+    null
+  )
   return { ok: true, data: null }
 }
 
@@ -405,8 +497,14 @@ export async function addRuleCategories(
     .eq("id", ruleId)
     .eq("user_id", actor.id)
     .maybeSingle()
-  const row = data as { action_type: PermissionAction; domain_pattern: string; categories: string[]; effect: string } | null
-  if (!row || row.effect !== "allow") return { ok: false, error: "Regra não encontrada." }
+  const row = data as {
+    action_type: PermissionAction
+    domain_pattern: string
+    categories: string[]
+    effect: string
+  } | null
+  if (!row || row.effect !== "allow")
+    return { ok: false, error: "Regra não encontrada." }
   const valid = await validateGrant(actor.id, row.action_type, grant)
   if (!valid.ok) return valid
   const merged = cleanCategories([...row.categories, ...valid.data])
@@ -417,7 +515,8 @@ export async function addRuleCategories(
     valid.data,
     grant.sensitiveConfirmation ?? null
   )
-  if (!hash) return { ok: false, error: "Não foi possível registrar a ciência." }
+  if (!hash)
+    return { ok: false, error: "Não foi possível registrar a ciência." }
   await admin
     .from("agent_permission_rules")
     .update({ categories: merged, ack_record_hash: hash })
@@ -426,16 +525,28 @@ export async function addRuleCategories(
   return { ok: true, data: null }
 }
 
-export async function setNotifySensitive(actor: Actor, on: boolean): Promise<Result<null>> {
+export async function setNotifySensitive(
+  actor: Actor,
+  on: boolean
+): Promise<Result<null>> {
   const admin = getAdminClient()
   if (!admin) return { ok: false, error: "Serviço indisponível." }
   const { error } = await admin
     .from("agent_permission_prefs")
-    .upsert({ user_id: actor.id, notify_sensitive_email: on, updated_at: new Date().toISOString() })
-  return error ? { ok: false, error: "Não foi possível salvar." } : { ok: true, data: null }
+    .upsert({
+      user_id: actor.id,
+      notify_sensitive_email: on,
+      updated_at: new Date().toISOString(),
+    })
+  return error
+    ? { ok: false, error: "Não foi possível salvar." }
+    : { ok: true, data: null }
 }
 
-export async function currentMode(userId: string, action: PermissionAction): Promise<PermissionMode> {
+export async function currentMode(
+  userId: string,
+  action: PermissionAction
+): Promise<PermissionMode> {
   const admin = getAdminClient()
   if (!admin) return ACTION_INFO[action].defaultMode
   const { data } = await admin
@@ -444,17 +555,31 @@ export async function currentMode(userId: string, action: PermissionAction): Pro
     .eq("user_id", userId)
     .eq("action_type", action)
     .maybeSingle()
-  return ((data as { mode?: PermissionMode } | null)?.mode ?? ACTION_INFO[action].defaultMode)
+  return (
+    (data as { mode?: PermissionMode } | null)?.mode ??
+    ACTION_INFO[action].defaultMode
+  )
 }
 
 /** Sets the mode without a grant record (used after a card "always" already logged one). */
-export async function setModeQuiet(userId: string, action: PermissionAction, mode: PermissionMode, hash: string | null) {
+export async function setModeQuiet(
+  userId: string,
+  action: PermissionAction,
+  mode: PermissionMode,
+  hash: string | null
+) {
   const admin = getAdminClient()
   if (!admin) return
   await admin
     .from("agent_permissions")
     .upsert(
-      { user_id: userId, action_type: action, mode, ack_record_hash: hash, updated_at: new Date().toISOString() },
+      {
+        user_id: userId,
+        action_type: action,
+        mode,
+        ack_record_hash: hash,
+        updated_at: new Date().toISOString(),
+      },
       { onConflict: "user_id,action_type" }
     )
 }
@@ -479,24 +604,37 @@ export async function applyCardChoice(
 ): Promise<Result<{ allow: boolean; ruleId: string | null }>> {
   const allow = choice === "once" || choice === "always"
   const action = PERMISSION_ACTIONS.find((a) => a === meta.action)
-  if (choice === "once" || choice === "deny") return { ok: true, data: { allow, ruleId: null } }
-  if (!action || !meta.host) return { ok: false, error: "Não foi possível identificar o site desta ação." }
+  if (choice === "once" || choice === "deny")
+    return { ok: true, data: { allow, ruleId: null } }
+  if (!action || !meta.host)
+    return {
+      ok: false,
+      error: "Não foi possível identificar o site desta ação.",
+    }
   if (choice === "always" && ACTION_INFO[action].needsExtraConfirmation)
-    return { ok: false, error: "O envio final só pode ser liberado em Configurações → Permissões do agente." }
+    return {
+      ok: false,
+      error:
+        "O envio final só pode ser liberado em Configurações → Permissões do agente.",
+    }
   const rule = await addRule(
     actor,
     action,
     meta.host,
     choice === "always" ? "allow" : "deny",
     choice === "always"
-      ? grant ?? { categories: [...(meta.categories ?? []), ...(meta.missing ?? [])], acknowledged: false }
+      ? (grant ?? {
+          categories: [...(meta.categories ?? []), ...(meta.missing ?? [])],
+          acknowledged: false,
+        })
       : null,
     "run_card"
   )
   if (!rule.ok) return rule
   if (choice === "always") {
     const mode = await currentMode(actor.id, action)
-    if (mode === "ask" || mode === "deny") await setModeQuiet(actor.id, action, "allowlist", null)
+    if (mode === "ask" || mode === "deny")
+      await setModeQuiet(actor.id, action, "allowlist", null)
   }
   return { ok: true, data: { allow, ruleId: rule.data.id } }
 }

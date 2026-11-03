@@ -76,11 +76,22 @@ function toView(row: DocRow): LegalDocumentView {
   }
 }
 
+export type LoadCurrentLegalDocumentsError =
+  "admin_unavailable" | "query_failed"
+
+export type CurrentLegalDocumentsLoad = {
+  docs: Partial<Record<LegalSlug, LegalDocumentView>>
+  error?: LoadCurrentLegalDocumentsError
+}
+
 /** Current version of each document, rendered with LEGAL_VARS (hash over the rendered text). */
 export async function loadCurrentLegalDocuments(
   admin: SupabaseClient | null = getAdminClient()
-): Promise<Partial<Record<LegalSlug, LegalDocumentView>>> {
-  if (!admin) return {}
+): Promise<CurrentLegalDocumentsLoad> {
+  if (!admin) {
+    console.error("[loadCurrentLegalDocuments] admin client unavailable")
+    return { docs: {}, error: "admin_unavailable" }
+  }
   const { data, error } = await admin
     .from("legal_documents")
     .select("id, slug, version, title, effective_date, body_md")
@@ -91,14 +102,14 @@ export async function loadCurrentLegalDocuments(
       error.code,
       error.message
     )
-    return {}
+    return { docs: {}, error: "query_failed" }
   }
-  const out: Partial<Record<LegalSlug, LegalDocumentView>> = {}
+  const docs: Partial<Record<LegalSlug, LegalDocumentView>> = {}
   for (const row of (data ?? []) as DocRow[]) {
     if (LEGAL_CURRENT_VERSIONS[row.slug] === row.version)
-      out[row.slug] = toView(row)
+      docs[row.slug] = toView(row)
   }
-  return out
+  return { docs }
 }
 
 export async function loadLegalDocumentById(
@@ -143,13 +154,20 @@ export type CloudApplyConsent = {
 export async function cloudApplyConsent(
   userId: string
 ): Promise<CloudApplyConsent> {
-  const [docs, rows] = await Promise.all([
+  const [loaded, rows] = await Promise.all([
     loadCurrentLegalDocuments(),
     loadEvidence(userId),
   ])
+  if (loaded.error) {
+    return {
+      ok: false,
+      pending: [...CLOUD_APPLY_REQUIRED_DOCS],
+      revoked: false,
+    }
+  }
   const latest = latestByDocument(rows)
   const current = Object.fromEntries(
-    Object.entries(docs).map(([slug, d]) => [
+    Object.entries(loaded.docs).map(([slug, d]) => [
       slug,
       { version: d!.version, sha256: d!.sha256 },
     ])
