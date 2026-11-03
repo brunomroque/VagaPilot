@@ -71,7 +71,7 @@ export function fakeSupabase(tables: Record<string, Row[]> = {}) {
       return this
     }
 
-    then(resolve: (v: QueryResult) => void) {
+    private result(): QueryResult {
       const rows = db[this.table]!
       let out: Row[] = []
       if (this.op === "select")
@@ -101,7 +101,16 @@ export function fakeSupabase(tables: Record<string, Row[]> = {}) {
         db[this.table] = rows.filter((r) => !out.includes(r))
       }
       const data = this.mode === "many" ? out : (out[0] ?? null)
-      resolve({ data, error: null })
+      return { data, error: null }
+    }
+
+    then<TResult1 = QueryResult, TResult2 = never>(
+      onfulfilled?:
+        ((value: QueryResult) => TResult1 | PromiseLike<TResult1>) | null,
+      onrejected?:
+        ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+      return Promise.resolve(this.result()).then(onfulfilled, onrejected)
     }
   }
 

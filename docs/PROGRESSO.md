@@ -516,5 +516,6 @@ Feito (branch `fix/qa-9a07cf1`, worktree QA):
 - **F10:** removido “(ESPEC §14)” do subtitle de `/precos` em `pt-BR.json`.
 - **F11:** locale da app só `pt-BR` em `i18n/locales.ts` (arquivo `en.json` mantido); loader em `i18n/request.ts` ajustado.
 - **Sonar S7739:** `FakeQuery` como classe `PromiseLike` em `packages/browser-pool/test/fake-supabase.ts` (sem `then` em object literal).
+- **CI browser-pool:** `FakeQuery.then` alinhado a `PromiseLike` (genéricos + delegação a `Promise.resolve(this.result())`); `pnpm --filter @vagapilot/browser-pool build`, testes (70) e `turbo run build --filter=@vagapilot/browser-pool` OK.
 
 Pendente: commit/push a cargo do operador.
