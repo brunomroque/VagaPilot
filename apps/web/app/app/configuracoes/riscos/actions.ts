@@ -62,8 +62,14 @@ export async function acceptLegalDocumentAction(
   const { data: userData } = await ctx.supabase.auth.getUser()
   if (!ctx.user.isDevBypass && !sessionIsFresh(userData.user?.last_sign_in_at))
     return { ok: false, error: "reauth_required" }
-  const docs = await loadCurrentLegalDocuments()
-  const doc = docs[parsed.data.slug]
+  const loaded = await loadCurrentLegalDocuments()
+  if (loaded.error) {
+    return {
+      ok: false,
+      error: "Não foi possível carregar os termos. Tente de novo.",
+    }
+  }
+  const doc = loaded.docs[parsed.data.slug]
   if (
     !doc ||
     doc.version !== parsed.data.version ||
@@ -110,9 +116,9 @@ export async function acceptLegalDocumentAction(
   const evidenceRows = await loadEvidence(ctx.user.id)
   const latest = latestByDocument(evidenceRows)
   const current = Object.fromEntries(
-    SIGNUP_REQUIRED_LEGAL_DOCS.filter((s) => docs[s]).map((s) => [
+    SIGNUP_REQUIRED_LEGAL_DOCS.filter((s) => loaded.docs[s]).map((s) => [
       s,
-      { version: docs[s]!.version, sha256: docs[s]!.sha256 },
+      { version: loaded.docs[s]!.version, sha256: loaded.docs[s]!.sha256 },
     ])
   )
   const signupComplete = signupLegalComplete(latest, current)
@@ -145,7 +151,7 @@ export async function revokeLegalAcceptanceAction(
   const auth = await getUserContext()
   if (!auth.ok) return { ok: false, error: "Entre novamente." }
   const { ctx } = auth
-  const doc = (await loadCurrentLegalDocuments())[parsed.data.slug]
+  const doc = (await loadCurrentLegalDocuments()).docs[parsed.data.slug]
   if (!doc) return { ok: false, error: "Documento não encontrado." }
   const { data: claims } = await ctx.supabase.auth.getClaims()
   const meta = await requestMeta()

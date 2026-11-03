@@ -1,4 +1,4 @@
-export const locales = ["pt-BR", "en"] as const
+export const locales = ["pt-BR"] as const
 
 export type AppLocale = (typeof locales)[number]
 

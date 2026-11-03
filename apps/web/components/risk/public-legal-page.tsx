@@ -14,10 +14,8 @@ export async function PublicLegalPage({
   slug: LegalSlug
   fallback: "termsTitle" | "privacyTitle" | "risksTitle"
 }) {
-  const docs = await loadCurrentLegalDocuments().catch(
-    (): Awaited<ReturnType<typeof loadCurrentLegalDocuments>> => ({})
-  )
-  const doc = docs[slug]
+  const { docs, error: loadError } = await loadCurrentLegalDocuments()
+  const doc = loadError ? undefined : docs[slug]
   if (!doc) return <LegalDraft title={fallback} />
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-3 p-6 text-sm">

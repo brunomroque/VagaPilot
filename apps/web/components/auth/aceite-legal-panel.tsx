@@ -1,9 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import { LegalAcceptanceCard } from "@/components/risk/legal-acceptance-card"
+import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardContent,
@@ -28,12 +30,15 @@ export function AceiteLegalPanel({
   next,
   pending,
   docs,
+  documentsLoadFailed = false,
 }: {
   next: string
   pending: string[]
   docs: DocPanel[]
+  documentsLoadFailed?: boolean
 }) {
   const t = useTranslations("Consent")
+  const router = useRouter()
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,7 +50,20 @@ export function AceiteLegalPanel({
           <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-          {pending.length > 0 ? (
+          {documentsLoadFailed ? (
+            <div role="alert" className="flex flex-col gap-2 text-destructive">
+              <p>{t("legalLoadFailed")}</p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => router.refresh()}
+              >
+                {t("retry")}
+              </Button>
+            </div>
+          ) : pending.length > 0 ? (
             <p>{t("legalPending", { count: pending.length })}</p>
           ) : (
             <p>{t("legalComplete")}</p>

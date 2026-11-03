@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
     string,
     { version: string; sha256: string; id: string; slug: string }
   >,
+  docsLoadError: undefined as "query_failed" | "admin_unavailable" | undefined,
   evidenceRows: [] as EvidenceRow[],
   loadThrows: false,
 }))
@@ -38,7 +39,10 @@ vi.mock("@/lib/legal/server", async () => {
     latestByDocument,
     loadCurrentLegalDocuments: async () => {
       if (mocks.loadThrows) throw new Error("load failed")
-      return mocks.docs
+      return {
+        docs: mocks.docs,
+        error: mocks.docsLoadError,
+      }
     },
     loadEvidence: async () => mocks.evidenceRows,
   }
@@ -87,6 +91,7 @@ function acceptRow(
 beforeEach(() => {
   mocks.adminClient = {}
   mocks.loadThrows = false
+  mocks.docsLoadError = undefined
   mocks.docs = {
     "termos-de-uso": {
       id: "d1",
@@ -118,6 +123,11 @@ describe("hasAcceptedTerms", () => {
 
   it("returns false when no required legal documents load", async () => {
     mocks.docs = {}
+    expect(await hasAcceptedTerms(baseUser)).toBe(false)
+  })
+
+  it("returns false when legal documents load reports an error", async () => {
+    mocks.docsLoadError = "query_failed"
     expect(await hasAcceptedTerms(baseUser)).toBe(false)
   })
 

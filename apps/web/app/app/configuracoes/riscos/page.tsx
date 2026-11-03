@@ -23,7 +23,7 @@ export default async function RisksPage() {
   if (!session.ok) return <p className="text-sm">Entre para ver esta página.</p>
   const userId = session.ctx.user.id
   const runtime = getGmailRuntime()
-  const [docs, evidence, consent, connection] = await Promise.all([
+  const [loaded, evidence, consent, connection] = await Promise.all([
     loadCurrentLegalDocuments(),
     loadEvidence(userId),
     cloudApplyConsent(userId),
@@ -31,6 +31,7 @@ export default async function RisksPage() {
       ? runtime.store.getConnection(userId).catch(() => null)
       : Promise.resolve(null),
   ])
+  const docs = loaded.docs
   const latest = latestByDocument(evidence)
   const gmailSend = Boolean(connection?.scopes.includes(GMAIL_SEND_SCOPE))
 
